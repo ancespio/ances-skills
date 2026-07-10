@@ -37,7 +37,7 @@ context/   用户画像、项目状态、偏好和日记，不作为外部证据
 - 生成可直接使用的 `AGENTS.md` 行为契约。
 - 摄入外部来源和个人写作，并保留 `raw_file`、`raw_sha256`、`last_verified`。
 - 通过 slug 和 aliases 对齐概念，避免重复页面。
-- 使用 qmd、`rg` 或 `wiki/index.md` 查询本地知识。
+- 使用 qmd、`rg` 或 `wiki/index.md` 查询本地知识，并通过 REVIEW 决定是否把高价值回答提升回 Wiki。
 - 对 frontmatter、wikilink、来源哈希、孤立页面和搜索索引执行健康检查。
 - 在综合结论前主动搜索反证，显式记录矛盾和局限。
 - 维护开放问题，并在新来源可能回答问题时提示继续查询。
@@ -283,7 +283,17 @@ Codex 会读取原文、计算哈希、创建 source 页、更新相关 concept/
 根据我的知识库，回答：<问题>
 ```
 
-Codex 会搜索相关页面、完整读取来源并合成答案。知识性结论会追溯到 source 页；有复用价值的结果可以保存到 `wiki/outputs/` 或 `wiki/synthesis/`。
+Codex 会搜索相关页面、完整读取来源并合成答案。知识性结论会追溯到 source 页；凡需落盘的回答默认先保存到 `wiki/outputs/` 候选区，不会直接写进知识图谱。
+
+每份候选回答会列出问题、简短结论、来源依据、反例/矛盾与局限、Confidence Notes，以及建议沉淀位置。随后可以发出：
+
+```text
+审查刚才的 output，把值得长期复用且来源可追溯的内容提升到合适位置。
+```
+
+Codex 会按内容类型处理：跨来源洞见进入 `wiki/synthesis/`，既有定义的补充进入 concept/entity 并记录 Evolution Log，证据空白进入 `wiki/QUESTIONS.md`，你确认的偏好或项目状态进入 `context/`。单次问答、无来源推断和临时格式化内容继续留在 outputs 或不落盘。
+
+回答、output 和 synthesis 都是基于已有来源的二阶产物，不是新证据。无论回答或提升多少次，都不能借此增加 `source_count` 或提高 confidence；所有提升都会写入 `wiki/log.md`。
 
 ### 5. 记录尚未解决的问题
 

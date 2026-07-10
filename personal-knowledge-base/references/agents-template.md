@@ -235,16 +235,30 @@ context/
 - 不增加外部 `source_count`。
 - 引用外部来源时，尝试链接已有 source 页。
 
-## QUERY
+## QUERY -> REVIEW -> PROMOTE
 
-触发词：直接提问，或「根据我的知识库」
+触发词：直接提问、「根据我的知识库」、`review output`、`promote`、`提升回答`、`沉淀回答`
+
+核心边界：回答、output、synthesis 和回答触发的 concept/entity 更新都是二阶产物，不是独立来源。不得把它们创建为 source 页，也不得因此增加 `source_count` 或提高 confidence。
 
 1. 若问题涉及用户偏好、项目状态或近期上下文，先读 `context/`。
 2. 优先执行 `qmd query "<问题>" --json` 获取 top 5；失败则读 `wiki/index.md` 并用 `rg` 搜索。
-3. 完整读取相关页面。
-4. 合成答案；每个知识性核心结论必须溯源到具体 `wiki/sources/<slug>.md`。
-5. 标注 confidence 和分歧。
-6. 若答案可复用，写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，frontmatter 含 `graph-excluded: true`，并更新 `wiki/index.md` 与 `wiki/log.md`。
+3. 完整读取相关页面，不只依赖搜索片段。
+4. 合成答案；每个知识性核心结论必须溯源到具体 `wiki/sources/<slug>.md`，并标注 confidence、分歧和局限。
+5. 凡需落盘的 Query，默认只写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，frontmatter 含 `graph-excluded: true`。单次问答、临时格式化内容或用户明确要求不保存时，可以不落盘。
+6. output 至少包含：问题、简短结论、依据及 source 链接、反例/矛盾与局限、Confidence Notes、建议沉淀位置。更新 index 的 Outputs 或 Recent Outputs，并追加 `query` 日志；不要直接更新 Recent Synthesis。
+7. 提升前执行 REVIEW：检查可复用性、来源追溯、反证和证据缺口；拟更新 concept/entity 时，先按英文 slug 和 aliases 查重。
+8. 默认不自动 PROMOTE。只有用户明确要求提升，或当前任务已明确授权时，才按以下规则处理：
+
+| 回答类型 | 处理位置 |
+|---|---|
+| 多个独立来源支持的新结论、比较、框架或跨来源连接 | `wiki/synthesis/` |
+| 对既有定义或实体信息的补充、修正 | 对应 concept/entity，并追加 Evolution Log |
+| 证据不足但值得追踪的问题 | `wiki/QUESTIONS.md` |
+| 用户确认的偏好、项目决策、近期状态 | `context/` |
+| 单次问答、无来源推断、临时格式化内容 | 保留在 outputs 或不落盘 |
+
+9. 保留原 output 作为候选答案和审计记录，并注明提升目标。每次提升追加日志：`YYYY-MM-DD HH:MM | promote | wiki/outputs/<file>.md -> <target>`。只有实际生成 synthesis 时，才更新 Recent Synthesis。
 
 输出格式：
 

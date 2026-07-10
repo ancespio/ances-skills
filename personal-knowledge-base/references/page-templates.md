@@ -226,13 +226,25 @@ graph-excluded: true
 
 # 输出标题
 
-## Answer
+## Question
 
-回答正文。
+本次查询的问题。
 
-## Sources
+## Short Answer
 
-- [[source-slug]]
+简短结论。
+
+## Evidence
+
+- [[source-slug]]：支持或反对的具体内容。
+
+## Counter-evidence / Contradictions
+
+- 反例、相互矛盾的来源或替代解释。
+
+## Limitations
+
+- 证据缺口、时间风险、样本偏差或无来源推断。
 
 ## Confidence Notes
 
@@ -240,8 +252,10 @@ graph-excluded: true
 - 依据：
 - 分歧：
 
-## Reuse
+## Promotion Recommendation
 
-- 是否应转入 `wiki/synthesis/`：
-- 是否回答了 `QUESTIONS.md` 中的问题：
+- 建议去向：`wiki/synthesis/` / concept / entity / `wiki/QUESTIONS.md` / `context/` / 保留在 outputs / 不落盘
+- 理由：
+- promotion status：candidate / promoted / retained
+- promoted to：
 ```

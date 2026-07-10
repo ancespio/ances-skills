@@ -84,13 +84,16 @@ wiki/templates/output-template.md
 4. 在 `AGENTS.md` 中写入完整操作契约，至少包含：
 
 - Raw/Wiki/Context 三层职责。
-- INGEST、QUERY、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
+- INGEST、QUERY -> REVIEW -> PROMOTE、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
 - 外部来源与个人写作的不同处理方式。
 - Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；不作为外部证据；只有我明确要求时才沉淀为知识页。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
 - wikilink 规则：目标统一用英文小写连字符。
 - confidence 规则：1 个来源 low，3+ medium，5+ 且无重大矛盾为 high 候选，high 需我确认。
+- Query 落盘默认先进入 `wiki/outputs/` 候选区；只有可复用且可追溯的回答才能提升到 synthesis、concept/entity、QUESTIONS 或 context。
+- 回答、output、synthesis 和回答触发的 concept/entity 更新都是二阶产物，不得创建为 source，也不得增加 `source_count` 或提高 confidence。
+- PROMOTE 前必须按 slug 和 aliases 检查已有 concept/entity；所有提升写入 `wiki/log.md`，只有实际 synthesis 才进入 Recent Synthesis。
 - `wiki/outputs/`、`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/QUESTIONS.md` 必须 `graph-excluded: true`。
 - 任何大范围修复、合并、删除、重写前必须先报告方案并等待确认。
 
@@ -99,7 +102,7 @@ wiki/templates/output-template.md
 - source summary 模板：含 `raw_file`、`raw_sha256`、`last_verified`、来源摘要、关键观点、相关概念、相关实体、矛盾与局限。
 - concept 模板：含 Definition、Aliases、Key Points、Sources、Contradictions、My Position、Evolution Log。
 - entity 模板：含简介、相关来源、相关概念、演化记录。
-- synthesis/output 模板：含问题、结论、证据、confidence notes、limitations。
+- synthesis/output 模板：含问题、结论、证据、反例或矛盾、confidence notes、limitations；output 还要包含建议沉淀位置。
 
 6. 创建 `scripts/lint.py` 的最小版本，先检查这些项目：
 
@@ -127,7 +130,7 @@ qmd status
 8. 初始化完成后，执行一次全系统 Audit：
 
 - 检查所有目录、系统文件和模板是否存在。
-- 逐项检查 `AGENTS.md` 是否覆盖 Raw 不可变、Context 更新、INGEST 类型判断、SHA-256、aliases 去重、QUESTIONS 匹配、QUERY 溯源、high confidence 人工确认、LINT、REFLECT 反向检验、MERGE redirect 和系统文件隔离。
+- 逐项检查 `AGENTS.md` 是否覆盖 Raw 不可变、Context 更新、INGEST 类型判断、SHA-256、aliases 去重、QUESTIONS 匹配、QUERY 溯源、REVIEW 分类、PROMOTE 路由、二阶产物不计来源、high confidence 人工确认、LINT、REFLECT 反向检验、MERGE redirect 和系统文件隔离。
 - 运行 `python scripts/lint.py`。
 - 如果 qmd 可用，运行 `qmd status` 和一次测试查询。
 - 把结果写入 `wiki/outputs/system-audit-YYYY-MM-DD.md`，逐项标注通过、未通过和修复优先级。
