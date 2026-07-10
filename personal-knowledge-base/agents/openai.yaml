@@ -1,0 +1,4 @@
+interface:
+  display_name: "个人知识库"
+  short_description: "创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库"
+  default_prompt: "使用 $personal-knowledge-base 创建并维护一个可追溯的个人知识库。"
