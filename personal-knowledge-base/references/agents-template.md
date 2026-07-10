@@ -159,6 +159,54 @@ counts_as_external_source: false
 
 个人写作不参与外部来源 `source_count`。
 
+## CONTEXT
+
+触发词：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`
+
+Context 用于让后续查询理解“用户是谁、正在做什么、偏好什么、最近发生了什么”，但不为知识性结论提供外部证据。
+
+建议文件划分：
+
+```text
+context/
+  persona/
+    user-profile.md
+    preferences.md
+    project-<slug>.md
+  diary/
+    YYYY-MM-DD-diary.md
+```
+
+按语义选择目标：
+
+- 稳定个人背景、长期目标和长期状态：`context/persona/user-profile.md`。
+- 工作方式、输出格式、工具和协作偏好：`context/persona/preferences.md`。
+- 某个项目的目标、进展、决策、阻塞和下一步：对应的 `context/persona/project-<slug>.md`。
+- 当天发生的事件、阶段性思考和工作记录：`context/diary/YYYY-MM-DD-diary.md`。
+
+执行步骤：
+
+1. 先完整读取相关 Context 文件；不存在时再创建。
+2. 只记录用户明确表达且对未来任务有复用价值的信息。不要从一次对话推断敏感身份、稳定偏好或长期目标。
+3. 区分事实、用户偏好、项目决策和 Agent 推断；推断不得写成已确认事实。
+4. Persona、preferences 和 project 文件只追加或谨慎修订。信息发生变化时保留日期和旧状态，不静默删除历史。
+5. 今日日记存在时追加，不存在时创建；按本地规则添加日期、时间和署名。
+6. 跨日期事件链链接到相关日记或项目文件，但不要强制使用 Wiki 层的英文 slug 规则。
+7. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity。
+8. 只有用户明确说“把这段上下文沉淀为知识页”时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`，并明确标注其来源属性。
+9. 如果 qmd 已索引 `context/`，写入后执行 `qmd update`；否则跳过并说明。
+10. 完成后报告修改的文件、追加/修订的内容和未写入的临时信息。
+
+示例：
+
+```text
+更新画像：我接下来半年主要关注本地 AI 工具和人机协作研究。
+记录偏好：以后给我命令时优先提供 PowerShell 版本。
+记录项目进展：personal-knowledge-base 已完成公开仓库首版发布。
+更新日记：今天完成了首批来源标定，并调整了概念命名规则。
+同步上下文：把本次任务中对未来有用的项目状态和偏好写入 context。
+```
+
 ## INGEST
 
 触发词：`ingest`、`摄入`、`处理这个`
@@ -178,6 +226,7 @@ counts_as_external_source: false
 10. 更新 `wiki/index.md`。
 11. 检查 `wiki/QUESTIONS.md` 是否有可回答问题；如有，询问是否执行 QUERY。
 12. 追加 `wiki/log.md`。
+13. 如果 qmd 已配置，执行 `qmd update`；不可用时说明已降级。
 
 个人写作流程：
 
@@ -259,4 +308,9 @@ redirect: [[main-slug]]
 - re-ingest：若 lint 报告 `SOURCE MODIFIED`，重新摄入来源并更新所有受影响页面。
 - 来源超过 2 年时标注 `possibly_outdated: true`。
 - 矛盾来源必须在 source 页和 concept 页显式记录。
+
+## 文档维护
+
+- 当知识库操作规则变化时，同步更新项目的用户指南或 `README.md`。
+- 当 Context 目录、分类或更新规则变化时，同步更新本节和用户指南中的 Context 说明。
 ````

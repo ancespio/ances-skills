@@ -1,6 +1,6 @@
 # 创建个人知识库完整 Prompt
 
-在用户要从零创建个人知识库时，先按实际环境替换占位符，再把下面 prompt 作为任务说明交给 Codex/Claude Code 执行。若用户已有目录或规则，不要覆盖，先读取并合并。
+在用户要从零创建个人知识库时，先按实际环境替换占位符，再把下面 prompt 作为任务说明交给 Codex/Claude Code 执行。这个 prompt 要求 Agent 先解释准备事项并等待确认，再开始写文件。若用户已有目录或规则，不要覆盖，先读取并合并。
 
 ````markdown
 我要创建一个由 LLM 维护的个人知识库，根目录是：
@@ -8,6 +8,26 @@
 `<KB_ROOT>`
 
 请你在这个目录中搭建一个 Markdown/Obsidian 友好的 LLM Wiki。核心思想是：我负责人类侧的来源剪藏、材料筛选和问题提出；你负责把原始来源逐步整理成可追溯、可链接、可维护的 wiki，而不是每次查询时重新做一次临时 RAG。
+
+## 开始前先做准备确认
+
+先不要写文件。先向我展示下面这份准备清单，并区分“最低需要”和“推荐准备”：
+
+最低需要：
+
+- 确认知识库根目录 `<KB_ROOT>`。
+- 至少准备 1 篇代表性测试材料；如果暂时没有，允许先创建空骨架。
+- 确认 `raw/` 由我拥有且默认不可修改，`wiki/` 由你维护。
+
+推荐准备：
+
+- 2-3 篇用于标定的不同材料：外部文章/网页剪藏、PDF/研究资料、个人文章/项目笔记各选一类。
+- 希望知识库重点覆盖的主题，以及明确不应进入知识库的隐私内容。
+- 可选的 Context 初始材料：个人背景、长期偏好、当前项目、已有决策、近期状态和日记。
+- 工具偏好：是否使用 Obsidian、qmd、Python lint 和 Git。先检测，不要擅自安装。
+- Wiki 正文语言、slug 语言、是否持久化高价值查询结果。
+
+告诉我：不需要先整理全部历史材料，可以从“一个目录 + 一篇测试材料”开始。展示你的默认方案和需要我回答的问题，等待我明确确认后再执行下面的创建步骤。
 
 请严格遵守以下边界：
 
@@ -64,8 +84,9 @@ wiki/templates/output-template.md
 4. 在 `AGENTS.md` 中写入完整操作契约，至少包含：
 
 - Raw/Wiki/Context 三层职责。
-- INGEST、QUERY、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
+- INGEST、QUERY、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
 - 外部来源与个人写作的不同处理方式。
+- Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；不作为外部证据；只有我明确要求时才沉淀为知识页。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
 - wikilink 规则：目标统一用英文小写连字符。
@@ -103,18 +124,44 @@ qmd update
 qmd status
 ```
 
-8. 初始化完成后，运行可用验证：
+8. 初始化完成后，执行一次全系统 Audit：
+
+- 检查所有目录、系统文件和模板是否存在。
+- 逐项检查 `AGENTS.md` 是否覆盖 Raw 不可变、Context 更新、INGEST 类型判断、SHA-256、aliases 去重、QUESTIONS 匹配、QUERY 溯源、high confidence 人工确认、LINT、REFLECT 反向检验、MERGE redirect 和系统文件隔离。
+- 运行 `python scripts/lint.py`。
+- 如果 qmd 可用，运行 `qmd status` 和一次测试查询。
+- 把结果写入 `wiki/outputs/system-audit-YYYY-MM-DD.md`，逐项标注通过、未通过和修复优先级。
+
+9. 首次使用标定：
+
+- 不要直接批量摄入所有材料。
+- 让我依次选择 2-3 篇代表性来源，逐篇执行 INGEST。
+- 每篇完成后让我审查：摘要是否准确、概念/实体是否过多或遗漏、aliases 是否合理、wikilink 是否规范、个人立场是否与外部证据分开。
+- 根据反馈更新 `AGENTS.md`，再处理下一篇。
+- 标定完成后，询问是否批量处理剩余来源。
+
+10. 创建或完善面向使用者的 `README.md`，必须说明：
+
+- 创建前要准备什么，以及最低可从一篇材料开始。
+- 每种材料放到哪个 `raw/` 子目录。
+- 如何执行摄入、查询、记录问题、更新 Context、LINT、REFLECT 和 MERGE。
+- Context 与 Wiki 的区别，以及如何更新画像、偏好、项目进展和日记。
+- 哪些操作需要我确认。
+- 推荐使用节奏和第一次标定方法。
+
+11. 初始化完成后，运行可用验证：
 
 - `python scripts/lint.py`
 - 如果 qmd 可用，运行 `qmd status`
 - 用 `rg` 抽查 `graph-excluded`、`raw_sha256`、`QUESTIONS.md`、`Evolution Log`
 
-9. 最后给我一个简短报告：
+12. 最后给我一个简短报告和可直接复制的使用指令：
 
 - 创建了哪些文件。
 - 哪些验证通过。
 - 哪些验证跳过及原因。
-- 第一次摄入 2-3 篇代表性来源时建议我怎么做。
+- 第一次摄入 2-3 篇代表性来源时建议我怎么做、审查什么。
+- 分别给出：摄入、查询、记录开放问题、更新画像、记录偏好、更新项目进展、更新日记、健康检查、综合反思的示例指令。
 ````
 
 ## 使用注意
