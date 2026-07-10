@@ -1,6 +1,6 @@
 # Personal Knowledge Base
 
-一个用于创建、使用和维护个人知识库或 LLM Wiki 的 Codex skill。
+一个用于创建、使用和维护个人知识库或 LLM Wiki 的 Codex skill。思路来自于https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
 它不把知识库做成一次性的问答缓存，而是维护一套透明的 Markdown 文件：原始材料保留不动，知识页面持续演化，每个重要结论都能追溯到具体来源。
 
