@@ -156,6 +156,23 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 - 不要自动合并。先展示拟保留 slug、aliases、来源并集和 redirect 方案。
 - 如果 schema 使用 redirect，用 redirect 保留旧链接。
 
+## 可选：Cloudflare 只读检索与私人 GPTs
+
+仅当用户明确需要在手机或网页版 ChatGPT 查询私人知识库时，才采用这一可选扩展。它不替代本地 qmd，也不把知识库仓库改造成网页工程。
+
+1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
+2. Gateway 只暴露只读检索和已验证来源读取接口。`raw/` 不进入搜索索引；`context/` 只在请求明确需要个人化上下文时检索；不得向 GPT 暴露管理端点、webhook 或任何 secret。
+3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。
+4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
+5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
+6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
+
+部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、两个 Action 的单独调用、以及一次知识库 `main` push 的 webhook 增量同步。
+
+实施前完整读取 [`references/cloudflare-gateway-gpts.md`](references/cloudflare-gateway-gpts.md)；不要用其中的占位符覆盖用户已有生产配置。
+
+需要新建 Gateway 时，从 `assets/cloudflare-gateway-template/` 复制 starter；该目录包含脱敏后的完整 Worker 源码与回归测试。部署后运行 `scripts/verify-gateway.ps1 -WorkerUrl <worker-url>` 验证健康状态和只读 Action schema。
+
 ## 推荐使用节奏
 
 - 每天或随时：把材料放入对应 `raw/` 子目录，记录日记、偏好和项目进展。

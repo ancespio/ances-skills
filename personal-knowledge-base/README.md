@@ -43,6 +43,7 @@ context/   用户画像、项目状态、偏好和日记，不作为外部证据
 - 维护开放问题，并在新来源可能回答问题时提示继续查询。
 - 更新个人画像、偏好、项目进展和日记，并在个人化查询时读取这些 Context。
 - 在第一次创建时解释需要准备的材料，带你完成 2-3 篇来源标定和系统核查。
+- 可选地将知识库接入 Cloudflare 的只读 Gateway 和私人 GPTs，让网页版与手机端检索同一份受版本约束的知识库。
 
 ## 创建前要准备什么
 
@@ -359,6 +360,18 @@ Codex 会先寻找反证，再生成跨来源 synthesis 和 gap report。
 ```
 
 Codex 必须先展示主 slug、aliases、来源并集和 redirect 方案，得到确认后才能合并。
+
+## 可选：在手机或网页版 ChatGPT 查询知识库
+
+如果你明确希望在手机或网页版 ChatGPT 中查询知识库，可在本地知识库之外部署一个独立的 Cloudflare Gateway，并接入仅自己可见的私人 GPTs。它是可选阅读入口，不替代本地 qmd，也不会把知识库仓库改造成网页工程。
+
+1. 知识库与 Gateway 分别维护：前者只保存知识库，后者保存 Worker、部署配置和 Action schema。
+2. 由知识库 `main` 的 GitHub Push webhook 触发增量索引；每日全量校准和定时续跑用于补偿漏事件或长任务。
+3. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码，不负责索引知识库。
+4. Gateway 只读；不索引 `raw/`，只在明确需要时检索 `context/`，并且不把管理端点或密钥暴露给 GPT。
+5. 在 `/health` 返回非空 `syncedCommit` 后，再把 `/openapi.json` 导入私人 GPT 的 Actions，并只配置 Action 专用 Bearer token。
+
+部署时不要把 token、webhook URL、KV 标识、私人路径或知识库内容写入公开 skill、Git 提交或 GPT Instructions。验收时至少检查：健康接口、两个 Action 的独立调用，以及一次知识库 `main` push 是否触发增量同步。
 
 ## 推荐节奏
 
