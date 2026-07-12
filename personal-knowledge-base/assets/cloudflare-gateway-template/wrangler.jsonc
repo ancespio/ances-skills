@@ -1,0 +1,49 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "knowledgebase-gateway",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-07-11",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"GITHUB_OWNER": "<owner>",
+		"GITHUB_REPOSITORY": "<knowledgebase-repository>"
+	},
+	"secrets": {
+		"required": [
+			"GITHUB_TOKEN",
+			"GITHUB_WEBHOOK_SECRET",
+			"GPT_ACTION_TOKEN",
+			"ADMIN_TOKEN"
+		]
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SYNC_STATE",
+			"id": "<kv-namespace-id>"
+		}
+	],
+	"ai_search_namespaces": [
+		{
+			"binding": "AI_SEARCH",
+			"namespace": "default"
+		}
+	],
+	"triggers": {
+		"crons": [
+			"0 * * * *",
+			"30 2 * * *"
+		]
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 0.1,
+		"logs": {
+			"head_sampling_rate": 0.1
+		},
+		"traces": {
+			"head_sampling_rate": 0.1
+		}
+	}
+}
