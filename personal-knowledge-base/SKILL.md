@@ -173,6 +173,97 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 需要新建 Gateway 时，从 `assets/cloudflare-gateway-template/` 复制 starter；该目录包含脱敏后的完整 Worker 源码与回归测试。部署后运行 `scripts/verify-gateway.ps1 -WorkerUrl <worker-url>` 验证健康状态和只读 Action schema。
 
+### 完整实施 SOP
+
+当用户明确选择 Cloudflare + 私人 GPTs 时，按以下顺序执行；每一步先验证上一层，不要把“代码已部署”当作“知识库已同步”。
+
+#### A. 先做范围和凭据隔离
+
+1. 确认两个私有仓库：KnowledgeBase 只放 `raw/`、`wiki/`、`context/`；Gateway 只放 Worker、测试、配置和 OpenAPI。
+2. 确认 KnowledgeBase 只维护 `main`，Gateway 的生产分支也明确为 `main`。
+3. 生成并分别保存 `GITHUB_WEBHOOK_SECRET`、`GPT_ACTION_TOKEN`、`ADMIN_TOKEN`；`GITHUB_TOKEN` 使用 GitHub fine-grained token，仅授予 KnowledgeBase 的 Contents/Metadata 只读权限。
+4. 禁止把 secret、Deploy Hook URL、KV ID、真实仓库路径写入 GPT Instructions、公开 skill 或 KnowledgeBase。
+
+#### B. 先准备 KnowledgeBase
+
+1. 建立 `raw/articles/`、`raw/pdfs/`、`raw/notes/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`context/`。
+2. 来源页必须保存 `raw_file`、`raw_sha256`；用同一 Git commit 读取 source 与 raw，哈希一致才进入 evidence index。
+3. 提交首批内容并记录完整 `main` commit SHA。Gateway 只读取 GitHub，不修改 KnowledgeBase。
+
+#### C. 准备 Gateway
+
+1. 从 `assets/cloudflare-gateway-template/` 复制 starter；不要复制 `node_modules/`、`.wrangler/` 或真实配置。
+2. 运行 `pnpm install`、`pnpm exec wrangler types`、`pnpm test`、`pnpm exec wrangler deploy --dry-run`。
+3. 公开 OpenAPI 只允许 `POST /v1/query` 与 `GET /v1/sources/{slug}`；`/github/webhook`、`/admin/sync`、`/admin/sync/continue` 不得进入 GPT schema。
+4. Worker 的读写边界必须固定：`raw/` 不索引；`wiki/sources/` 是 evidence；`wiki/concepts/`、`entities/`、`synthesis/` 是 knowledge；`context/` 只有请求明确启用时检索。
+
+#### D. 配置 Cloudflare
+
+1. `wrangler.jsonc` 使用 `vars` 保存 owner/repository 等非敏感值，`secrets.required` 只列 secret 名称。
+2. 创建 `SYNC_STATE` KV，填入现有 namespace ID；不要在生产配置中省略 ID，也不要因部署提示自动创建第二个状态库。
+3. 绑定 `AI_SEARCH` 默认 namespace，并让 Worker 确保 `kb-evidence`、`kb-knowledge`、`kb-context` 实例存在。
+4. 配置 `triggers.crons`：`30 2 * * *` 每日 UTC 启动全量校准，`0 * * * *` 每小时继续未完成批次。Cron 使用 UTC，并由配置文件作为唯一来源。
+5. 连接 Gateway 仓库到 Workers Builds。生产 Deploy command 使用 `pnpm deploy` 或 `wrangler deploy`；`wrangler versions upload` 只作为非生产 preview 命令。
+
+#### E. 部署和 secrets
+
+```powershell
+pnpm exec wrangler login
+pnpm exec wrangler deploy
+pnpm exec wrangler secret put GITHUB_TOKEN
+pnpm exec wrangler secret put GITHUB_WEBHOOK_SECRET
+pnpm exec wrangler secret put GPT_ACTION_TOKEN
+pnpm exec wrangler secret put ADMIN_TOKEN
+```
+
+部署后先访问 `/health` 和 `/openapi.json`。`syncedCommit: null` 是正常的“尚未首次同步”，不是 Worker 部署失败。
+
+#### F. 接入 KnowledgeBase webhook
+
+在 KnowledgeBase 仓库添加 Push webhook：目标 `<WORKER_URL>/github/webhook`、JSON 内容、同一 `GITHUB_WEBHOOK_SECRET`、仅 Push event。Worker 必须验证 HMAC，只处理 `refs/heads/main`；普通 Push 做增量，force push 或 GitHub 截断 payload 做全量对账。
+
+#### G. 首次全量同步
+
+1. 取得 `main` 完整 SHA，不接受短 SHA。
+2. 使用 `ADMIN_TOKEN` 调用 `POST /admin/sync` 启动一次。
+3. 若 `complete: false`，只调用 `POST /admin/sync/continue`，直到 `complete: true`；不要重复 start，也不要在尚未完成时并发启动第二个任务。
+4. 每批处理数量以 Gateway 代码为准；当前 starter 默认每批 5 个可索引 Markdown 文件。
+5. 最终检查 `/health` 的 `syncedCommit` 等于目标 commit，且 `issues` 已审查。
+
+#### H. 配置私人 GPT
+
+1. 创建 Only me 的私人 GPT；初始阶段不要上传与 Gateway 重复的 Knowledge 文件。
+2. Actions 导入 `<WORKER_URL>/openapi.json`，配置 Bearer/API Key，仅填 `GPT_ACTION_TOKEN`。
+3. Instructions 要求区分 evidence、knowledge、context 与综合推断；默认 `include_context=false`，涉及项目状态/偏好/历史决策时才为 true。
+4. 对只读查询 POST 明确设置 `x-openai-isConsequential: false`，并为每个响应定义具体 schema，不使用空 object schema。
+5. 在 Preview 同时测试单独 Action 和自然语言提问；单独成功不代表自然语言路由已成功。
+
+#### I. 验收矩阵
+
+```text
+[ ] /health = 200，首次同步后 syncedCommit 非空
+[ ] /openapi.json 只含两个只读 operation
+[ ] 无 token 查询返回 401，正确 Action token 返回 200
+[ ] Admin token 不能用于 GPT Action
+[ ] main Push 返回 webhook accepted，并推进 syncedCommit
+[ ] 非 main Push 被忽略，错误签名返回 401
+[ ] raw 不进入 evidence/knowledge index
+[ ] source 只有 raw_sha256 验证通过才返回 verified
+[ ] 每日 full sync 与每小时 continue 均能工作
+[ ] Gateway main Push 触发新的生产 Worker 部署
+[ ] GPT Preview 能自动调用 Action，失败时明确降级
+```
+
+#### J. 故障定位顺序
+
+- `/health` 正常但内容为空：查首次全量同步、KV 游标和 AI Search 实例，不先重导 GPT schema。
+- Build 成功但索引不变：查 KnowledgeBase webhook 和定时同步，不查 Git Builds。
+- Action 单测成功但自然语言失败：查 OpenAPI 具体响应 schema、`x-openai-isConsequential`、Instructions 是否保存。
+- `/health` 的 commit 不推进：查 webhook branch、签名、增量 payload 是否被截断，以及 full sync 是否卡在 cursor。
+- AI Search `items.list` 出现 metadata filter 超长：不得将完整知识库路径传给 `search`；使用每页最多 10 项的无 search 分页扫描，并按 `item.key === path` 精确匹配。
+
+详细配置字段、脱敏源代码和验证脚本直接读取 `references/cloudflare-gateway-gpts.md`、`assets/cloudflare-gateway-template/` 与 `scripts/verify-gateway.ps1`。
+
 ## 推荐使用节奏
 
 - 每天或随时：把材料放入对应 `raw/` 子目录，记录日记、偏好和项目进展。
