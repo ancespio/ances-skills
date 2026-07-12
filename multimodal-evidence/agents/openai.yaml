@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multimodal Evidence 证据提取"
+  short_description: "统一多模态证据提取与外部核验协议"
+  default_prompt: "使用 $multimodal-evidence 从指定图片或 PDF 提取客观证据。"
