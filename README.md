@@ -3,7 +3,7 @@
 我在真实工作流中持续使用和迭代的一组 AI Skills。每个 skill 都是可独立安装的结构化指令集，尽量把复杂任务变成可重复、可审查、可验证的工作流。
 
 [![License](https://img.shields.io/badge/License-MIT-3B82F6?style=for-the-badge)](./LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-1-10B981?style=for-the-badge)](#skills)
+[![Skills](https://img.shields.io/badge/Skills-2-10B981?style=for-the-badge)](#skills)
 [![Codex](https://img.shields.io/badge/Codex-Skills-111827?style=flat-square&logo=openai&logoColor=white)](https://developers.openai.com/codex/)
 
 这些 skill 主要面向 Codex；核心规则和参考资料采用 Markdown，也便于迁移到其他支持 `SKILL.md` 的 Agent 环境。
@@ -13,6 +13,7 @@
 | Skill                                              | 一句话说明                                               | 文档                                         |
 | -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
 | [personal-knowledge-base](./personal-knowledge-base/) | 创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库 | [使用说明](./personal-knowledge-base/README.md) |
+| [multimodal-evidence](./multimodal-evidence/) | 统一多模态证据提取与独立外部核验协议 | [SKILL.md](./multimodal-evidence/SKILL.md) |
 
 ## 安装方式
 
@@ -28,7 +29,44 @@
 使用 $skill-installer 安装：https://github.com/ancespio/ances-skills/tree/main/personal-knowledge-base
 ```
 
+安装多模态证据 skill：
+
+```text
+帮我安装这个 skill：https://github.com/ancespio/ances-skills/tree/main/multimodal-evidence
+```
+
+也可以显式指定：
+
+```text
+使用 $skill-installer 安装：https://github.com/ancespio/ances-skills/tree/main/multimodal-evidence
+```
+
 ## Skills
+
+### multimodal-evidence（多模态证据）
+
+定义“客观证据提取”和“独立外部核验”的统一能力协议，并通过 runtime router 选择宿主原生视觉能力、Gemini CLI、Antigravity CLI 或其他兼容后端。
+
+它支持：
+
+- 从图片、截图、PDF 指定页面、图表、流程图和设计稿中提取原文、布局、表格和不确定项。
+- 使用统一 `EvidencePackage` 结构，让主 Agent 不依赖具体后端的输出格式。
+- 将文件提取（`extraction`）与联网核验（`verification`）分开，普通 OCR 默认不联网。
+- 在主 Agent 已具备可靠原生多模态能力时避免重复调用。
+- 对 Gemini CLI、agy 的认证、权限、空输出、超时和降级路径进行明确约束。
+- 对网络核验设置公共 HTTPS、来源优先级、查询脱敏和搜索/抓取预算。
+
+当前账号路由注意：个人 Google AI Pro/Ultra 和 Gemini Code Assist Individuals 的 Gemini CLI OAuth 已迁移到 Antigravity；这类账号应先在交互式终端运行 `agy` 完成登录，再使用 agy 的无头适配器。Gemini CLI 仍可通过 Gemini API Key、Vertex AI 或受支持的企业账号使用。
+
+常见触发方式：
+
+```text
+使用 $multimodal-evidence 提取这张图片中的客观证据
+再用另一个视觉后端独立复核这页 PDF
+核对截图中的公开版本号和官方出处
+```
+
+→ [SKILL.md](./multimodal-evidence/SKILL.md)
 
 ### personal-knowledge-base（个人知识库）
 
