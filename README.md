@@ -10,8 +10,8 @@
 
 ## 目录
 
-| Skill | 一句话说明 | 文档 |
-|---|---|---|
+| Skill                                              | 一句话说明                                               | 文档                                         |
+| -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
 | [personal-knowledge-base](./personal-knowledge-base/) | 创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库 | [使用说明](./personal-knowledge-base/README.md) |
 
 ## 安装方式
@@ -45,6 +45,7 @@
 - 执行 LINT、REFLECT、ADD-QUESTION 和 MERGE 工作流。
 - 使用 qmd 搜索，并在不可用时降级到 `rg` 和索引文件。
 - 管理 source integrity、矛盾记录和 confidence。
+- （可选）指导用户将知识库挂载到Cloudflare，并创建专属GPTs实现在线访问
 
 常见触发方式：
 
@@ -54,6 +55,7 @@
 根据我的知识库回答这个问题
 检查一下知识库健康状况
 综合分析已有笔记，寻找矛盾和知识空白
+Ask to GPTs：我最近关注的内容有什么新的进展吗？跟知识库已有内容有冲突吗？
 ```
 
 → [项目说明](./personal-knowledge-base/README.md) · [SKILL.md](./personal-knowledge-base/SKILL.md)
@@ -64,7 +66,7 @@
 - 重要结论必须能够追溯到来源。
 - 个人观点与外部证据分开记录。
 - 先报告再执行大范围修复、合并、删除或重写。
-- 使用渐进式披露：核心流程放在 `SKILL.md`，详细模板放在 `references/`。
+- 使用渐进式披露：核心流程放在 `SKILL.md`，详细模板放在 `references/等附属文件夹`。
 
 ## 许可证
 

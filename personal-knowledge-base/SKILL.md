@@ -2,7 +2,6 @@
 name: personal-knowledge-base
 description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前需要准备什么、搭建个人知识库、设计 AGENTS.md/CLAUDE.md 规则、建立 raw/wiki/context 目录、配置 Obsidian Web Clipper、标定首批来源、摄入来源、查询本地 wiki、更新用户画像/项目状态/偏好/日记、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、维护来源可追溯性和 confidence 时。
 ---
-
 # 个人知识库
 
 ## 总览
@@ -205,7 +204,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 4. 配置 `triggers.crons`：`30 2 * * *` 每日 UTC 启动全量校准，`0 * * * *` 每小时继续未完成批次。Cron 使用 UTC，并由配置文件作为唯一来源。
 5. 连接 Gateway 仓库到 Workers Builds。生产 Deploy command 使用 `pnpm deploy` 或 `wrangler deploy`；`wrangler versions upload` 只作为非生产 preview 命令。
 
-#### E. 部署和 secrets
+#### E. 部署和 secrets（或引导用户手动在网页填写secrets）
 
 ```powershell
 pnpm exec wrangler login
