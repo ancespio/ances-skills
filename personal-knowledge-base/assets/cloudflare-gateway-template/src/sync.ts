@@ -1,6 +1,7 @@
 import {
   classifyRepositoryPath,
   parseSourceFrontmatter,
+  parseRemoteAccess,
   verifySourceIntegrity,
   type ContentScope,
 } from "./content";
@@ -93,6 +94,7 @@ function ordinaryMetadata(path: string, content: string, scope: ContentScope) {
     kind:
       firstFrontmatterValue(content, "type") ??
       (scope === "context" ? path.split("/")[1] ?? "context" : path.split("/")[1] ?? scope),
+    ...(scope === "context" ? { remote_access: parseRemoteAccess(content) } : {}),
   };
 }
 
@@ -186,7 +188,13 @@ export async function syncChangedPaths(
       }
       continue;
     }
-    await dependencies.index.upload(scope, path, content, ordinaryMetadata(path, content, scope));
+    const metadata = ordinaryMetadata(path, content, scope);
+    if (scope === "context" && metadata.remote_access === "local-only") {
+      await dependencies.index.remove("context", path);
+      removed += 1;
+      continue;
+    }
+    await dependencies.index.upload(scope, path, content, metadata);
     uploaded += 1;
   }
 

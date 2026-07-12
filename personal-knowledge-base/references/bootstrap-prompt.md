@@ -33,7 +33,7 @@
 
 - `raw/` 是我拥有的原始来源层，只读、只追加，未经我明确确认不得修改、移动、覆盖或删除。
 - `wiki/` 是你维护的知识层，可以创建和更新，但所有重要结论必须能追溯到 source 页。
-- `context/` 是长期上下文层，用于用户画像、项目画像、偏好和日记；它不是外部证据，不参与 `source_count` 和 confidence 计数。
++ `context/` 是长期上下文层，用于用户画像、项目画像、偏好和日记；它不是外部证据，不参与 `source_count` 和 confidence 计数。Context 只在实际对话出现重大节点、状态变化或任务结束时写入，不创建每日自动化任务。
 - 所有文件写入使用 UTF-8 无 BOM。
 - 如果目录是 Git 仓库，写入前先执行 `git status --short`，不得覆盖我的已有改动。
 - 删除任何文件前，先备份到就近 `TMP/` 目录，并等待我确认。
@@ -86,7 +86,7 @@ wiki/templates/output-template.md
 - Raw/Wiki/Context 三层职责。
 - INGEST、QUERY -> REVIEW -> PROMOTE、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
 - 外部来源与个人写作的不同处理方式。
-- Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；不作为外部证据；只有我明确要求时才沉淀为知识页。
++ Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；日记只记录确认事实、用户决策和明确确认的决策倾向，不写 Agent 推断；不作为外部证据；只有我明确要求时才沉淀为知识页；无状态变化时不创建空日记。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
 - wikilink 规则：目标统一用英文小写连字符。

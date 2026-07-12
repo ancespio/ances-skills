@@ -109,13 +109,16 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 执行 `CONTEXT` 时：
 
-1. 触发词包括：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`。
-2. 先读取相关现有文件，再判断目标位置：个人背景/长期状态写入 `context/persona/`，项目决策和进展写入对应项目文件，偏好写入偏好文件，按日期事件写入 `context/diary/`。
-3. 只记录用户明确表达、可长期复用的信息。不要从一次性措辞推断敏感身份、稳定偏好或长期目标。
-4. Persona 和项目文件只追加或谨慎修订；保留历史变化和日期。今日日记存在时追加，不存在时创建。
-5. 需要跨日期或跨项目追踪时，用本地 schema 允许的链接指向相关日记或项目文件。
-6. `context/` 不参与外部 `source_count`、confidence 或 source integrity；除非用户明确要求，不把 Context 自动转成 wiki 知识页。
-7. 如果 qmd 已索引 `context/`，写入后执行或提醒执行 `qmd update`；最后报告修改了哪些文件以及记录了什么。
+1. 触发词包括：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`；触发词本身不等于授权写入。
+2. Context 写入只发生在实际对话过程中。不要创建每日自动化任务，也不要因为日期变化自动生成日记；仅在对话出现重大节点、状态变化或任务结束时判断是否写入。
+3. 先完整读取相关 Context 文件，再按语义路由：个人背景/长期状态写入 `context/persona/`，项目决策和进展写入对应项目文件，按日期事件写入 `context/diary/`。
+4. 日记只记录用户明确陈述的事实、用户明确决定和当前交互中明确表达或确认的决策倾向。不得写入 Agent 推断、观察、心理分析或猜测；没有事实或状态变化时不创建空日记。
+5. Persona 和项目文件使用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除旧状态。今日日记存在时追加，不存在时创建；每次写入署名 `Codex Win端`。
+6. 跨日期或跨项目追踪使用项目本地允许的相对 Markdown 链接；Context 不强制使用 Wiki 层英文 slug 规则。
+7. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。`DIARY_GUIDE.md` 使用 `always`；用户画像、项目画像和日记默认使用 `on-demand`；`local-only` 不进入远程 Gateway 索引。
+8. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
+9. Gateway 的定时任务只做已有文件的索引校准和续跑，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行或提醒执行 `qmd update`。
+10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
 
 执行 `QUERY` 时：
 
@@ -161,7 +164,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
 2. Gateway 只暴露只读检索和已验证来源读取接口。`raw/` 不进入搜索索引；`context/` 只在请求明确需要个人化上下文时检索；不得向 GPT 暴露管理端点、webhook 或任何 secret。
-3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。
+3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
 4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
 5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
 6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
@@ -233,7 +236,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 1. 创建 Only me 的私人 GPT；初始阶段不要上传与 Gateway 重复的 Knowledge 文件。
 2. Actions 导入 `<WORKER_URL>/openapi.json`，配置 Bearer/API Key，仅填 `GPT_ACTION_TOKEN`。
-3. Instructions 要求区分 evidence、knowledge、context 与综合推断；默认 `include_context=false`，涉及项目状态/偏好/历史决策时才为 true。
+3. Instructions 要求区分 evidence、knowledge、context 与综合推断；默认 `include_context=false`，涉及项目状态/偏好/历史决策或日记撰写规则时才为 true，并明确说明 Context 写入只发生在实际对话节点。
 4. 对只读查询 POST 明确设置 `x-openai-isConsequential: false`，并为每个响应定义具体 schema，不使用空 object schema。
 5. 在 Preview 同时测试单独 Action 和自然语言提问；单独成功不代表自然语言路由已成功。
 

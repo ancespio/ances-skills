@@ -2,10 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import {
   classifyRepositoryPath,
+  parseRemoteAccess,
   parseSourceFrontmatter,
   sha256Hex,
   verifySourceIntegrity,
 } from "../src/content";
+
+describe("parseRemoteAccess", () => {
+  it("defaults to on-demand and accepts local-only", () => {
+    expect(parseRemoteAccess("# no frontmatter")).toBe("on-demand");
+    expect(parseRemoteAccess("---\nremote_access: local-only\n---\n# private")).toBe("local-only");
+  });
+});
 
 describe("classifyRepositoryPath", () => {
   it.each([

@@ -126,6 +126,11 @@ describe("syncChangedPaths", () => {
       raw_sha256: RAW_HASH,
       last_verified: "2026-07-10",
     });
+    expect(index.uploads.find((upload) => upload.scope === "context")?.metadata).toEqual({
+      title: "用户画像",
+      kind: "persona",
+      remote_access: "on-demand",
+    });
     expect(state.sourceToRaw.get("wiki/sources/example.md")).toBe("raw/articles/example.md");
     expect(state.syncedCommit).toBe("abc123");
     expect(result.issues).toEqual([]);
@@ -195,5 +200,22 @@ describe("syncChangedPaths", () => {
       { scope: "knowledge", path: "wiki/concepts/example.md" },
     ]);
     expect(state.sourceToRaw.size).toBe(0);
+  });
+
+  it("does not remotely index Context marked local-only", async () => {
+    const repository = new FakeRepository({
+      "context/diary/private.md": "---\ntype: context-diary\nremote_access: local-only\n---\n# private",
+    });
+    const index = new FakeIndex();
+    const state = new FakeState();
+
+    const result = await syncChangedPaths(
+      { repository, index, state },
+      { commit: "abc123", upsert: ["context/diary/private.md"], remove: [] },
+    );
+
+    expect(index.uploads).toEqual([]);
+    expect(index.removals).toEqual([{ scope: "context", path: "context/diary/private.md" }]);
+    expect(result).toMatchObject({ uploaded: 0, removed: 1, issues: [] });
   });
 });

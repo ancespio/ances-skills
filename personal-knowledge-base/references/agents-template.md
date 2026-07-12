@@ -163,12 +163,13 @@ counts_as_external_source: false
 
 触发词：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`
 
-Context 用于让后续查询理解“用户是谁、正在做什么、偏好什么、最近发生了什么”，但不为知识性结论提供外部证据。
+Context 用于理解用户、项目状态、偏好和近期事实，但不为知识性结论提供外部证据。Context 写入只发生在实际对话中：不创建每日自动化任务，不因日期变化自动生成日记，仅在出现重大节点、状态变化或任务结束时判断是否记录。
 
 建议文件划分：
 
 ```text
 context/
+  DIARY_GUIDE.md
   persona/
     user-profile.md
     preferences.md
@@ -177,25 +178,19 @@ context/
     YYYY-MM-DD-diary.md
 ```
 
-按语义选择目标：
-
-- 稳定个人背景、长期目标和长期状态：`context/persona/user-profile.md`。
-- 工作方式、输出格式、工具和协作偏好：`context/persona/preferences.md`。
-- 某个项目的目标、进展、决策、阻塞和下一步：对应的 `context/persona/project-<slug>.md`。
-- 当天发生的事件、阶段性思考和工作记录：`context/diary/YYYY-MM-DD-diary.md`。
-
 执行步骤：
 
 1. 先完整读取相关 Context 文件；不存在时再创建。
-2. 只记录用户明确表达且对未来任务有复用价值的信息。不要从一次对话推断敏感身份、稳定偏好或长期目标。
-3. 区分事实、用户偏好、项目决策和 Agent 推断；推断不得写成已确认事实。
-4. Persona、preferences 和 project 文件只追加或谨慎修订。信息发生变化时保留日期和旧状态，不静默删除历史。
-5. 今日日记存在时追加，不存在时创建；按本地规则添加日期、时间和署名。
-6. 跨日期事件链链接到相关日记或项目文件，但不要强制使用 Wiki 层的英文 slug 规则。
-7. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity。
-8. 只有用户明确说“把这段上下文沉淀为知识页”时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`，并明确标注其来源属性。
-9. 如果 qmd 已索引 `context/`，写入后执行 `qmd update`；否则跳过并说明。
-10. 完成后报告修改的文件、追加/修订的内容和未写入的临时信息。
+2. 只记录用户明确陈述的事实、用户明确决定或当前交互中明确表达/确认的决策倾向。
+3. 日记不得包含 Agent 推断、观察、心理分析或猜测；没有事实或状态变化时不创建空日记。
+4. Persona、preferences 和 project 文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除历史。
+5. 今日日记存在时追加，不存在时创建；每次写入署名 `Codex Win端`。
+6. 跨日期事件链使用相对 Markdown 链接指向相关日记或项目文件，不强制使用 Wiki 层英文 slug 规则。
+7. 新建或触碰的 Context Markdown 应包含 `type`、`date`、`updated`、`remote_access` frontmatter；指南为 `always`，画像/项目/日记默认为 `on-demand`，`local-only` 不进入远程 Gateway 索引。
+8. 不在 Context 中记录护照号、注册号、密钥、token、联系方式等真实敏感值，也不写部分掩码或占位符。
+9. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity；只有用户明确要求时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`。
+10. Gateway 定时任务只索引和校准已有文件，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行 `qmd update`。
+11. 具体规则和可复制日记模板见 `references/context-maintenance.md` 与项目的 `context/DIARY_GUIDE.md`。
 
 示例：
 
