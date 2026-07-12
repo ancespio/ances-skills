@@ -50,4 +50,4 @@ remote_access: always | on-demand | local-only
 
 Gateway 的定时任务只负责已有文件的索引校准和续跑，不生成或修改 Context。涉及日记撰写规则、Context 维护方式时，应读取 `DIARY_GUIDE.md` 并启用 Context 检索；普通知识问题默认不读取 Context，涉及用户偏好、项目状态、历史决策或近期上下文时才启用。
 
-日记模板见项目中的 `context/DIARY_GUIDE.md`。
+脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。使用时复制到项目的 `context/diary/YYYY-MM-DD_Diary.md`；如需让网页端 GPT 参考规则和模板，可复制为 `context/DIARY_GUIDE.md`，并保留 `remote_access: always`。Gateway 只索引该已存在的指南，不生成或修改 Context。

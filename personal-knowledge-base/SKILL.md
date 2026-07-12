@@ -118,7 +118,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 7. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。`DIARY_GUIDE.md` 使用 `always`；用户画像、项目画像和日记默认使用 `on-demand`；`local-only` 不进入远程 Gateway 索引。
 8. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
 9. Gateway 的定时任务只做已有文件的索引校准和续跑，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行或提醒执行 `qmd update`。
-10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
+10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
 
 执行 `QUERY` 时：
 
@@ -168,6 +168,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
 5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
 6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
+7. 如需让云端 GPT 参考日记规则和模板，将脱敏的 `references/diary-template.md` 复制为知识库的 `context/DIARY_GUIDE.md`，保留 `remote_access: always`；Gateway 只索引该已存在的指南，不会自动生成或修改 Context。
 
 部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、两个 Action 的单独调用、以及一次知识库 `main` push 的 webhook 增量同步。
 
@@ -297,3 +298,4 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 - `references/bootstrap-prompt.md`：创建个人知识库时可直接给 Codex/Claude Code 的完整 prompt。
 - `references/agents-template.md`：可复制到项目根目录的 `AGENTS.md` 行为契约模板，包含 Context 更新规则。
 - `references/page-templates.md`：source、concept、entity、synthesis、output 等 wiki 页面模板。
+- `references/diary-template.md`：脱敏日记模板；需要写入或部署 `context/DIARY_GUIDE.md` 时读取。

@@ -87,6 +87,7 @@ wiki/templates/output-template.md
 - INGEST、QUERY -> REVIEW -> PROMOTE、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
 - 外部来源与个人写作的不同处理方式。
 - Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；日记只记录确认事实、用户决策和明确确认的决策倾向，不写 Agent 推断；不作为外部证据；只有我明确要求时才沉淀为知识页；无状态变化时不创建空日记。
+- 可复制的脱敏日记模板见 `references/diary-template.md`；若网页端 GPT 需要读取规则和模板，可将其复制为知识库的 `context/DIARY_GUIDE.md` 并设置 `remote_access: always`。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
 - wikilink 规则：目标统一用英文小写连字符。

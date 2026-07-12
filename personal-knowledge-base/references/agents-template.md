@@ -190,7 +190,7 @@ context/
 8. 不在 Context 中记录护照号、注册号、密钥、token、联系方式等真实敏感值，也不写部分掩码或占位符。
 9. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity；只有用户明确要求时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`。
 10. Gateway 定时任务只索引和校准已有文件，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行 `qmd update`。
-11. 具体规则和可复制日记模板见 `references/context-maintenance.md` 与项目的 `context/DIARY_GUIDE.md`。
+11. 具体规则见 `references/context-maintenance.md`；可复制的脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。项目需要让网页端 GPT 参考规则和模板时，将该模板复制为 `context/DIARY_GUIDE.md` 并保留 `remote_access: always`。
 
 示例：
 

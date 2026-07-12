@@ -85,6 +85,8 @@ Webhook 必须验证签名，只处理 `refs/heads/main`；普通 Push 增量同
 
 在仅自己可见的 GPT 中导入 `https://<worker-host>/openapi.json`，认证选择 Bearer/API Key，并仅填 `GPT_ACTION_TOKEN`。Instructions 要求：事实优先用完整性验证过的 evidence；knowledge/context 仅辅助理解；按需启用 context；调用失败明确降级。
 
+日记规则与模板的云端参考：将脱敏的 [`diary-template.md`](diary-template.md) 复制到 KnowledgeBase 的 `context/DIARY_GUIDE.md`，保留 `type: context-guide`、`remote_access: always` 等 frontmatter。这样 Gateway 在已有文件同步后，私人 GPT 可在涉及日记撰写或 Context 维护的问题中按需检索该指南。该复制动作由用户或本地 Agent 执行；Cloudflare 定时任务只索引已有文件，不自动创建或修改 Context。
+
 ## 7. 验收与排查
 
 | 检查 | 通过标准 |
