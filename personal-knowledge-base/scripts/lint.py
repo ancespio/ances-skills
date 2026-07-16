@@ -497,6 +497,14 @@ def check_cross_language_duplicates(pages: list[Page]) -> list[str]:
                 and left_parts.path != right_parts.path
             ):
                 continue
+            if (
+                left_parts.netloc == "arxiv.org"
+                and right_parts.netloc == "arxiv.org"
+                and re.fullmatch(r"/abs/\d{4}\.\d{4,5}(?:v\d+)?", left_parts.path)
+                and re.fullmatch(r"/abs/\d{4}\.\d{4,5}(?:v\d+)?", right_parts.path)
+                and left_parts.path != right_parts.path
+            ):
+                continue
             score = SequenceMatcher(None, left_url, right_url).ratio()
             if score >= 0.85 and left_url != right_url:
                 issues.append(

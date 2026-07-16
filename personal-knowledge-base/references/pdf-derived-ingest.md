@@ -137,7 +137,7 @@ graph-excluded: true
 ### 4. INGEST
 
 1. 创建或更新原 source 页，不新建 derived source。
-2. 追加 `derived_manifest`、`derived_transcript`、适用的译文路径、`derived_status` 和 `derived_last_verified`。
+2. 追加 `derived_manifest`、`derived_transcript`、适用的译文路径、`derived_status` 和 `derived_last_verified`。若由维护脚本处理，finalizer 在核验 raw SHA-256 后同步前 3 项；仅修复历史元数据时使用 `--sync-source-only`。
 3. 以 raw PDF 为证据提取或更新 concept/entity；derived 仅作为读取层。
 4. 不因 derived 改变任何 `source_count` 或 confidence。
 5. 更新索引、日志和 qmd；默认 collection 排除 derived，独立 collection 仅供显式全文读取。

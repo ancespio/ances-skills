@@ -31,6 +31,14 @@ class CrossLanguageDuplicateTests(unittest.TestCase):
 
         self.assertEqual(check_cross_language_duplicates(pages), [])
 
+    def test_distinct_arxiv_ids_are_not_near_duplicates(self) -> None:
+        pages = [
+            source_page("one.md", "https://arxiv.org/abs/2607.07430"),
+            source_page("two.md", "https://arxiv.org/abs/2607.11881"),
+        ]
+
+        self.assertEqual(check_cross_language_duplicates(pages), [])
+
 
 class DerivedIntegrityTests(unittest.TestCase):
     def make_fixture(self, root: Path) -> tuple[list[Page], Path]:

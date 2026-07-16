@@ -28,6 +28,42 @@ def replace_frontmatter_value(path: Path, key: str, value: str) -> None:
     path.write_text(updated, encoding="utf-8", newline="\n")
 
 
+def sync_source_metadata(repo_root: Path, manifest: dict[str, object]) -> None:
+    slug = str(manifest["source_slug"])
+    source_path = repo_root / "wiki" / "sources" / f"{slug}.md"
+    if not source_path.is_file():
+        raise RuntimeError(f"Matching source page does not exist: {source_path}")
+
+    text = source_path.read_text(encoding="utf-8-sig").replace("\r\n", "\n")
+    if not text.startswith("---\n"):
+        raise RuntimeError(f"Missing frontmatter in source page: {source_path}")
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        raise RuntimeError(f"Missing frontmatter closing delimiter: {source_path}")
+
+    expected_raw_hash = str(manifest["raw_sha256"]).upper()
+    raw_match = re.search(r"(?m)^raw_sha256:\s*[\"']?([^\"'\n]+)", text[:end])
+    if raw_match is None or raw_match.group(1).strip().upper() != expected_raw_hash:
+        raise RuntimeError(f"Source raw SHA-256 does not match manifest: {source_path}")
+
+    values = {
+        "derived_manifest": f'"wiki/derived/pdfs/{slug}/manifest.json"',
+        "derived_transcript": f'"wiki/derived/pdfs/{slug}/transcript.md"',
+        "derived_status": str(manifest["quality_status"]),
+    }
+    frontmatter = text[4:end]
+    for key, value in values.items():
+        pattern = rf"(?m)^{re.escape(key)}:\s*.*$"
+        frontmatter, count = re.subn(pattern, f"{key}: {value}", frontmatter, count=1)
+        if count == 0:
+            frontmatter += f"\n{key}: {value}"
+    source_path.write_text(
+        f"---\n{frontmatter}\n---\n{text[end + 5:]}",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
 def clean_control_characters(text: str) -> str:
     return "".join(
         character
@@ -156,6 +192,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("target", type=Path)
     parser.add_argument("--quality-status", choices=("pass", "needs-review", "failed"), default="pass")
+    parser.add_argument("--sync-source-only", action="store_true")
     args = parser.parse_args()
 
     target = args.target.resolve()
@@ -169,6 +206,11 @@ def main() -> int:
         raise RuntimeError(
             f"Raw SHA-256 mismatch: expected {expected_raw_hash}, actual {actual_raw_hash}"
         )
+
+    if args.sync_source_only:
+        sync_source_metadata(repo_root, manifest)
+        print(json.dumps({"target": str(target), "source_synced": True}, ensure_ascii=False))
+        return 0
 
     page_anchor_count = add_page_anchors(target, manifest)
     if args.quality_status == "pass" and page_anchor_count != int(manifest["page_count"]):
@@ -211,6 +253,7 @@ def main() -> int:
         encoding="utf-8",
         newline="\n",
     )
+    sync_source_metadata(repo_root, manifest)
     print(json.dumps({"target": str(target), "quality_status": args.quality_status}, ensure_ascii=False))
     return 0
 
