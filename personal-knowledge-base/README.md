@@ -38,7 +38,7 @@ context/   用户画像、项目状态、偏好和日记，不作为外部证据
 - 生成可直接使用的 `AGENTS.md` 行为契约。
 - 摄入外部来源和个人写作，并保留 `raw_file`、`raw_sha256`、`last_verified`。
 - 把单栏、双栏、扫描版和复杂版式 PDF 转录为 Markdown；MinerU 主用、Docling 回退，并保留页锚、公式、表格、图片和完整解析产物。
-- 为非中文 PDF 生成中文摘要译文；只有你确认后才生成全文译文，并复用知识库已有术语。
+- 为所有文章生成中文辅助摘要；不超过 80,000 字符且不超过 30 页的 PDF 询问并建议全文翻译，超长篇建议只保留摘要。
 - 通过 slug 和 aliases 对齐概念，避免重复页面。
 - 使用 qmd、`rg` 或 `wiki/index.md` 查询本地知识，并通过 REVIEW 决定是否把高价值回答提升回 Wiki。
 - 对 frontmatter、wikilink、来源哈希、孤立页面和搜索索引执行健康检查。
@@ -186,7 +186,7 @@ Codex 会按四阶段处理：
 ```text
 wiki/derived/pdfs/<source-slug>/
 ├── transcript.md            # LLM 主要全文阅读层
-├── abstract.zh-CN.md        # 非中文来源的中文摘要
+├── abstract.zh-CN.md        # 中文辅助摘要
 ├── translation.zh-CN.md     # 你确认后才生成的全文译文
 ├── manifest.json            # raw identity、工具、质量、artifact 哈希
 ├── assets/                  # 图片和图表
@@ -195,7 +195,7 @@ wiki/derived/pdfs/<source-slug>/
 
 关键边界：原始 PDF 才是证据，转录和译文只是同一 source 的辅助表示。它们不会新建 source，也不会增加 `source_count` 或 confidence。所有 derived Markdown 都从图谱和默认语义检索中排除。
 
-全文翻译前，Codex 会再次询问你，并读取现有 concept/entity 的中文标题和 aliases 建立术语表。需要固定译法时可以这样说：
+所有文章默认先生成中文辅助摘要。全文翻译前，Codex 会再次询问你，并读取现有 concept/entity 的中文标题和 aliases 建立术语表；不超过 80,000 字符且不超过 30 页时建议翻译，超过任一阈值时建议只保留摘要。需要固定译法时可以这样说：
 
 ```text
 生成这篇论文的中文全文译文。沿用知识库已有术语；首次出现时保留英文原词，公式、引用和页锚不得改写。
@@ -332,7 +332,7 @@ Codex 会读取原文、计算哈希、创建 source 页、更新相关 concept/
 摄入 raw/pdfs/example-paper.pdf，执行 PREPARE -> DERIVE -> QC -> INGEST。
 ```
 
-非中文 PDF 默认只生成中文摘要。若你需要全文翻译，等 Codex 完成转录和术语表后再明确确认。质检未通过的 PDF 不会被提升为概念或结论。
+所有 PDF 默认先生成中文辅助摘要。若文章不超过 80,000 字符且不超过 30 页，Codex 会建议全文翻译；超长篇只在你明确坚持时才翻译。质检未通过的 PDF 不会被提升为概念或结论。
 
 ### 5. 查询知识
 
@@ -459,6 +459,10 @@ npm prefix -g
 ```
 
 如果 qmd 不可用，不会擅自安装依赖，降级使用 `rg` 和 `wiki/index.md`。启用 PDF derived 后，普通 collection 与默认 `rg` 必须排除 `wiki/derived/`；需要逐行查转录时显式使用独立 derived collection。安全查询应在 hybrid 失败或超时后依次降级到 BM25 和 `rg`，并告诉你实际使用了哪种模式。
+
+## 附带脚本
+
+`scripts/` 提供可复制到知识库项目的 PDF 派生、摘要/翻译、图片链接修复、lint，以及 qmd 运行、配置、安全查询和回归检查脚本。它们不包含模型缓存、索引、原始材料或本机路径；安装依赖前仍须由你确认。
 
 ## 隐私与安全
 
