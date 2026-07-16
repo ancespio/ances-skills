@@ -90,7 +90,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 3. `QC`：验证 raw identity、artifact SHA、连续页锚、图片链接、首/中/尾页、双栏阅读顺序、OCR、公式、表格与参考文献。未通过时保持 `needs-review` 或 `failed`，不得继续知识提升。
 4. `INGEST`：更新原 source 页和已有 concept/entity。PDF 是原始证据；transcript 是主要 LLM 阅读层；译文是辅助层，三者共享一个 source identity。
 
-非中文 PDF 默认生成中文摘要译文；全文译文必须先询问用户。显式指定 model：小规模更新优先使用子 agent，大规模任务才调用 Codex CLI；小模型只处理低复杂度任务，不能绕过统一 QC。译文 frontmatter 与 manifest 必须记录 model、调用方式、prompt version 和生成时间。翻译前读取 concept/entity 的 `title` 与 `aliases` 建立术语表，保留原始术语、公式、引用和页锚。每次翻译后验证 raw identity、页锚数量与顺序、Markdown/HTML 图片链接、公式、引用编号、术语 aliases、中文内容质量，并确认 `source_count` 和 confidence 未变。derived 永不增加 `source_count` 或 confidence，所有 Markdown 设置 `graph-excluded: true`。
+所有文章默认生成中文辅助摘要：中文原文只生成摘要，非中文 PDF 写入 `abstract.zh-CN.md`。全文译文必须先按 transcript 篇幅询问用户：不超过 8,000 字符且不超过 4 页的短篇可询问但不建议翻译；不超过 80,000 字符且不超过 30 页的常规篇询问并建议翻译；超过任一阈值的超长篇建议只保留摘要，只有用户明确坚持才全文翻译。显式指定 model：小规模更新优先使用子 agent，大规模任务才调用 Codex CLI；小模型只处理低复杂度任务，不能绕过统一 QC。译文 frontmatter 与 manifest 必须记录 model、调用方式、prompt version 和生成时间。翻译前读取 concept/entity 的 `title` 与 `aliases` 建立术语表，保留原始术语、公式、引用和页锚。每次翻译后验证 raw identity、页锚数量与顺序、Markdown/HTML 图片链接、公式、引用编号、术语 aliases、中文内容质量，并确认 `source_count` 和 confidence 未变。derived 永不增加 `source_count` 或 confidence，所有 Markdown 设置 `graph-excluded: true`。
 
 默认 qmd collection 排除 `derived/**`；建立 `includeByDefault: false` 的独立 derived collection，并忽略 `**/intermediate/**`。只有需要逐行核对原文转录或译文时显式查询 derived。完整目录、frontmatter、manifest、工具和质量门槛见 `references/pdf-derived-ingest.md`，每次实际处理 PDF 前先读取。
 
