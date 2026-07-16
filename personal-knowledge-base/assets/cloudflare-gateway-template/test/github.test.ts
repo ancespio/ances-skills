@@ -47,15 +47,26 @@ describe("GithubRepositoryClient", () => {
 
   it("returns null for a missing file", async () => {
     const client = new GithubRepositoryClient(
-      { owner: "ancespio", repository: "KnowledgeBase", token: "github-token" },
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
       async () => new Response("not found", { status: 404 }),
     );
     await expect(client.readFile("raw/missing.md", "abc123")).resolves.toBeNull();
   });
 
+  it("hashes a raw file as a stream without buffering it through readFile", async () => {
+    const client = new GithubRepositoryClient(
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
+      async () => new Response("test", { status: 200 }),
+    );
+
+    await expect(client.sha256File("raw/pdfs/example.pdf", "abc123")).resolves.toBe(
+      "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    );
+  });
+
   it("lists only blobs from a recursive Git tree", async () => {
     const client = new GithubRepositoryClient(
-      { owner: "ancespio", repository: "KnowledgeBase", token: "github-token" },
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
       async () =>
         Response.json({
           truncated: false,
@@ -75,7 +86,7 @@ describe("GithubRepositoryClient", () => {
 
   it("rejects a truncated Git tree instead of silently missing files", async () => {
     const client = new GithubRepositoryClient(
-      { owner: "ancespio", repository: "KnowledgeBase", token: "github-token" },
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
       async () => Response.json({ truncated: true, tree: [] }),
     );
     await expect(client.listFiles("abc123")).rejects.toThrow("Git tree response was truncated");
@@ -83,7 +94,7 @@ describe("GithubRepositoryClient", () => {
 
   it("reads the current main branch commit for scheduled reconciliation", async () => {
     const client = new GithubRepositoryClient(
-      { owner: "ancespio", repository: "KnowledgeBase", token: "github-token" },
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
       async () => Response.json({ object: { sha: "d".repeat(40) } }),
     );
     await expect(client.getBranchHead("main")).resolves.toBe("d".repeat(40));
@@ -91,7 +102,7 @@ describe("GithubRepositoryClient", () => {
 
   it("throws a bounded GitHub error without including response content", async () => {
     const client = new GithubRepositoryClient(
-      { owner: "ancespio", repository: "KnowledgeBase", token: "github-token" },
+      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
       async () => new Response("private response body", { status: 403 }),
     );
     await expect(client.readFile("wiki/sources/a.md", "abc123")).rejects.toThrow(

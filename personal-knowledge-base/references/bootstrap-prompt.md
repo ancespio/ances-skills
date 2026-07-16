@@ -22,6 +22,7 @@
 推荐准备：
 
 - 2-3 篇用于标定的不同材料：外部文章/网页剪藏、PDF/研究资料、个人文章/项目笔记各选一类。
+- 若 PDF 是主要材料：准备实际常见的单栏、双栏、扫描件或复杂表格样本；确认中文摘要/全文翻译偏好、固定术语译法、存储空间与 Git LFS 范围。全文翻译必须单独确认。
 - 希望知识库重点覆盖的主题，以及明确不应进入知识库的隐私内容。
 - 可选的 Context 初始材料：个人背景、长期偏好、当前项目、已有决策、近期状态和日记。
 - 工具偏好：是否使用 Obsidian、qmd、Python lint 和 Git。先检测，不要擅自安装。
@@ -56,6 +57,8 @@ wiki/
   concepts/
   entities/
   synthesis/
+  derived/
+    pdfs/
   outputs/
   templates/
 context/
@@ -85,6 +88,9 @@ wiki/templates/output-template.md
 
 - Raw/Wiki/Context 三层职责。
 - INGEST、QUERY -> REVIEW -> PROMOTE、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
+- PDF `PREPARE -> DERIVE -> QC -> INGEST`：raw PDF 是证据，`transcript.md` 是主要 LLM 阅读层，译文是辅助层，三者共享 source identity；derived 不增加 `source_count` 或 confidence。
+- PDF 默认 MinerU 主用、Docling 回退；非中文默认生成中文摘要，全文译文必须再次询问；翻译前读取 concept/entity aliases 建立术语表。
+- derived 目录为 `wiki/derived/pdfs/<source-slug>/`，包含 transcript、manifest、适用译文、assets 和完整 intermediate；所有 derived Markdown 都 `graph-excluded: true`。
 - 外部来源与个人写作的不同处理方式。
 - Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；日记只记录确认事实、用户决策和明确确认的决策倾向，不写 Agent 推断；不作为外部证据；只有我明确要求时才沉淀为知识页；无状态变化时不创建空日记。
 - 可复制的脱敏日记模板见 `references/diary-template.md`；若网页端 GPT 需要读取规则和模板，可将其复制为知识库的 `context/DIARY_GUIDE.md` 并设置 `remote_access: always`。
@@ -113,6 +119,7 @@ wiki/templates/output-template.md
 - source 页是否包含 `raw_file`、`raw_sha256`、`last_verified`。
 - wikilink 目标是否疑似中文、包含空格或下划线。
 - source 页记录的 raw 文件是否存在。
+- PDF derived 的 raw/manifest/artifact SHA、连续页锚、图片链接、source 状态和 `graph-excluded`；至少包含正常与篡改回归测试。
 
 7. 搜索工具处理：
 
@@ -128,10 +135,13 @@ qmd update
 qmd status
 ```
 
+- 如果存在 `wiki/derived/`：普通 wiki collection 忽略 `derived/**`；独立 `derived` collection 设置 `includeByDefault: false` 并忽略 `**/intermediate/**`。
+- 创建安全查询入口：hybrid 最多等待 90 秒，失败或超时后依次降级 BM25 和 `rg`，输出实际模式和原因；默认 `rg` 也必须排除 derived。
+
 8. 初始化完成后，执行一次全系统 Audit：
 
 - 检查所有目录、系统文件和模板是否存在。
-- 逐项检查 `AGENTS.md` 是否覆盖 Raw 不可变、Context 更新、INGEST 类型判断、SHA-256、aliases 去重、QUESTIONS 匹配、QUERY 溯源、REVIEW 分类、PROMOTE 路由、二阶产物不计来源、high confidence 人工确认、LINT、REFLECT 反向检验、MERGE redirect 和系统文件隔离。
+- 逐项检查 `AGENTS.md` 是否覆盖 Raw 不可变、Context 更新、INGEST 类型判断、PDF PREPARE/DERIVE/QC、SHA-256、aliases 去重、QUESTIONS 匹配、QUERY 溯源、REVIEW 分类、PROMOTE 路由、二阶产物不计来源、high confidence 人工确认、LINT、REFLECT 反向检验、MERGE redirect 和系统文件隔离。
 - 运行 `python scripts/lint.py`。
 - 如果 qmd 可用，运行 `qmd status` 和一次测试查询。
 - 把结果写入 `wiki/outputs/system-audit-YYYY-MM-DD.md`，逐项标注通过、未通过和修复优先级。

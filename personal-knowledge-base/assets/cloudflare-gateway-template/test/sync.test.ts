@@ -180,6 +180,30 @@ describe("syncChangedPaths", () => {
     expect(index.uploads.map((upload) => upload.path)).toEqual(["wiki/sources/example.md"]);
   });
 
+  it("uses the repository streaming hash when available", async () => {
+    const repository = {
+      async readFile(path: string) {
+        if (path === "wiki/sources/example.md") {
+          return encoder.encode(sourceMarkdown());
+        }
+        throw new Error("raw file should not be buffered");
+      },
+      async sha256File(path: string) {
+        expect(path).toBe("raw/articles/example.md");
+        return RAW_HASH;
+      },
+    };
+    const index = new FakeIndex();
+    const state = new FakeState();
+
+    await syncChangedPaths(
+      { repository, index, state },
+      { commit: "abc123", upsert: ["wiki/sources/example.md"], remove: [] },
+    );
+
+    expect(index.uploads.map((upload) => upload.path)).toEqual(["wiki/sources/example.md"]);
+  });
+
   it("removes deleted indexed files and their source mapping", async () => {
     const repository = new FakeRepository({});
     const index = new FakeIndex();

@@ -10,7 +10,7 @@ $operations = @($schema.paths.PSObject.Properties.Value | ForEach-Object { $_.po
 
 if (-not $health.ok) { throw 'Gateway health check failed.' }
 if (-not $health.syncedCommit) { throw 'Gateway has no syncedCommit; finish initial sync first.' }
-if (@('queryKnowledgeBase', 'getVerifiedSource') | Where-Object { $_ -notin $operations }) {
+if (@('queryKnowledgeBase', 'getVerifiedSource', 'getVerifiedSourceText') | Where-Object { $_ -notin $operations }) {
   throw 'OpenAPI is missing one or more required read-only Actions.'
 }
 

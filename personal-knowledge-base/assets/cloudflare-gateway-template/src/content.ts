@@ -8,6 +8,11 @@ export type SourceFrontmatter = {
   confidence?: string;
   sourceCount?: number;
   lastVerified?: string;
+  derivedManifest?: string;
+  derivedTranscript?: string;
+  derivedAbstractTranslation?: string;
+  derivedFullTranslation?: string;
+  derivedStatus?: string;
 };
 
 export type IntegrityResult = {
@@ -92,6 +97,19 @@ export function parseSourceFrontmatter(markdown: string): SourceFrontmatter {
     ...(values.get("last_verified")
       ? { lastVerified: values.get("last_verified") }
       : {}),
+    ...(values.get("derived_manifest")
+      ? { derivedManifest: values.get("derived_manifest") }
+      : {}),
+    ...(values.get("derived_transcript")
+      ? { derivedTranscript: values.get("derived_transcript") }
+      : {}),
+    ...(values.get("derived_abstract_translation")
+      ? { derivedAbstractTranslation: values.get("derived_abstract_translation") }
+      : {}),
+    ...(values.get("derived_full_translation")
+      ? { derivedFullTranslation: values.get("derived_full_translation") }
+      : {}),
+    ...(values.get("derived_status") ? { derivedStatus: values.get("derived_status") } : {}),
   };
 }
 

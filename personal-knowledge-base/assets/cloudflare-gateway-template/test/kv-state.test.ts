@@ -78,4 +78,18 @@ describe("KvSyncState", () => {
     await state.clearPendingFullSync();
     await expect(state.getPendingFullSync()).resolves.toBeNull();
   });
+
+  it("stores the latest sync attempt", async () => {
+    const state = new KvSyncState(new FakeKv());
+    const attempt = {
+      commit: "abc123",
+      mode: "incremental" as const,
+      status: "failed" as const,
+      updatedAt: "2026-07-15T00:00:00.000Z",
+      error: "upload failed",
+    };
+
+    await state.setLastSyncAttempt(attempt);
+    await expect(state.getLastSyncAttempt()).resolves.toEqual(attempt);
+  });
 });

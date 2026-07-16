@@ -2,8 +2,13 @@ import { authorizeBearer, verifyGithubWebhook } from "./auth";
 import type { FullSyncProgress } from "./full-sync";
 import { openApiDocument } from "./openapi";
 import type { QueryInput, QueryResult } from "./query";
-import type { VerifiedSource } from "./source";
+import type {
+  SourceTextRequest,
+  VerifiedSource,
+  VerifiedSourceText,
+} from "./source";
 import type { SyncResult } from "./sync";
+import { runTrackedSync, type SyncAttempt, type SyncMode } from "./sync-status";
 
 type ChangeSet = {
   commit: string;
@@ -17,10 +22,18 @@ export interface AppDependencies {
   webhookSecret: string;
   query(input: QueryInput): Promise<QueryResult>;
   getSyncedCommit(): Promise<string | null>;
+  getPendingFullSync(): Promise<{ commit: string; cursor: number } | null>;
+  getLastSyncAttempt(): Promise<SyncAttempt | null>;
+  setLastSyncAttempt(attempt: SyncAttempt): Promise<void>;
   syncChanges(changes: ChangeSet): Promise<SyncResult>;
   startFullSync(commit: string): Promise<FullSyncProgress>;
   continueFullSync(): Promise<FullSyncProgress | null>;
   getSource(slug: string, commit: string): Promise<VerifiedSource | null>;
+  getSourceText(
+    slug: string,
+    commit: string,
+    request: SourceTextRequest,
+  ): Promise<VerifiedSourceText | null>;
 }
 
 export interface ExecutionPort {
@@ -35,6 +48,8 @@ const JSON_HEADERS = {
   "cache-control": "no-store",
   "content-type": "application/json; charset=utf-8",
 };
+
+const INCREMENTAL_PATH_LIMIT = 5;
 
 function json(value: unknown, status = 200): Response {
   return Response.json(value, { status, headers: JSON_HEADERS });
@@ -132,6 +147,16 @@ function changesFromPush(payload: PushPayload): ChangeSet {
   return { commit: payload.after, upsert: [...upsert], remove: [...remove] };
 }
 
+function scheduleSync(
+  execution: ExecutionPort,
+  dependencies: AppDependencies,
+  mode: SyncMode,
+  commit: string,
+  task: () => Promise<unknown>,
+): void {
+  execution.waitUntil(runTrackedSync(dependencies, mode, commit, task));
+}
+
 async function handleQuery(request: Request, dependencies: AppDependencies): Promise<Response> {
   if (!(await authorizeBearer(request, dependencies.actionToken))) {
     return json({ error: "unauthorized" }, 401);
@@ -185,12 +210,25 @@ async function handleWebhook(
     return json({ accepted: true, ignored: "branch" }, 202);
   }
 
-  if (payload.forced || payload.size > payload.commits.length) {
-    execution.waitUntil(dependencies.startFullSync(payload.after));
+  const changes = changesFromPush(payload);
+  const changedPathCount = changes.upsert.length + changes.remove.length;
+  const pendingFullSync = await dependencies.getPendingFullSync();
+  if (
+    pendingFullSync !== null ||
+    payload.forced ||
+    payload.size > payload.commits.length ||
+    changedPathCount > INCREMENTAL_PATH_LIMIT
+  ) {
+    scheduleSync(execution, dependencies, "full-sync", payload.after, () =>
+      dependencies.startFullSync(payload.after),
+    );
+    return json({ accepted: true, mode: "full-sync", targetCommit: payload.after }, 202);
   } else {
-    execution.waitUntil(dependencies.syncChanges(changesFromPush(payload)));
+    scheduleSync(execution, dependencies, "incremental", payload.after, () =>
+      dependencies.syncChanges(changes),
+    );
+    return json({ accepted: true, mode: "incremental", targetCommit: payload.after }, 202);
   }
-  return json({ accepted: true }, 202);
 }
 
 async function handleAdminSync(
@@ -231,13 +269,74 @@ async function handleSource(
   return source ? json(source) : json({ error: "verified source not found" }, 404);
 }
 
+function parsePositiveInteger(
+  url: URL,
+  name: string,
+  defaultValue: number,
+  maximum: number,
+): number | null {
+  const raw = url.searchParams.get(name);
+  if (raw === null) return defaultValue;
+  if (!/^[1-9]\d*$/.test(raw)) return null;
+  const value = Number.parseInt(raw, 10);
+  return Number.isSafeInteger(value) && value <= maximum ? value : null;
+}
+
+function parseSourceTextRequest(url: URL): SourceTextRequest | null {
+  const variant = url.searchParams.get("variant") ?? "original";
+  if (variant !== "original" && variant !== "zh-abstract" && variant !== "zh-full") {
+    return null;
+  }
+  const fromLine = parsePositiveInteger(url, "from_line", 1, 1_000_000);
+  const maxLines = parsePositiveInteger(url, "max_lines", 200, 500);
+  if (fromLine === null || maxLines === null) return null;
+  return { variant, fromLine, maxLines };
+}
+
+async function handleSourceText(
+  request: Request,
+  dependencies: AppDependencies,
+  slug: string,
+  url: URL,
+): Promise<Response> {
+  if (!(await authorizeBearer(request, dependencies.actionToken))) {
+    return json({ error: "unauthorized" }, 401);
+  }
+  const input = parseSourceTextRequest(url);
+  if (!input) return json({ error: "invalid source text query" }, 400);
+  const commit = await dependencies.getSyncedCommit();
+  if (!commit) return json({ error: "verified source text not found" }, 404);
+  const sourceText = await dependencies.getSourceText(slug, commit, input);
+  return sourceText
+    ? json(sourceText)
+    : json({ error: "verified source text not found" }, 404);
+}
+
 export function createApp(dependencies: AppDependencies): App {
   return {
     async fetch(request: Request, execution: ExecutionPort): Promise<Response> {
       const url = new URL(request.url);
       const { pathname } = url;
       if (request.method === "GET" && pathname === "/health") {
-        return json({ ok: true, syncedCommit: await dependencies.getSyncedCommit() });
+        const [syncedCommit, pendingFullSync, lastAttempt] = await Promise.all([
+          dependencies.getSyncedCommit(),
+          dependencies.getPendingFullSync(),
+          dependencies.getLastSyncAttempt(),
+        ]);
+        return json({
+          ok: true,
+          syncedCommit,
+          pendingFullSync,
+          lastAttempt: lastAttempt
+            ? {
+                commit: lastAttempt.commit,
+                mode: lastAttempt.mode,
+                status: lastAttempt.status,
+                updatedAt: lastAttempt.updatedAt,
+                hasError: lastAttempt.error !== undefined,
+              }
+            : null,
+        });
       }
       if (request.method === "GET" && pathname === "/openapi.json") {
         return json(openApiDocument(url.origin));
@@ -254,9 +353,26 @@ export function createApp(dependencies: AppDependencies): App {
       if (request.method === "POST" && pathname === "/admin/sync/continue") {
         return handleAdminSync(request, dependencies, false);
       }
-      if (request.method === "GET" && pathname.startsWith("/v1/sources/")) {
-        const slug = decodeURIComponent(pathname.slice("/v1/sources/".length));
-        return handleSource(request, dependencies, slug);
+      const sourceTextMatch = pathname.match(/^\/v1\/sources\/([^/]+)\/text$/);
+      if (request.method === "GET" && sourceTextMatch) {
+        try {
+          return handleSourceText(
+            request,
+            dependencies,
+            decodeURIComponent(sourceTextMatch[1]!),
+            url,
+          );
+        } catch {
+          return json({ error: "invalid source slug" }, 400);
+        }
+      }
+      const sourceMatch = pathname.match(/^\/v1\/sources\/([^/]+)$/);
+      if (request.method === "GET" && sourceMatch) {
+        try {
+          return handleSource(request, dependencies, decodeURIComponent(sourceMatch[1]!));
+        } catch {
+          return json({ error: "invalid source slug" }, 400);
+        }
       }
       return json({ error: "not found" }, 404);
     },

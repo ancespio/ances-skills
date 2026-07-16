@@ -6,8 +6,9 @@ import { GithubRepositoryClient } from "./github";
 import { ensureSearchInstances } from "./instances";
 import { KvSyncState } from "./kv-state";
 import { queryKnowledgeBase } from "./query";
-import { getVerifiedSource } from "./source";
+import { getVerifiedSource, getVerifiedSourceText } from "./source";
 import { syncChangedPaths } from "./sync";
+import { runTrackedSync } from "./sync-status";
 
 function buildRuntime(env: Env) {
   const state = new KvSyncState(env.SYNC_STATE);
@@ -26,6 +27,9 @@ function buildRuntime(env: Env) {
     webhookSecret: env.GITHUB_WEBHOOK_SECRET,
     query: (input) => queryKnowledgeBase(search, input),
     getSyncedCommit: () => state.getSyncedCommit(),
+    getPendingFullSync: () => state.getPendingFullSync(),
+    getLastSyncAttempt: () => state.getLastSyncAttempt(),
+    setLastSyncAttempt: (attempt) => state.setLastSyncAttempt(attempt),
     syncChanges: async (changes) => {
       await ensureInstances();
       return syncChangedPaths({ repository, index, state }, changes);
@@ -39,8 +43,10 @@ function buildRuntime(env: Env) {
       return fullSync.continue();
     },
     getSource: (slug, commit) => getVerifiedSource(repository, slug, commit),
+    getSourceText: (slug, commit, request) =>
+      getVerifiedSourceText(repository, slug, commit, request),
   });
-  return { app, fullSync, repository, ensureInstances };
+  return { app, fullSync, repository, state, ensureInstances };
 }
 
 export default {
@@ -56,10 +62,17 @@ export default {
         await runtime.ensureInstances();
         if (controller.cron === "30 2 * * *") {
           const commit = await runtime.repository.getBranchHead("main");
-          await runtime.fullSync.start(commit);
+          await runTrackedSync(runtime.state, "full-sync", commit, () =>
+            runtime.fullSync.start(commit),
+          );
           return;
         }
-        await runtime.fullSync.continue();
+        const pending = await runtime.state.getPendingFullSync();
+        if (pending) {
+          await runTrackedSync(runtime.state, "full-sync", pending.commit, () =>
+            runtime.fullSync.continue(),
+          );
+        }
       })(),
     );
   },

@@ -48,6 +48,10 @@ export class FullSyncCoordinator {
   }
 
   async start(commit: string): Promise<FullSyncProgress> {
+    const pending = await this.dependencies.state.getPendingFullSync();
+    if (pending?.commit === commit) {
+      return this.runBatch(commit, pending.cursor);
+    }
     await this.dependencies.state.setPendingFullSync(commit, 0);
     const progress = await this.runBatch(commit, 0);
     if (!progress) throw new Error("full sync did not start");

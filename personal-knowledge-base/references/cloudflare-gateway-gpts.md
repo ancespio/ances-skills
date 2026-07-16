@@ -2,7 +2,7 @@
 
 ## 目标与边界
 
-这是知识库的可选只读入口，不替代本地 qmd。知识库与 Gateway 分两个私有仓库维护：前者只保存知识库，后者保存 Worker 代码、配置与 Action schema。不得把 `raw/`、管理端点、webhook secret、Deploy Hook URL 或 token 暴露给 GPT。
+这是知识库的可选只读入口，不替代本地 qmd。知识库与 Gateway 分两个私有仓库维护：前者只保存知识库，后者保存 Worker 代码、配置与 Action schema。不得把 `raw/`、默认排除的 `wiki/derived/`、管理端点、webhook secret、Deploy Hook URL 或 token 暴露给 GPT。derived 只允许通过校验后的分页接口按需读取。
 
 ```text
 KnowledgeBase main push -> GitHub Push webhook -> Worker incremental sync -> AI Search
@@ -73,7 +73,18 @@ async scheduled(controller, env, ctx) {
 }
 ```
 
-Webhook 必须验证签名，只处理 `refs/heads/main`；普通 Push 增量同步，force Push 或截断 payload 改为全量对账。`/v1/query` 和 `/v1/sources/{slug}` 用 Action token；`/admin/*` 必须使用独立 Admin token，且不得出现在公开 OpenAPI。
+Webhook 必须验证签名，只处理 `refs/heads/main`；普通 Push 增量同步，force Push 或截断 payload 改为全量对账。`/v1/query`、`/v1/sources/{slug}` 和 `/v1/sources/{slug}/text` 用 Action token；`/admin/*` 必须使用独立 Admin token，且不得出现在公开 OpenAPI。
+
+PDF derived 不进入默认 AI Search。`getVerifiedSource` 返回通过校验的 `availableTextVariants`；客户端再按需调用：
+
+```http
+GET /v1/sources/{slug}/text
+    ?variant=original|zh-abstract|zh-full
+    &from_line=1
+    &max_lines=200
+```
+
+Worker 必须在同一个 synced commit 依次验证 source 页 raw SHA、manifest 的 source/raw identity 和目标 transcript/translation artifact SHA。响应返回 raw/derived 路径与哈希、`generatedAt`、`syncedCommit`、分页位置和 warnings；任何一级不一致都拒绝返回。
 
 ## 5. GitHub webhook 与首次同步
 
@@ -92,7 +103,8 @@ Webhook 必须验证签名，只处理 `refs/heads/main`；普通 Push 增量同
 | 检查 | 通过标准 |
 | --- | --- |
 | 运行基线 | `/health` 返回 `ok: true` 且 `syncedCommit` 非空 |
-| Action | OpenAPI 只暴露两个只读 operation，二者单独调用成功 |
+| Action | OpenAPI 只暴露三个只读 operation，三者单独调用成功 |
+| Derived | 原文与摘要译文可分页读取；缺失全文译文、篡改 raw、manifest 或 derived 文件时拒绝返回 |
 | 增量 | 一次知识库 `main` Push 触发 webhook 后索引 commit 更新 |
 | 补偿 | 每日任务启动全量校准；每小时任务继续未完成批次 |
 | 代码部署 | Gateway 推送或 Deploy Hook 后出现新的生产部署 |

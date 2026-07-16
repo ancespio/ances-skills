@@ -123,4 +123,26 @@ describe("FullSyncCoordinator", () => {
     );
     await expect(coordinator.continue()).resolves.toBeNull();
   });
+
+  it("continues the existing cursor when the same commit is started again", async () => {
+    const repository = new Repository({
+      "wiki/concepts/a.md": "# A",
+      "wiki/concepts/b.md": "# B",
+      "wiki/concepts/c.md": "# C",
+    });
+    const index = new Index();
+    const state = new State();
+    state.pending = { commit: "abc123", cursor: 2 };
+    const coordinator = new FullSyncCoordinator({ repository, index, state }, 1);
+
+    await expect(coordinator.start("abc123")).resolves.toEqual({
+      commit: "abc123",
+      processed: 1,
+      nextCursor: null,
+      complete: true,
+      issues: [],
+    });
+    expect(index.uploaded).toEqual(["wiki/concepts/c.md"]);
+    expect(state.syncedCommit).toBe("abc123");
+  });
 });

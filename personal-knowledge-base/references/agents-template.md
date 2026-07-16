@@ -42,6 +42,8 @@
     concepts/
     entities/
     synthesis/
+    derived/
+      pdfs/
     outputs/
     templates/
   context/
@@ -50,6 +52,9 @@
   outputs/
   scripts/
     lint.py
+    qmd-query.ps1
+    derive-pdf.ps1
+    finalize_pdf_derivative.py
 ```
 
 ## 工具
@@ -65,6 +70,8 @@ qmd collection add context/
 qmd update
 qmd status
 ```
+
+启用 PDF derived 时，普通 wiki collection 必须忽略 `derived/**`；独立 `derived` collection 设置 `includeByDefault: false` 并忽略 `**/intermediate/**`。维护一个安全查询 wrapper：hybrid 超时或失败后依次降级 BM25 与 `rg`，返回实际模式和原因；默认 `rg` 同样排除 derived。
 
 Windows 下 PATH 找不到 qmd 时，先尝试：
 
@@ -206,7 +213,7 @@ context/
 
 触发词：`ingest`、`摄入`、`处理这个`
 
-1. 读取目标 raw 来源，只读。
+1. 读取目标 raw 来源，只读。PDF 先执行下述 `PREPARE -> DERIVE -> QC`，通过后才进入知识提取。
 2. 计算 raw 文件 SHA-256。
 3. 判断来源类型：
    - `context/`：默认不摄入，除非用户要求沉淀为知识页。
@@ -222,6 +229,16 @@ context/
 11. 检查 `wiki/QUESTIONS.md` 是否有可回答问题；如有，询问是否执行 QUERY。
 12. 追加 `wiki/log.md`。
 13. 如果 qmd 已配置，执行 `qmd update`；不可用时说明已降级。
+
+### PDF：PREPARE -> DERIVE -> QC -> INGEST
+
+1. `PREPARE`：确认文件位于 `raw/pdfs/`，计算 SHA-256，复用 source slug，检查目标 derived、项目内 Python 3.10-3.12、MinerU、Docling、模型缓存、磁盘和 Git LFS。
+2. `DERIVE`：MinerU 主用、Docling 回退；先写 work，再生成 `wiki/derived/pdfs/<source-slug>/transcript.md`、`manifest.json`、`assets/`、`intermediate/<engine>/`。非中文默认生成 `abstract.zh-CN.md`；全文译文必须再次询问用户。
+3. `TRANSLATE`：读取 concept/entity 的 `title` 和 `aliases` 建立术语表，保留公式、引用、页锚和首次出现的原始术语。
+4. `QC`：验证 source/raw/manifest identity、artifact bytes/SHA、PDF 页数与连续页锚、图片链接、首中尾页、双栏顺序、OCR、公式、表格和参考文献。未通过保持 `needs-review` 或 `failed`；两个引擎都失败时停止知识提升。
+5. `INGEST`：更新原 source 页的 `derived_manifest`、`derived_transcript`、适用译文路径、`derived_status` 和 `derived_last_verified`。不得为 derived 新建 source，不得增加 `source_count` 或 confidence。
+
+所有 derived Markdown 必须 `graph-excluded: true`。完整契约采用 personal-knowledge-base skill 的 `references/pdf-derived-ingest.md`。
 
 个人写作流程：
 
@@ -317,6 +334,8 @@ redirect: [[main-slug]]
 - re-ingest：若 lint 报告 `SOURCE MODIFIED`，重新摄入来源并更新所有受影响页面。
 - 来源超过 2 年时标注 `possibly_outdated: true`。
 - 矛盾来源必须在 source 页和 concept 页显式记录。
+- PDF derived 必须验证 raw SHA、manifest raw identity 和每个 artifact SHA；source 页与 manifest 状态不一致时拒绝读取。
+- PDF 是原始证据；transcript 与译文共享同一 source identity，只是辅助阅读层。
 
 ## 文档维护
 

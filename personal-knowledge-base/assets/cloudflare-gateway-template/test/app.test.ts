@@ -35,6 +35,13 @@ function dependencies(overrides: Partial<AppDependencies> = {}): AppDependencies
     async getSyncedCommit() {
       return "abc123";
     },
+    async getPendingFullSync() {
+      return null;
+    },
+    async getLastSyncAttempt() {
+      return null;
+    },
+    async setLastSyncAttempt() {},
     async syncChanges() {
       return { uploaded: 0, removed: 0, issues: [] };
     },
@@ -45,6 +52,9 @@ function dependencies(overrides: Partial<AppDependencies> = {}): AppDependencies
       return null;
     },
     async getSource() {
+      return null;
+    },
+    async getSourceText() {
       return null;
     },
     ...overrides,
@@ -109,6 +119,44 @@ describe("query endpoint", () => {
   });
 });
 
+describe("health endpoint", () => {
+  it("reports pending progress and a sanitized last attempt", async () => {
+    const app = createApp(
+      dependencies({
+        async getPendingFullSync() {
+          return { commit: "def456", cursor: 10 };
+        },
+        async getLastSyncAttempt() {
+          return {
+            commit: "def456",
+            mode: "full-sync",
+            status: "failed",
+            updatedAt: "2026-07-15T00:00:00.000Z",
+            error: "private/path.md failed",
+          };
+        },
+      }),
+    );
+    const response = await app.fetch(
+      new Request("https://gateway.example/health"),
+      execution(),
+    );
+
+    expect(await response.json()).toEqual({
+      ok: true,
+      syncedCommit: "abc123",
+      pendingFullSync: { commit: "def456", cursor: 10 },
+      lastAttempt: {
+        commit: "def456",
+        mode: "full-sync",
+        status: "failed",
+        updatedAt: "2026-07-15T00:00:00.000Z",
+        hasError: true,
+      },
+    });
+  });
+});
+
 describe("Action schema endpoint", () => {
   it("publishes a host-specific OpenAPI schema without exposing admin routes", async () => {
     const app = createApp(dependencies());
@@ -123,7 +171,11 @@ describe("Action schema endpoint", () => {
 
     expect(response.status).toBe(200);
     expect(document.servers).toEqual([{ url: "https://gateway.example" }]);
-    expect(Object.keys(document.paths)).toEqual(["/v1/query", "/v1/sources/{slug}"]);
+    expect(Object.keys(document.paths)).toEqual([
+      "/v1/query",
+      "/v1/sources/{slug}",
+      "/v1/sources/{slug}/text",
+    ]);
   });
 });
 
@@ -251,6 +303,104 @@ describe("GitHub webhook endpoint", () => {
     await Promise.all(ctx.pending);
     expect(commits).toEqual(["b".repeat(40)]);
   });
+
+  it("uses a resumable full sync when a push changes more than five paths", async () => {
+    const calls: string[] = [];
+    const app = createApp(
+      dependencies({
+        async syncChanges() {
+          calls.push("incremental");
+          return { uploaded: 0, removed: 0, issues: [] };
+        },
+        async startFullSync(commit) {
+          calls.push(`full:${commit}`);
+          return { commit, processed: 5, nextCursor: 5, complete: false, issues: [] };
+        },
+      }),
+    );
+    const commit = "d".repeat(40);
+    const body = JSON.stringify({
+      ref: "refs/heads/main",
+      after: commit,
+      size: 1,
+      forced: false,
+      commits: [
+        {
+          added: Array.from({ length: 6 }, (_, index) => `wiki/concepts/${index}.md`),
+          modified: [],
+          removed: [],
+        },
+      ],
+    });
+    const ctx = execution();
+    const response = await app.fetch(
+      new Request("https://gateway.example/github/webhook", {
+        method: "POST",
+        headers: {
+          "x-github-event": "push",
+          "x-hub-signature-256": await githubSignature(body, "webhook-secret"),
+        },
+        body,
+      }),
+      ctx,
+    );
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({
+      accepted: true,
+      mode: "full-sync",
+      targetCommit: commit,
+    });
+    await Promise.all(ctx.pending);
+    expect(calls).toEqual([`full:${commit}`]);
+  });
+
+  it("moves a new push into full sync while another reconciliation is pending", async () => {
+    const calls: string[] = [];
+    const app = createApp(
+      dependencies({
+        async getPendingFullSync() {
+          return { commit: "a".repeat(40), cursor: 10 };
+        },
+        async syncChanges() {
+          calls.push("incremental");
+          return { uploaded: 0, removed: 0, issues: [] };
+        },
+        async startFullSync(commit) {
+          calls.push(`full:${commit}`);
+          return { commit, processed: 5, nextCursor: 5, complete: false, issues: [] };
+        },
+      }),
+    );
+    const commit = "e".repeat(40);
+    const body = JSON.stringify({
+      ref: "refs/heads/main",
+      after: commit,
+      size: 1,
+      forced: false,
+      commits: [{ added: ["wiki/concepts/new.md"], modified: [], removed: [] }],
+    });
+    const ctx = execution();
+    const response = await app.fetch(
+      new Request("https://gateway.example/github/webhook", {
+        method: "POST",
+        headers: {
+          "x-github-event": "push",
+          "x-hub-signature-256": await githubSignature(body, "webhook-secret"),
+        },
+        body,
+      }),
+      ctx,
+    );
+
+    expect(await response.json()).toEqual({
+      accepted: true,
+      mode: "full-sync",
+      targetCommit: commit,
+    });
+    await Promise.all(ctx.pending);
+    expect(calls).toEqual([`full:${commit}`]);
+  });
 });
 
 describe("admin sync endpoints", () => {
@@ -328,6 +478,7 @@ describe("source endpoint", () => {
             rawFile: "raw/articles/example.md",
             rawSha256: "a".repeat(64),
             lastVerified: "2026-07-10",
+            availableTextVariants: ["original", "zh-abstract"],
             commit,
           };
         },
@@ -354,5 +505,68 @@ describe("source endpoint", () => {
       execution(),
     );
     expect(response.status).toBe(404);
+  });
+
+  it("returns a verified paged transcript and forwards normalized query parameters", async () => {
+    const calls: unknown[] = [];
+    const app = createApp(
+      dependencies({
+        async getSourceText(slug, commit, input) {
+          calls.push({ slug, commit, input });
+          return {
+            sourceSlug: slug,
+            variant: input.variant,
+            content: "line 3\nline 4",
+            fromLine: input.fromLine,
+            nextLine: 5,
+            complete: false,
+            rawFile: "raw/pdfs/example.pdf",
+            rawSha256: "a".repeat(64),
+            derivedFile: "wiki/derived/pdfs/example-source/transcript.md",
+            derivedSha256: "b".repeat(64),
+            generatedAt: "2026-07-16T00:00:00Z",
+            syncedCommit: commit,
+            warnings: [],
+          };
+        },
+      }),
+    );
+    const response = await app.fetch(
+      new Request(
+        "https://gateway.example/v1/sources/example-source/text?variant=original&from_line=3&max_lines=2",
+        { headers: { authorization: "Bearer action-secret" } },
+      ),
+      execution(),
+    );
+
+    expect(response.status).toBe(200);
+    expect(calls).toEqual([
+      {
+        slug: "example-source",
+        commit: "abc123",
+        input: { variant: "original", fromLine: 3, maxLines: 2 },
+      },
+    ]);
+  });
+
+  it("rejects invalid source text ranges before repository access", async () => {
+    let called = false;
+    const app = createApp(
+      dependencies({
+        async getSourceText() {
+          called = true;
+          return null;
+        },
+      }),
+    );
+    const response = await app.fetch(
+      new Request("https://gateway.example/v1/sources/example-source/text?max_lines=501", {
+        headers: { authorization: "Bearer action-secret" },
+      }),
+      execution(),
+    );
+
+    expect(response.status).toBe(400);
+    expect(called).toBe(false);
   });
 });

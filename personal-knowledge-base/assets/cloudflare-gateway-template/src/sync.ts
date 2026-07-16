@@ -8,6 +8,7 @@ import {
 
 export interface RepositoryPort {
   readFile(path: string, commit: string): Promise<Uint8Array<ArrayBuffer> | null>;
+  sha256File?(path: string, commit: string): Promise<string | null>;
 }
 
 export interface IndexPort {
@@ -127,14 +128,19 @@ async function syncEvidence(
   }
 
   await dependencies.state.setSourceRaw(path, source.rawFile);
-  const rawBytes = await dependencies.repository.readFile(source.rawFile, commit);
-  if (!rawBytes) {
+  let actualSha256: string | null;
+  if (dependencies.repository.sha256File) {
+    actualSha256 = await dependencies.repository.sha256File(source.rawFile, commit);
+  } else {
+    const rawBytes = await dependencies.repository.readFile(source.rawFile, commit);
+    actualSha256 = rawBytes ? (await verifySourceIntegrity(source, rawBytes)).actualSha256 : null;
+  }
+  if (!actualSha256) {
     await dependencies.index.remove("evidence", path);
     issues.push({ path, code: "raw_missing", detail: source.rawFile });
     return false;
   }
-  const integrity = await verifySourceIntegrity(source, rawBytes);
-  if (integrity.status !== "verified") {
+  if (actualSha256 !== source.rawSha256) {
     await dependencies.index.remove("evidence", path);
     issues.push({ path, code: "source_modified", detail: source.rawFile });
     return false;

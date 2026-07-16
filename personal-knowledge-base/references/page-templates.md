@@ -17,6 +17,12 @@ processed: true
 raw_file: "raw/articles/filename.md"
 raw_sha256: "<64-char-hex>"
 last_verified: YYYY-MM-DD
+derived_manifest: "wiki/derived/pdfs/source-slug/manifest.json" # PDF 且已生成时填写
+derived_transcript: "wiki/derived/pdfs/source-slug/transcript.md" # PDF 且已生成时填写
+derived_abstract_translation: "wiki/derived/pdfs/source-slug/abstract.zh-CN.md" # 可选
+derived_full_translation: "wiki/derived/pdfs/source-slug/translation.zh-CN.md" # 用户确认全文翻译后填写
+derived_status: pass # needs-review | pass | failed
+derived_last_verified: YYYY-MM-DD
 possibly_outdated: false
 ---
 
@@ -60,6 +66,33 @@ possibly_outdated: false
 
 - 这个来源可能回答的问题。
 ```
+
+非 PDF 来源省略 `derived_*` 字段。PDF source 页只登记派生路径和状态；转录与译文不得创建新的 source identity，也不得改变 concept/entity 的 `source_count` 或 confidence。
+
+## PDF derived 模板
+
+`transcript.md` 与译文 frontmatter、manifest 字段、页锚和目录契约见 [`pdf-derived-ingest.md`](pdf-derived-ingest.md)。最小转录入口：
+
+```markdown
+---
+type: derived-transcript
+date: YYYY-MM-DD
+source_slug: "source-slug"
+raw_file: "raw/pdfs/source.pdf"
+raw_sha256: "<64-char-hex>"
+language: "en"
+generator: "mineru"
+generator_version: "<version>"
+generated_at: "<ISO-8601>"
+ocr_used: unknown
+quality_status: needs-review
+graph-excluded: true
+---
+<!-- page: 1 -->
+# 原文标题
+```
+
+只有 raw、manifest 和所有 artifact 校验通过，且页锚、图片、公式/表格抽查合格后，才能把 `quality_status` 改为 `pass`。
 
 ## `concept-template.md`
 

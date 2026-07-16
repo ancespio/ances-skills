@@ -1,5 +1,6 @@
 import type { ContentScope } from "./content";
 import type { SyncStatePort } from "./sync";
+import type { SyncAttempt } from "./sync-status";
 
 export interface KvPort {
   get(key: string): Promise<string | null>;
@@ -18,6 +19,31 @@ function parseStringArray(value: string | null): string[] {
     throw new Error("KV mapping is invalid");
   }
   return parsed;
+}
+
+function parseSyncAttempt(value: string | null): SyncAttempt | null {
+  if (!value) return null;
+  const parsed: unknown = JSON.parse(value);
+  if (!parsed || typeof parsed !== "object") throw new Error("sync attempt state is invalid");
+  const candidate = parsed as Record<string, unknown>;
+  if (
+    typeof candidate.commit !== "string" ||
+    (candidate.mode !== "incremental" && candidate.mode !== "full-sync") ||
+    (candidate.status !== "running" &&
+      candidate.status !== "succeeded" &&
+      candidate.status !== "failed") ||
+    typeof candidate.updatedAt !== "string" ||
+    (candidate.error !== undefined && typeof candidate.error !== "string")
+  ) {
+    throw new Error("sync attempt state is invalid");
+  }
+  return {
+    commit: candidate.commit,
+    mode: candidate.mode,
+    status: candidate.status,
+    updatedAt: candidate.updatedAt,
+    ...(candidate.error ? { error: candidate.error } : {}),
+  };
 }
 
 export class KvSyncState implements SyncStatePort {
@@ -73,6 +99,14 @@ export class KvSyncState implements SyncStatePort {
 
   async getSyncedCommit(): Promise<string | null> {
     return this.kv.get("sync:commit");
+  }
+
+  async setLastSyncAttempt(attempt: SyncAttempt): Promise<void> {
+    await this.kv.put("sync:last-attempt", JSON.stringify(attempt));
+  }
+
+  async getLastSyncAttempt(): Promise<SyncAttempt | null> {
+    return parseSyncAttempt(await this.kv.get("sync:last-attempt"));
   }
 
   async setItemId(scope: ContentScope, path: string, itemId: string): Promise<void> {

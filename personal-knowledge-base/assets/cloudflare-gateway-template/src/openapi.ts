@@ -11,7 +11,7 @@ export function openApiDocument(origin: string): Record<string, unknown> {
     openapi: "3.1.0",
     info: {
       title: "KnowledgeBase Gateway",
-      version: "0.1.1",
+      version: "0.2.0",
       description: "Read-only access to the owner's private, source-traceable knowledge base.",
     },
     servers: [{ url: origin }],
@@ -20,6 +20,9 @@ export function openApiDocument(origin: string): Record<string, unknown> {
         post: {
           operationId: "queryKnowledgeBase",
           summary: "Search the private knowledge base",
+          description:
+            "Read-only semantic search over the owner's private knowledge base. This operation does not mutate data.",
+          "x-openai-isConsequential": false,
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
@@ -73,6 +76,8 @@ export function openApiDocument(origin: string): Record<string, unknown> {
         get: {
           operationId: "getVerifiedSource",
           summary: "Read one full source page after raw-file integrity verification",
+          description:
+            "Read-only retrieval of one verified source page and its integrity metadata.",
           security: [{ bearerAuth: [] }],
           parameters: [
             {
@@ -101,6 +106,80 @@ export function openApiDocument(origin: string): Record<string, unknown> {
             },
             "404": {
               description: "No verified source was found.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/v1/sources/{slug}/text": {
+        get: {
+          operationId: "getVerifiedSourceText",
+          summary: "Read a verified PDF transcript or Chinese translation by line range",
+          description:
+            "Read-only retrieval of a derived Markdown text after verifying the source raw hash, manifest identity, and derived artifact hash.",
+          "x-openai-isConsequential": false,
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "slug",
+              in: "path",
+              required: true,
+              schema: { type: "string", pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+            },
+            {
+              name: "variant",
+              in: "query",
+              required: false,
+              schema: {
+                type: "string",
+                enum: ["original", "zh-abstract", "zh-full"],
+                default: "original",
+              },
+            },
+            {
+              name: "from_line",
+              in: "query",
+              required: false,
+              schema: { type: "integer", minimum: 1, default: 1 },
+            },
+            {
+              name: "max_lines",
+              in: "query",
+              required: false,
+              schema: { type: "integer", minimum: 1, maximum: 500, default: 200 },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Verified derived text page and integrity metadata.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/VerifiedSourceText" },
+                },
+              },
+            },
+            "400": {
+              description: "Invalid variant or line range.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+            "401": {
+              description: "Invalid bearer token.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+            "404": {
+              description: "The source or requested verified text variant was not found.",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },
@@ -196,6 +275,7 @@ export function openApiDocument(origin: string): Record<string, unknown> {
             "rawFile",
             "rawSha256",
             "lastVerified",
+            "availableTextVariants",
             "commit",
           ],
           properties: {
@@ -206,7 +286,45 @@ export function openApiDocument(origin: string): Record<string, unknown> {
             rawFile: { type: "string" },
             rawSha256: { type: "string" },
             lastVerified: nullableString,
+            availableTextVariants: {
+              type: "array",
+              items: { type: "string", enum: ["original", "zh-abstract", "zh-full"] },
+            },
             commit: { type: "string" },
+          },
+        },
+        VerifiedSourceText: {
+          type: "object",
+          additionalProperties: false,
+          required: [
+            "sourceSlug",
+            "variant",
+            "content",
+            "fromLine",
+            "nextLine",
+            "complete",
+            "rawFile",
+            "rawSha256",
+            "derivedFile",
+            "derivedSha256",
+            "generatedAt",
+            "syncedCommit",
+            "warnings",
+          ],
+          properties: {
+            sourceSlug: { type: "string" },
+            variant: { type: "string", enum: ["original", "zh-abstract", "zh-full"] },
+            content: { type: "string" },
+            fromLine: { type: "integer" },
+            nextLine: nullableNumber,
+            complete: { type: "boolean" },
+            rawFile: { type: "string" },
+            rawSha256: { type: "string" },
+            derivedFile: { type: "string" },
+            derivedSha256: { type: "string" },
+            generatedAt: { type: "string" },
+            syncedCommit: { type: "string" },
+            warnings: { type: "array", items: { type: "string" } },
           },
         },
         ErrorResponse: {

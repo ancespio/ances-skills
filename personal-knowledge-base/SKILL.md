@@ -1,6 +1,6 @@
 ---
 name: personal-knowledge-base
-description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前需要准备什么、搭建个人知识库、设计 AGENTS.md/CLAUDE.md 规则、建立 raw/wiki/context 目录、配置 Obsidian Web Clipper、标定首批来源、摄入来源、查询本地 wiki、更新用户画像/项目状态/偏好/日记、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、维护来源可追溯性和 confidence 时。
+description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前准备、搭建知识库、设计 AGENTS.md/CLAUDE.md、配置 Obsidian Web Clipper、标定和摄入来源、把论文 PDF 转录/OCR/翻译为可校验的 wiki/derived 阅读层、查询本地 wiki、更新用户画像/项目状态/偏好/日记、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、Cloudflare 只读 Gateway、来源可追溯性和 confidence 时。
 ---
 # 个人知识库
 
@@ -22,6 +22,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 - `raw/`：人类拥有的原始来源，例如剪藏、文章、PDF、截图、临时笔记和个人写作。默认只追加，不修改。
 - `wiki/`：LLM 维护的 Markdown 页面，例如 `sources/`、`concepts/`、`entities/`、`synthesis/`、`outputs/`、`templates/`，以及 `index.md`、`log.md`、`overview.md`、`QUESTIONS.md`。
+- `wiki/derived/`：由 raw PDF 等原始材料生成的转录、OCR、摘要译文、全文译文和解析产物。它是可校验的辅助阅读层，不是新来源，默认不进入图谱或语义检索。
 - `context/`：可选的长期个人/项目上下文、偏好和日记。除非本地 schema 明确允许，否则不要把它当作外部证据计入 confidence。
 - Schema 文件：`AGENTS.md` 或 `CLAUDE.md` 是操作契约，用来定义目录规则、工作流、模板、confidence 和验证方式。
 
@@ -38,6 +39,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 推荐准备：
 
 - 2-3 篇代表性来源：一篇外部文章或剪藏、一篇 PDF/研究资料、一篇个人写作或项目笔记。不要要求用户先整理全部历史材料。
+- 若 PDF 是主要材料：准备实际常见版式的样本，确认是否需要中文摘要/全文翻译、固定术语译法、可接受的本地存储和 Git LFS 范围。
 - 期望覆盖的主题范围，以及不希望进入知识库的隐私内容。
 - 可选的 Context 初始材料：个人背景、长期偏好、当前项目、既有决策、近期状态和日记。未提供时保持为空，不自行推断。
 - 工具选择：Obsidian 用于浏览，qmd 用于本地语义搜索，Python 用于 lint，Git 用于版本管理。这些工具都应先检测；除非用户授权，不要安装。
@@ -49,7 +51,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 1. 先执行准备问答：确认根目录、材料类型、Context 范围、隐私边界、Wiki 语言和可选工具。用户只提供最低准备时也可以继续。
 2. 检查根目录现状、Git 状态和已有 `AGENTS.md`/`CLAUDE.md`/`README.md`。已有规则只合并，不覆盖。
-3. 创建最小可用结构：`raw/`、`wiki/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`wiki/outputs/`、`wiki/templates/`、`context/persona/`、`context/diary/`、`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/QUESTIONS.md`。
+3. 创建最小可用结构：`raw/`、`wiki/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`wiki/derived/pdfs/`、`wiki/outputs/`、`wiki/templates/`、`context/persona/`、`context/diary/`、`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/QUESTIONS.md`。
 4. 在批量写内容前先写 schema 文件。至少包含来源不可变、Context 更新、wikilink 格式、页面模板、操作流程、confidence 规则、日志和验证方式。
 5. 只添加确实会用到的模板和脚本。如果 schema 包含 frontmatter、哈希、图谱排除或 wikilink 规则，创建可运行的 lint 脚本。
 6. 检测 Obsidian、qmd、Python 和 Git，不要假设它们存在。qmd 不可用时降级为 `rg` 和 `wiki/index.md`；未经授权不要安装依赖。
@@ -79,6 +81,19 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 说明 Web Clipper 是可选工具；用户也可以手动把 Markdown 放入 `raw/articles/` 或 `raw/clippings/`。官方说明表明普通剪藏保存在本地 vault；不要默认启用需要外部模型的 Interpreter。
 
+## PDF Derived 摄入
+
+处理论文、扫描件或复杂版式 PDF 时，不要直接把一次性提取文本当作 source，也不要只保存摘要。采用 `PREPARE -> DERIVE -> QC -> INGEST`：
+
+1. `PREPARE`：确认 raw PDF 只读，复用 source slug，计算 SHA-256，检查现有 derived、项目内 Python 环境、MinerU/Docling、模型缓存、磁盘和 Git LFS。
+2. `DERIVE`：MinerU 主用、Docling 回退；先写临时 work，再规范化为 `wiki/derived/pdfs/<source-slug>/`。保留 transcript、manifest、assets 和完整 intermediate。
+3. `QC`：验证 raw identity、artifact SHA、连续页锚、图片链接、首/中/尾页、双栏阅读顺序、OCR、公式、表格与参考文献。未通过时保持 `needs-review` 或 `failed`，不得继续知识提升。
+4. `INGEST`：更新原 source 页和已有 concept/entity。PDF 是原始证据；transcript 是主要 LLM 阅读层；译文是辅助层，三者共享一个 source identity。
+
+非中文 PDF 默认生成中文摘要译文；全文译文必须先询问用户。翻译前读取 concept/entity 的 `title` 与 `aliases` 建立术语表，保留原始术语、公式、引用和页锚。derived 永不增加 `source_count` 或 confidence，所有 Markdown 设置 `graph-excluded: true`。
+
+默认 qmd collection 排除 `derived/**`；建立 `includeByDefault: false` 的独立 derived collection，并忽略 `**/intermediate/**`。只有需要逐行核对原文转录或译文时显式查询 derived。完整目录、frontmatter、manifest、工具和质量门槛见 `references/pdf-derived-ingest.md`，每次实际处理 PDF 前先读取。
+
 ## 新建完成后向用户交付使用方法
 
 创建完成不能只报告文件列表。必须同时告诉用户：
@@ -94,13 +109,13 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 执行 `INGEST` 时：
 
-1. 除非用户要求批处理，否则一次只处理一个 raw 来源。
+1. 除非用户要求批处理，否则一次只处理一个 raw 来源。PDF 必须先完成 `PREPARE -> DERIVE -> QC`，通过后再进入知识提取。
 2. 在需要追溯时，提取标题、来源元数据、日期和 raw SHA-256。
 3. 创建或更新 `wiki/sources/<slug>.md`。
 4. 更新匹配的 concept/entity 页面，不要制造重复页面。先检查 slug 和 aliases。
 5. 显式记录矛盾，不要静默覆盖旧说法。
 6. 更新 `index.md`，并向 `log.md` 追加记录。
-7. 如果 qmd 已配置，执行 `qmd update`；不可用时说明已降级，不要擅自安装。
+7. 如果 qmd 已配置，执行项目安全查询入口或 `qmd update`；hybrid 失败/超时后依次降级 BM25 和 `rg`，返回实际模式与原因。不可用时说明已降级，不要擅自安装。默认查询和 `rg` 都不得混入 derived。
 
 处理个人写作时：
 
@@ -163,14 +178,14 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 仅当用户明确需要在手机或网页版 ChatGPT 查询私人知识库时，才采用这一可选扩展。它不替代本地 qmd，也不把知识库仓库改造成网页工程。
 
 1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
-2. Gateway 只暴露只读检索和已验证来源读取接口。`raw/` 不进入搜索索引；`context/` 只在请求明确需要个人化上下文时检索；不得向 GPT 暴露管理端点、webhook 或任何 secret。
+2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；`context/` 只在请求明确需要个人化上下文时检索；不得向 GPT 暴露管理端点、webhook 或任何 secret。
 3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
 4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
 5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
 6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
 7. 如需让云端 GPT 参考日记规则和模板，将脱敏的 `references/diary-template.md` 复制为知识库的 `context/DIARY_GUIDE.md`，保留 `remote_access: always`；Gateway 只索引该已存在的指南，不会自动生成或修改 Context。
 
-部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、两个 Action 的单独调用、以及一次知识库 `main` push 的 webhook 增量同步。
+部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、三个 Action 的单独调用、derived 分页与篡改拒绝，以及一次知识库 `main` push 的 webhook 增量同步。
 
 实施前完整读取 [`references/cloudflare-gateway-gpts.md`](references/cloudflare-gateway-gpts.md)；不要用其中的占位符覆盖用户已有生产配置。
 
@@ -197,7 +212,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 1. 从 `assets/cloudflare-gateway-template/` 复制 starter；不要复制 `node_modules/`、`.wrangler/` 或真实配置。
 2. 运行 `pnpm install`、`pnpm exec wrangler types`、`pnpm test`、`pnpm exec wrangler deploy --dry-run`。
-3. 公开 OpenAPI 只允许 `POST /v1/query` 与 `GET /v1/sources/{slug}`；`/github/webhook`、`/admin/sync`、`/admin/sync/continue` 不得进入 GPT schema。
+3. 公开 OpenAPI 只允许 `POST /v1/query`、`GET /v1/sources/{slug}` 与 `GET /v1/sources/{slug}/text`；`/github/webhook`、`/admin/sync`、`/admin/sync/continue` 不得进入 GPT schema。
 4. Worker 的读写边界必须固定：`raw/` 不索引；`wiki/sources/` 是 evidence；`wiki/concepts/`、`entities/`、`synthesis/` 是 knowledge；`context/` 只有请求明确启用时检索。
 
 #### D. 配置 Cloudflare
@@ -245,7 +260,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 ```text
 [ ] /health = 200，首次同步后 syncedCommit 非空
-[ ] /openapi.json 只含两个只读 operation
+[ ] /openapi.json 只含三个只读 operation
 [ ] 无 token 查询返回 401，正确 Action token 返回 200
 [ ] Admin token 不能用于 GPT Action
 [ ] main Push 返回 webhook accepted，并推进 syncedCommit
@@ -298,4 +313,5 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 - `references/bootstrap-prompt.md`：创建个人知识库时可直接给 Codex/Claude Code 的完整 prompt。
 - `references/agents-template.md`：可复制到项目根目录的 `AGENTS.md` 行为契约模板，包含 Context 更新规则。
 - `references/page-templates.md`：source、concept、entity、synthesis、output 等 wiki 页面模板。
+- `references/pdf-derived-ingest.md`：PDF 转录/OCR/翻译、manifest、质检、qmd 隔离和 Gateway 原文读取规范。
 - `references/diary-template.md`：脱敏日记模板；需要写入或部署 `context/DIARY_GUIDE.md` 时读取。

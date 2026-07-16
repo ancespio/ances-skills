@@ -8,24 +8,21 @@ type SchemaObject = {
   required?: string[];
 };
 
+type OperationObject = {
+  "x-openai-isConsequential"?: boolean;
+  responses?: Record<
+    string,
+    {
+      content?: Record<string, { schema?: { $ref?: string } }>;
+    }
+  >;
+};
+
 type OpenApiDocument = {
   components?: {
     schemas?: Record<string, SchemaObject>;
   };
-  paths?: Record<
-    string,
-    Record<
-      string,
-      {
-        responses?: Record<
-          string,
-          {
-            content?: Record<string, { schema?: { $ref?: string } }>;
-          }
-        >;
-      }
-    >;
-  >;
+  paths?: Record<string, Record<string, OperationObject>>;
 };
 
 describe("OpenAPI document", () => {
@@ -39,6 +36,7 @@ describe("OpenAPI document", () => {
     expect(schemas?.EvidenceResult?.properties).toBeDefined();
     expect(schemas?.QueryResponse?.properties).toBeDefined();
     expect(schemas?.VerifiedSource?.properties).toBeDefined();
+    expect(schemas?.VerifiedSourceText?.properties).toBeDefined();
     expect(schemas?.ErrorResponse?.properties).toBeDefined();
   });
 
@@ -52,8 +50,19 @@ describe("OpenAPI document", () => {
       document.paths?.["/v1/sources/{slug}"]?.get?.responses?.["200"]?.content?.[
         "application/json"
       ]?.schema;
+    const sourceTextSchema =
+      document.paths?.["/v1/sources/{slug}/text"]?.get?.responses?.["200"]?.content?.[
+        "application/json"
+      ]?.schema;
 
     expect(querySchema?.$ref).toBe("#/components/schemas/QueryResponse");
     expect(sourceSchema?.$ref).toBe("#/components/schemas/VerifiedSource");
+    expect(sourceTextSchema?.$ref).toBe("#/components/schemas/VerifiedSourceText");
+  });
+
+  it("marks the read-only query POST as non-consequential", () => {
+    const document = openApiDocument("https://gateway.example") as OpenApiDocument;
+
+    expect(document.paths?.["/v1/query"]?.post?.["x-openai-isConsequential"]).toBe(false);
   });
 });

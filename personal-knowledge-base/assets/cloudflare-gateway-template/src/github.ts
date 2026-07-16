@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import type { RepositoryPort } from "./sync";
 
 type GithubConfig = {
@@ -10,6 +12,7 @@ type FetchPort = (input: RequestInfo | URL, init?: RequestInit) => Promise<Respo
 
 const API_VERSION = "2022-11-28";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_HASH_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_TREE_BYTES = 5 * 1024 * 1024;
 
 function encodePath(path: string): string {
@@ -42,6 +45,24 @@ async function readBounded(response: Response, limit: number): Promise<Uint8Arra
     offset += chunk.byteLength;
   }
   return output;
+}
+
+async function sha256Bounded(response: Response, limit: number): Promise<string> {
+  const hash = createHash("sha256");
+  if (!response.body) return hash.digest("hex");
+  const reader = response.body.getReader();
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel("response exceeds configured hash limit");
+      throw new Error("GitHub response exceeds configured hash size limit");
+    }
+    hash.update(value);
+  }
+  return hash.digest("hex");
 }
 
 function isTreeResponse(value: unknown): value is {
@@ -99,6 +120,15 @@ export class GithubRepositoryClient implements RepositoryPort {
     const response = await this.request(endpoint, "application/vnd.github.raw+json");
     if (response.status === 404) return null;
     return readBounded(response, MAX_FILE_BYTES);
+  }
+
+  async sha256File(path: string, commit: string): Promise<string | null> {
+    const endpoint = `/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(
+      this.config.repository,
+    )}/contents/${encodePath(path)}?ref=${encodeURIComponent(commit)}`;
+    const response = await this.request(endpoint, "application/vnd.github.raw+json");
+    if (response.status === 404) return null;
+    return sha256Bounded(response, MAX_HASH_FILE_BYTES);
   }
 
   async listFiles(commit: string): Promise<string[]> {

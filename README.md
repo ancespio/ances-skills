@@ -81,17 +81,22 @@
 - 从零建立 `raw/`、`wiki/`、`context/` 三层知识库。
 - 设计项目级 `AGENTS.md` 或 `CLAUDE.md` 操作契约。
 - 摄入文章、剪藏、PDF 摘要和个人写作，同时保留来源哈希。
+- 将单栏、双栏、扫描版和复杂版式 PDF 转录为可校验的 `wiki/derived/` Markdown，MinerU 主用、Docling 回退。
+- 为非中文 PDF 生成中文摘要，并在用户确认后生成复用既有术语的全文译文；转录和译文不增加来源计数。
 - 根据本地 Wiki 查询并输出可追溯答案。
 - 执行 LINT、REFLECT、ADD-QUESTION 和 MERGE 工作流。
 - 使用 qmd 搜索，并在不可用时降级到 `rg` 和索引文件。
+- 隔离普通知识检索与 derived 全文读取，支持 hybrid -> BM25 -> `rg` 的安全降级。
 - 管理 source integrity、矛盾记录和 confidence。
 - （可选）指导用户将知识库挂载到Cloudflare，并创建专属GPTs实现在线访问
+- （可选）通过只读 Gateway 按需分页读取经过 raw、manifest 和 artifact 哈希校验的 PDF 转录与译文。
 
 常见触发方式：
 
 ```text
 帮我创建一个个人知识库
 摄入 raw/clippings/example.md
+摄入 raw/pdfs/example-paper.pdf，先转录并质检，只生成中文摘要
 根据我的知识库回答这个问题
 检查一下知识库健康状况
 综合分析已有笔记，寻找矛盾和知识空白
