@@ -28,7 +28,7 @@ def replace_frontmatter_value(path: Path, key: str, value: str) -> None:
     path.write_text(updated, encoding="utf-8", newline="\n")
 
 
-def sync_source_metadata(repo_root: Path, manifest: dict[str, object]) -> None:
+def sync_source_metadata(repo_root: Path, target: Path, manifest: dict[str, object]) -> None:
     slug = str(manifest["source_slug"])
     source_path = repo_root / "wiki" / "sources" / f"{slug}.md"
     if not source_path.is_file():
@@ -51,6 +51,13 @@ def sync_source_metadata(repo_root: Path, manifest: dict[str, object]) -> None:
         "derived_transcript": f'"wiki/derived/pdfs/{slug}/transcript.md"',
         "derived_status": str(manifest["quality_status"]),
     }
+    optional_variants = {
+        "derived_abstract_translation": "abstract.zh-CN.md",
+        "derived_full_translation": "translation.zh-CN.md",
+    }
+    for key, filename in optional_variants.items():
+        if (target / filename).is_file():
+            values[key] = f'"wiki/derived/pdfs/{slug}/{filename}"'
     frontmatter = text[4:end]
     for key, value in values.items():
         pattern = rf"(?m)^{re.escape(key)}:\s*.*$"
@@ -208,7 +215,7 @@ def main() -> int:
         )
 
     if args.sync_source_only:
-        sync_source_metadata(repo_root, manifest)
+        sync_source_metadata(repo_root, target, manifest)
         print(json.dumps({"target": str(target), "source_synced": True}, ensure_ascii=False))
         return 0
 
@@ -253,7 +260,7 @@ def main() -> int:
         encoding="utf-8",
         newline="\n",
     )
-    sync_source_metadata(repo_root, manifest)
+    sync_source_metadata(repo_root, target, manifest)
     print(json.dumps({"target": str(target), "quality_status": args.quality_status}, ensure_ascii=False))
     return 0
 
