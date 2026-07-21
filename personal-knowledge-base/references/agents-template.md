@@ -257,9 +257,9 @@ context/
 2. 优先执行 `qmd query "<问题>" --json` 获取 top 5；失败则读 `wiki/index.md` 并用 `rg` 搜索。
 3. 完整读取相关页面，不只依赖搜索片段。
 4. 合成答案；每个知识性核心结论必须溯源到具体 `wiki/sources/<slug>.md`，并标注 confidence、分歧和局限。
-5. 凡需落盘的 Query，默认只写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，frontmatter 含 `graph-excluded: true`。单次问答、临时格式化内容或用户明确要求不保存时，可以不落盘。
-6. output 至少包含：问题、简短结论、依据及 source 链接、反例/矛盾与局限、Confidence Notes、建议沉淀位置。更新 index 的 Outputs 或 Recent Outputs，并追加 `query` 日志；不要直接更新 Recent Synthesis。
-7. 提升前执行 REVIEW：检查可复用性、来源追溯、反证和证据缺口；拟更新 concept/entity 时，先按英文 slug 和 aliases 查重。
+5. 完成回答后判断是否值得复用。只有多个来源形成了可复用的综合结论、比较、框架或稳定决策，且核心结论能逐条追溯到 source 页、未来可能再次用于查询或项目决策时，才提示用户：「这个回答适合沉淀，是否写入 output 并执行 Review？」单一事实、临时状态、格式转换、无来源推断和普通闲聊不提示保存。
+6. 用户确认前不得创建 output、修改 index 或追加 `query` 日志；用户拒绝或未确认时不落盘。用户也可以在原始请求中明确要求保存，以直接完成确认。
+7. 用户确认后写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，frontmatter 含 `graph-excluded: true`。output 至少包含：问题、简短结论、依据及 source 链接、反例/矛盾与局限、Confidence Notes、建议沉淀位置。更新 index 的 Outputs 或 Recent Outputs，追加 `query` 日志，不要直接更新 Recent Synthesis。随后自动执行 REVIEW：检查可复用性、来源追溯、反证和证据缺口，在 output 中标注建议去向；拟更新 concept/entity 时，先按英文 slug 和 aliases 查重。
 8. 默认不自动 PROMOTE。只有用户明确要求提升，或当前任务已明确授权时，才按以下规则处理：
 
 | 回答类型 | 处理位置 |

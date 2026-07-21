@@ -141,9 +141,9 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 2. 综合前完整读取相关页面，不只依赖片段。
 3. 知识性结论引用 source 页面。不要只依赖 concept 页面或 context 文件作为证据。
 4. 把回答视为基于既有证据的二阶产物，不是新 source。回答、output、synthesis 和回答触发的 concept/entity 更新都不得增加 `source_count` 或提高 confidence。
-5. 凡需落盘的 Query，默认先写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，并设置 `graph-excluded: true`。单次问答、临时格式化内容或用户明确要求不保存时，可以只在对话中回答。
-6. output 至少包含：问题、简短结论、依据及对应 source 链接、反例/矛盾与局限、Confidence Notes、建议沉淀位置。将它登记到 index 的 Outputs 或 Recent Outputs，不要直接登记为 Recent Synthesis。
-7. 执行 REVIEW：检查可复用性、逐条来源追溯、反证、证据缺口，并在更新 concept/entity 前按 slug 和 aliases 检查已有页面。
+5. 完成回答后判断是否值得复用。只有多个来源形成了可复用的综合结论、比较、框架或稳定决策，且核心结论能逐条追溯到 source 页、未来可能再次用于查询或项目决策时，才提示用户：「这个回答适合沉淀，是否写入 output 并执行 Review？」单一事实、临时状态、格式转换、无来源推断和普通闲聊不提示保存。
+6. 用户确认前不要创建 output、修改 index 或追加 `query` 日志；用户拒绝或未确认时不落盘。用户也可以在原始请求中明确要求保存，以直接完成确认。
+7. 用户确认后写入 `wiki/outputs/YYYY-MM-DD-<topic>.md`，并设置 `graph-excluded: true`。output 至少包含：问题、简短结论、依据及对应 source 链接、反例/矛盾与局限、Confidence Notes、建议沉淀位置。将它登记到 index 的 Outputs 或 Recent Outputs，追加 `query` 日志，不要直接登记为 Recent Synthesis。随后自动执行 REVIEW：检查可复用性、逐条来源追溯、反证和证据缺口，在 output 中标注建议去向，并在建议更新 concept/entity 前按 slug 和 aliases 检查已有页面。
 8. 默认不自动 PROMOTE。只有用户明确要求提升，或当前任务已明确授权时，才按类型处理：
    - 跨来源新结论、比较、框架或连接 -> `wiki/synthesis/`。
    - 既有定义或实体信息的补充、修正 -> 更新对应 concept/entity，并追加 Evolution Log。
