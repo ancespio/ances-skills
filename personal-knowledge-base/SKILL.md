@@ -132,8 +132,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 6. 跨日期或跨项目追踪使用项目本地允许的相对 Markdown 链接；Context 不强制使用 Wiki 层英文 slug 规则。
 7. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。`DIARY_GUIDE.md` 使用 `always`；用户画像、项目画像和日记默认使用 `on-demand`；`local-only` 不进入远程 Gateway 索引。
 8. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
-9. Gateway 的定时任务只做已有文件的索引校准和续跑，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行或提醒执行 `qmd update`。
-10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
+9. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
 
 执行 `QUERY` 时：
 
