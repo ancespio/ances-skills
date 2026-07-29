@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/adaptation-report.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "content_regions", "capacity_risks", "unsupported_objects"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.adaptation-report.v1"},
+    "run_id": {"type": "string"},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed", "blocked"]},
+    "content_regions": {"type": "array"},
+    "capacity_risks": {"type": "array"},
+    "unsupported_objects": {"type": "array"}
+  }
+}

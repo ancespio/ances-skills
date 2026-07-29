@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/project.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "scenario", "phase", "source_files", "new_page_count"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.project.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "scenario": {"enum": ["new-deck", "template-fill", "reconstruction", "reference-deck", "existing-deck"]},
+    "phase": {"enum": ["intake", "plan", "awaiting_user", "preview", "build", "final", "blocked"]},
+    "source_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "role"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "role": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "new_page_count": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": true
+}
