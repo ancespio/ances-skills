@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/reconstruction-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "source_locked", "slides", "uncertain_text"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.reconstruction-plan.v1"},
+    "run_id": {"type": "string"},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed", "blocked"]},
+    "source_locked": {"const": true},
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "source_page", "ref_width", "ref_height", "objects"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+          "source_page": {"type": "integer", "minimum": 1},
+          "ref_width": {"type": "integer", "minimum": 1},
+          "ref_height": {"type": "integer", "minimum": 1},
+          "objects": {"type": "array", "minItems": 1}
+        }
+      }
+    },
+    "uncertain_text": {"type": "array"}
+  }
+}

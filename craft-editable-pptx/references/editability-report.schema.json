@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/editability-report.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "output_pptx", "output_sha256", "slides", "limitations"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.editability-report.v2"},
+    "run_id": {"type": "string"},
+    "output_pptx": {"type": "string"},
+    "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "native_text", "native_objects", "svg_assets", "raster_assets", "warnings"]
+      }
+    },
+    "limitations": {"type": "array"},
+    "change_map": {"type": "array"}
+  }
+}

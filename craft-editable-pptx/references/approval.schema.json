@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/approval.schema.json",
+  "type": "object",
+  "required": ["schema_version", "gate", "status", "confirmed_by", "subject_path", "subject_sha256", "confirmed_at", "decision"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.approval.v1"},
+    "gate": {"type": "string", "minLength": 1},
+    "status": {"const": "confirmed"},
+    "confirmed_by": {"const": "user"},
+    "subject_path": {"type": "string", "minLength": 1},
+    "subject_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "confirmed_at": {"type": "string", "format": "date-time"},
+    "decision": {"type": "object"}
+  },
+  "additionalProperties": false
+}

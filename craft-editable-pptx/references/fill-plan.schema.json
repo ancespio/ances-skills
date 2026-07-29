@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/fill-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "slides", "capacity_conflicts"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.fill-plan.v1"},
+    "run_id": {"type": "string"},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed", "blocked"]},
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "source_slide", "layout_rationale", "edits"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+          "source_slide": {"type": "integer", "minimum": 1},
+          "layout_rationale": {"type": "string", "minLength": 1},
+          "edits": {"type": "array"}
+        }
+      }
+    },
+    "capacity_conflicts": {"type": "array"}
+  }
+}

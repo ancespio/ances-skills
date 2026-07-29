@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft-editable-pptx/slide-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "slides"],
+  "properties": {
+    "schema_version": {"const": "craft-editable-pptx.slide-plan.v2"},
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed", "blocked"]},
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "content_blocks", "layout", "asset_ids", "native_objects", "qa_assertions"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+          "content_blocks": {"type": "array", "minItems": 1},
+          "layout": {"type": "object"},
+          "asset_ids": {"type": "array", "items": {"type": "string"}},
+          "native_objects": {"type": "array", "items": {"type": "string"}},
+          "qa_assertions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

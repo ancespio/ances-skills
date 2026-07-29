@@ -3,7 +3,7 @@
 我在真实工作流中持续使用和迭代的一组 AI Skills。每个 skill 都是可独立安装的结构化指令集，尽量把复杂任务变成可重复、可审查、可验证的工作流。
 
 [![License](https://img.shields.io/badge/License-MIT-3B82F6?style=for-the-badge)](./LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-2-10B981?style=for-the-badge)](#skills)
+[![Skills](https://img.shields.io/badge/Skills-3-10B981?style=for-the-badge)](#skills)
 [![Codex](https://img.shields.io/badge/Codex-Skills-111827?style=flat-square&logo=openai&logoColor=white)](https://developers.openai.com/codex/)
 
 这些 skill 主要面向 Codex；核心规则和参考资料采用 Markdown，也便于迁移到其他支持 `SKILL.md` 的 Agent 环境。
@@ -14,6 +14,7 @@
 | -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
 | [personal-knowledge-base](./personal-knowledge-base/) | 创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库 | [使用说明](./personal-knowledge-base/README.md) |
 | [multimodal-evidence](./multimodal-evidence/) | 统一多模态证据提取与独立外部核验协议 | [SKILL.md](./multimodal-evidence/SKILL.md) |
+| [craft-editable-pptx](./craft-editable-pptx/) | 策划、制作、模板填充、严格重建及续写修改可编辑 PowerPoint | [SKILL.md](./craft-editable-pptx/SKILL.md) |
 
 ## 安装方式
 
@@ -41,7 +42,19 @@
 使用 $skill-installer 安装：https://github.com/ancespio/ances-skills/tree/main/multimodal-evidence
 ```
 
+安装可编辑 PPTX skill：
+
+```text
+帮我安装这个 skill：https://github.com/ancespio/ances-skills/tree/main/craft-editable-pptx
+```
+
 ## Skills
+
+### craft-editable-pptx（可编辑演示文稿）
+
+用户只需说明“根据资料从 0 制作”“按原生模板填充”“图片/PDF 重建”“参考稿制作新稿”或“续写/修改已有 PPT”中的一种场景。Skill 会先完成对应策划和用户确认；场景 3 强制普通文字原生可编辑、复杂视觉仅使用纯 SVG。每个生成的 PPTX 都必须真实渲染、逐页检查并绑定 `visual_qa.json`。
+
+→ [SKILL.md](./craft-editable-pptx/SKILL.md)
 
 ### multimodal-evidence（多模态证据）
 

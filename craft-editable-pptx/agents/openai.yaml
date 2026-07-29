@@ -1,0 +1,7 @@
+interface:
+  display_name: "Craft Editable PPTX"
+  short_description: "策划优先的五场景可编辑PPTX制作与重建"
+  default_prompt: "使用 $craft-editable-pptx，根据我的材料选择正确场景，先完成必要策划和确认，再生成并视觉检验可编辑 PPTX。"
+
+policy:
+  allow_implicit_invocation: true
