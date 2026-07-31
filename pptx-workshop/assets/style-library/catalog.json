@@ -1,0 +1,1627 @@
+{
+  "schema_version": "pptx-workshop.style-library.v1",
+  "library_id": "pptx-workshop-bundled-style-library",
+  "catalog_date": "2026-07-31",
+  "notice": {
+    "path": "assets/style-library/NOTICE.md",
+    "sha256": "c0b9a59d40af98122623dff4e31fa7b86ef7ab09b56b038d3449244a8586160c",
+    "bytes": 2430
+  },
+  "summary": {
+    "selectable_entries": 27,
+    "reference_decks": 21,
+    "style_families": 6,
+    "supporting_assets": 7,
+    "bundled_bytes_excluding_catalog": 245141984
+  },
+  "source_reviews": [
+    {
+      "id": "ppt-master",
+      "repository": "hugohe3/ppt-master",
+      "url": "https://github.com/hugohe3/ppt-master",
+      "commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "license": "MIT",
+      "status": "bundled",
+      "license_file": {
+        "path": "assets/style-library/ppt-master/LICENSE.txt",
+        "sha256": "80cefc234c1ec12a8cece4344f16300c634fa03df7891686fcf979e3828f0921",
+        "bytes": 1069
+      },
+      "metadata_file": {
+        "path": "assets/style-library/ppt-master/upstream-examples.json",
+        "sha256": "e0b9af0078e4a18149f6c1de65a9291fa2fdf60aaf6fa14fa43da360ae7d205a",
+        "bytes": 52706
+      }
+    },
+    {
+      "id": "ppt-agent-workflow-san",
+      "repository": "mucsbr/ppt-agent-workflow-san",
+      "url": "https://github.com/mucsbr/ppt-agent-workflow-san",
+      "commit": "801cd2bd46c3cc4ca2c846ff28da2d9284816cd9",
+      "license": "Apache-2.0 (declared in upstream README)",
+      "status": "bundled",
+      "license_file": {
+        "path": "assets/style-library/san-dark-product-analysis/LICENSE.txt",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "bytes": 11358
+      }
+    },
+    {
+      "id": "gorden-super-ppt-skills",
+      "repository": "GordenSun/GordenSuperPPTSkills",
+      "url": "https://github.com/GordenSun/GordenSuperPPTSkills",
+      "commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "license": "custom README permission; attribution required",
+      "status": "bundled-attributed",
+      "notice_file": {
+        "path": "components/gorden/NOTICE.md",
+        "sha256": "7e17d7752c268cf3bd331c607d597797274d02c53a71c28e66faf5503571d97b",
+        "bytes": 1599
+      }
+    },
+    {
+      "id": "pptx-template-skills",
+      "repository": "CxyZyr/PPTX-Template-Skills",
+      "url": "https://github.com/CxyZyr/PPTX-Template-Skills",
+      "commit": "e3139a08b4bf96bb2cda0046b8d3627e69737f11",
+      "license": "MIT",
+      "status": "no-binary-style-assets",
+      "reason": "repository contains template parsing/filling skills but no PPTX or visual samples"
+    },
+    {
+      "id": "ppt-craft-editable",
+      "repository": "ilioner/ppt-craft-editable",
+      "url": "https://github.com/ilioner/ppt-craft-editable",
+      "commit": "be70ac403c6ab7af63e426123b0b2d3afbd6c338",
+      "license": "not found at audited commit",
+      "status": "remote-only-license-unclear",
+      "reason": "binary files are validation artifacts and no repository-level redistribution license was found"
+    }
+  ],
+  "entries": [
+    {
+      "id": "ppt-master-attention_is_all_you_need",
+      "title": "Attention Is All You Need",
+      "style_name": "Academic Blueprint",
+      "description": "Transformer 原论文深读 — 学术技术蓝图风，结构图 + 表格 + 公式 + 自定义动画旁白版导出",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_attention_is_all_you_need",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Paper Reading",
+        "Transformer",
+        "Technical Blueprint"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_attention_is_all_you_need/preview.png",
+        "sha256": "c486bb4fb51eb61da3c658804fcf3d6aed9610fcbc4f5a64278b29a9d0593a2e",
+        "bytes": 318140,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_attention_is_all_you_need/cover.svg",
+        "sha256": "00f673184c4caf10420674c4df872a0a6e1c01caedcd3689c3ac550862db1535",
+        "bytes": 927034
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_attention_is_all_you_need/reference.pptx",
+        "sha256": "85e84a7463f67f52eb66d1cbdcf78fbb0a25a45f81fa37d311bcf7d0d1ce6b5e",
+        "bytes": 7881693,
+        "slide_count": 16
+      }
+    },
+    {
+      "id": "ppt-master-lora_hu_2021",
+      "title": "LoRA Hu 2021",
+      "style_name": "Blueprint Technical",
+      "description": "LoRA 论文解读 — 冷静技术蓝图风，结构图 + 表格 + KPI 卡片 + 自定义动画旁白版导出",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_lora_hu_2021",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Paper Reading",
+        "LLM",
+        "Technical Blueprint"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_lora_hu_2021/preview.png",
+        "sha256": "244d045e45409e109be5670e9409be32f7c0ae27f0b7a34970f87c2a4929f701",
+        "bytes": 565284,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_lora_hu_2021/cover.svg",
+        "sha256": "3b0b1639db0ee439688b95cb72991d12a0be70ac9e4d7bd88ddf986c0b666fbf",
+        "bytes": 1018791
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_lora_hu_2021/reference.pptx",
+        "sha256": "3e59fc1d20136f3f2ec0eb50f3ae1b5d1b8a5f81fd93c21460b40b6efe191c56",
+        "bytes": 4185258,
+        "slide_count": 15
+      }
+    },
+    {
+      "id": "ppt-master-brutalist_ai_newspaper_2026",
+      "title": "Brutalist AI Newspaper 2026",
+      "style_name": "Brutalist Newspaper",
+      "description": "AI 行业 2026 年报 — Brutalist 报章风格，满版小字 + 数据网格 + halftone 黑白图 + 单点红",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_brutalist_ai_newspaper_2026",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Brutalist",
+        "Newspaper",
+        "Annual Report"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_brutalist_ai_newspaper_2026/preview.png",
+        "sha256": "401228f0736b3fde3a4bfc2f38512a8274bfe03aa34c14d1243eaf4d25380ea5",
+        "bytes": 1147104,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_brutalist_ai_newspaper_2026/cover.svg",
+        "sha256": "bea9ff2d2ed726c69845d4c562a9136e24e31c3e3bbaa7c0d92abe6669dd9ee7",
+        "bytes": 1900732
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_brutalist_ai_newspaper_2026/reference.pptx",
+        "sha256": "a78701848dd76b4456636b764cdfa159cfe51d54d17ba1f9425957e08a92e1b9",
+        "bytes": 7774954,
+        "slide_count": 10
+      }
+    },
+    {
+      "id": "ppt-master-pritzker_2026",
+      "title": "Pritzker 2026",
+      "style_name": "Architecture Editorial",
+      "description": "2026 普利兹克建筑奖深度阅读 — 建筑摄影主导 + 编辑设计",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_pritzker_2026",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Architecture",
+        "Editorial",
+        "Reading Club"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_pritzker_2026/preview.png",
+        "sha256": "61fc0479747d2db32942e389120548c1bb46eefea7336a76e7174ee459434e98",
+        "bytes": 383506,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_pritzker_2026/cover.svg",
+        "sha256": "99b4041b8366b5a8c123fc597251d788572b9cc96633ceddb3d535453f4fe658",
+        "bytes": 201061
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_pritzker_2026/reference.pptx",
+        "sha256": "095f9085bd12d03e10cb537078e3a903047e710af85fdb7301f7297e2674f625",
+        "bytes": 15854611,
+        "slide_count": 11
+      }
+    },
+    {
+      "id": "ppt-master-global_ai_capital_2026",
+      "title": "Global AI Capital 2026",
+      "style_name": "Bloomberg Editorial",
+      "description": "全球 AI 资本流向年度观察 — Bloomberg / Economist 信息图风",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_global_ai_capital_2026",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Data Journalism",
+        "Finance",
+        "Annual Review"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_global_ai_capital_2026/preview.png",
+        "sha256": "537816bae6ef5b4238e4b9240fc20a3c00f05b54c733cd0116d6651b71881daa",
+        "bytes": 628157,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_global_ai_capital_2026/cover.svg",
+        "sha256": "85b4814ca570cfbecc9b217ffa156df660280b09b433a2a761e4e18a69d6a99c",
+        "bytes": 1423864
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_global_ai_capital_2026/reference.pptx",
+        "sha256": "2a323935de5a736e301e46b00707521026c31b1436663d7d7ebdec3166991972",
+        "bytes": 3486177,
+        "slide_count": 20
+      }
+    },
+    {
+      "id": "ppt-master-swiss_grid_systems",
+      "title": "Swiss Grid Systems",
+      "style_name": "Swiss Typographic",
+      "description": "瑞士国际主义设计史 lecture — Müller-Brockmann 致敬",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_swiss_grid_systems",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Swiss Style",
+        "Typography",
+        "Design History"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_swiss_grid_systems/preview.png",
+        "sha256": "045132d68ab815a656f68fcc5c467c8d177f136789ddf800d9690f9470c14fe0",
+        "bytes": 392545,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_swiss_grid_systems/cover.svg",
+        "sha256": "3c3c692f6c1efbba4606a81821d312884971c9e6bef5f83ea24407e3584de46d",
+        "bytes": 562716
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_swiss_grid_systems/reference.pptx",
+        "sha256": "8082dcb4d6c9ff93c60912daa417d62b1b31a3744fe2dd9d9f3b5e68a3e0745d",
+        "bytes": 1555342,
+        "slide_count": 14
+      }
+    },
+    {
+      "id": "ppt-master-glassmorphism_demo",
+      "title": "Glassmorphism Demo",
+      "style_name": "Glassmorphism SaaS",
+      "description": "AI 产品发布 — 毛玻璃质感的现代 SaaS 视觉语言",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_glassmorphism_demo",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "SaaS",
+        "Modern",
+        "Product Launch"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_glassmorphism_demo/preview.png",
+        "sha256": "11a0b2133747541f4b9410a8afb36251dcdd448a7977e2865b29f98650ae5d25",
+        "bytes": 706366,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_glassmorphism_demo/cover.svg",
+        "sha256": "1052630ac7db311f3ddd0fd8299bc2008839a4af967bc5956bfb56326f6bb689",
+        "bytes": 1382449
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_glassmorphism_demo/reference.pptx",
+        "sha256": "291bdc5f8a203a7076d387bc667b67b074c2a9bd94d5e7ee0892d8b22b44b46b",
+        "bytes": 7843702,
+        "slide_count": 12
+      }
+    },
+    {
+      "id": "ppt-master-sugar_rush_memphis",
+      "title": "Sugar Rush Memphis",
+      "style_name": "Memphis / Pop",
+      "description": "虚构音乐节年度手册 — Memphis 设计运动 + 流行流派 mash-up",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_sugar_rush_memphis",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Memphis Design",
+        "Music Festival",
+        "Pop"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_sugar_rush_memphis/preview.png",
+        "sha256": "b00024c0f863fc6cd26ad79d71cd64efb6b2a90f198c23b34c7b42b57f6d1268",
+        "bytes": 741604,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_sugar_rush_memphis/cover.svg",
+        "sha256": "6adf17070d08c60350fe323ba54a81de472f3be18cd39846882ed0bab5e8a81f",
+        "bytes": 1187588
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_sugar_rush_memphis/reference.pptx",
+        "sha256": "38b3190f6b475f2a423c6aa09e87d6c360f0f39937bfc20f556ad681aa0d04f5",
+        "bytes": 8015514,
+        "slide_count": 14
+      }
+    },
+    {
+      "id": "ppt-master-indie_bookstore_zine_guide",
+      "title": "Indie Bookstore Zine Guide",
+      "style_name": "Risograph Zine",
+      "description": "独立书店 zine 入门指南 — Risograph 印刷工艺 + DIY 海报美学",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_indie_bookstore_zine_guide",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Zine",
+        "Risograph",
+        "DIY"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_indie_bookstore_zine_guide/preview.png",
+        "sha256": "7e0bbcece38b6dc230cf9e31b048ab57cda1a45958eb9cc038b996d7dbe8e27c",
+        "bytes": 1106417,
+        "width": 1280,
+        "height": 720
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_indie_bookstore_zine_guide/cover.svg",
+        "sha256": "3407101d1f3169c018fc4dd8afb8b1ae8ad4bbd03e8ce11066089690ee726994",
+        "bytes": 1863302
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_indie_bookstore_zine_guide/reference.pptx",
+        "sha256": "7231ffd6c00fd93d0d824bc539d8101cb6d94a04b9f5c9be57ebefb377f45f26",
+        "bytes": 17112798,
+        "slide_count": 18
+      }
+    },
+    {
+      "id": "ppt-master-kubernetes_blueprint_2026",
+      "title": "Kubernetes Blueprint 2026",
+      "style_name": "Engineering Blueprint",
+      "description": "Kubernetes 集群架构 10 页讲解 — 工程蓝图等距技术图风",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_kubernetes_blueprint_2026",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Blueprint",
+        "Kubernetes",
+        "Technical Drawing"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_kubernetes_blueprint_2026/preview.png",
+        "sha256": "a22a6d7e100a1ca451805dcb669b559322eb9cb1953151f50d5a5a4ceb14363c",
+        "bytes": 325570,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_kubernetes_blueprint_2026/cover.svg",
+        "sha256": "0a308e9094e3d852faaf9b344f459d215d8097a1a1801419a41aec92714618c0",
+        "bytes": 7907
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_kubernetes_blueprint_2026/reference.pptx",
+        "sha256": "ddcaef381c298e0c5f4d1c636731044ed513e30166c07e79dae70ff5896227a3",
+        "bytes": 105402,
+        "slide_count": 10
+      }
+    },
+    {
+      "id": "ppt-master-high_rise_renewal",
+      "title": "高层住宅“主动再生”",
+      "style_name": "Editorial Magazine",
+      "description": "从悉尼到中国 — 高层住宅老化的再生议题，编辑杂志风",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_high_rise_renewal",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Urban Renewal",
+        "Editorial",
+        "Architecture"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_high_rise_renewal/preview.png",
+        "sha256": "7ae2a9bf8bb80b3a22009823bcee8a9358c99b732eaca949e2768d08c0ded98e",
+        "bytes": 746595,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_high_rise_renewal/cover.svg",
+        "sha256": "e2ebcd46b37c2fa9850f229aa56201f665add8758832b5398cd6c96b298ae83b",
+        "bytes": 487789
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_high_rise_renewal/reference.pptx",
+        "sha256": "2df2e9748047b7223e60b63597ebae1c7ebec2878d99332006aa4692674bd5ae",
+        "bytes": 22532490,
+        "slide_count": 15
+      }
+    },
+    {
+      "id": "ppt-master-cangzhuo",
+      "title": "藏拙",
+      "style_name": "Chinese Ink Aesthetic",
+      "description": "《男人最顶级的城府：藏拙》读书分享 — 新中式水墨留白",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_cangzhuo",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Chinese Aesthetic",
+        "Editorial",
+        "Cultural"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_cangzhuo/preview.png",
+        "sha256": "06a897138d66f4686ab5823d0950218f73e36cde8c1c8889f22c0d75639d6b8f",
+        "bytes": 978525,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_cangzhuo/cover.svg",
+        "sha256": "eb4d08b7560b569ec4ae3a24d0e6d4f78acbddea0d3cb75c1e87f31ec08ae9bb",
+        "bytes": 1646543
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_cangzhuo/reference.pptx",
+        "sha256": "6c574b08f04ca14b0dbd46450a0849f24324be15ba3bcc2766bd23cebdb85d8e",
+        "bytes": 8210381,
+        "slide_count": 14
+      }
+    },
+    {
+      "id": "ppt-master-image_text_showcase",
+      "title": "Image-Text Showcase",
+      "style_name": "Editorial Showcase",
+      "description": "20种图文组合范式展示 — 每页不同 rendering × palette × 布局",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_image_text_showcase",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Image-Text",
+        "Layout Patterns",
+        "Visual Reference"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_image_text_showcase/preview.png",
+        "sha256": "ae07468e864f218a19dff5bff8b4997dffb90bd86aff4f8b3f7401f9755615c6",
+        "bytes": 514982,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_image_text_showcase/cover.svg",
+        "sha256": "ecc4c74b31e5a0a002d85475da9e1b2915b372492181e09603ab53359934c7bb",
+        "bytes": 2361726
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_image_text_showcase/reference.pptx",
+        "sha256": "1e682a73e398921cd7e4a0dfdbeb94d3c8ae25d66cc8d115fa3d72534e1394a8",
+        "bytes": 36755135,
+        "slide_count": 20
+      }
+    },
+    {
+      "id": "ppt-master-building_effective_agents",
+      "title": "Building Effective Agents",
+      "style_name": "General + Dark Tech",
+      "description": "Anthropic 工程博客的 AI Agent 架构与工作流模式解析",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_building_effective_agents",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Dark Theme",
+        "AI/ML",
+        "Anthropic"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_building_effective_agents/preview.png",
+        "sha256": "d25b7dd2c8f7a23ae441d289af6212d30d2daa120c41e0b1f9c367c114b46a46",
+        "bytes": 95699,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_building_effective_agents/cover.svg",
+        "sha256": "57e7fe9c5b377ffe3a8237cfd7eabf0a3a1ff52954c4d55e7f9e15650803e517",
+        "bytes": 4727
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_building_effective_agents/reference.pptx",
+        "sha256": "cbeca28dd2c8bcb1b8d13103759712b93c76af8a1d03feb4d586fe7485dd1ad5",
+        "bytes": 1002116,
+        "slide_count": 12
+      }
+    },
+    {
+      "id": "ppt-master-fashion_weekly_digest",
+      "title": "时尚美学周鉴",
+      "style_name": "Luxury Editorial",
+      "description": "奢侈品与生活方式品牌新闻的杂志化周报",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_fashion_weekly_digest",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Luxury",
+        "Fashion",
+        "杂志风"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_fashion_weekly_digest/preview.png",
+        "sha256": "53a8b037cf9fdbddb4380a641b8acc287e79402cfa7d40a7f936277b0d6f2283",
+        "bytes": 164984,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_fashion_weekly_digest/cover.svg",
+        "sha256": "ec33be4c806568752156fc9914a632c0c3e87a942eb4a2d859ded039a0c590b7",
+        "bytes": 68587
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_fashion_weekly_digest/reference.pptx",
+        "sha256": "b36b5432287c8afdda15cb0444bc89d462f43cb6272b9453a905f8695f46de19",
+        "bytes": 2988770,
+        "slide_count": 16
+      }
+    },
+    {
+      "id": "ppt-master-home_design_trends_2026",
+      "title": "2026 家居设计趋势",
+      "style_name": "Magazine Editorial",
+      "description": "杂志编辑风的家居色彩、材质与纹理趋势解析",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_home_design_trends_2026",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "家居设计",
+        "杂志风",
+        "CMT"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_home_design_trends_2026/preview.png",
+        "sha256": "8f8b149aae7d9845dc87bf7d39cd3c540b54b475e9478f27953fb7996447799a",
+        "bytes": 501316,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_home_design_trends_2026/cover.svg",
+        "sha256": "da399d5ca5a8d8703e68c7fdcdfd6d9989ae1f45037cec5cb76a9ce30ca0c254",
+        "bytes": 604757
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_home_design_trends_2026/reference.pptx",
+        "sha256": "81e9b0b94e1ddea80d2602a1d189626df06bf158dd6d2a42b0f796ba6c9b4279",
+        "bytes": 10245281,
+        "slide_count": 12
+      }
+    },
+    {
+      "id": "ppt-master-kimsoong_loyalty_programme",
+      "title": "Kimsoong Loyalty Programme",
+      "style_name": "Top Consulting",
+      "description": "MBB 风格汽车品牌客户忠诚度战略提案",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_kimsoong_loyalty_programme",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "MBB 级",
+        "Loyalty",
+        "Automotive"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_kimsoong_loyalty_programme/preview.png",
+        "sha256": "0ddcc6cf68e3667e0c87ceb1acf7a60f948846b71991c5ec3c4be98288784556",
+        "bytes": 340285,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_kimsoong_loyalty_programme/cover.svg",
+        "sha256": "9d4044b3ad7f869fec401180e9808d9b81cf2cab233e23dba7d72bdb86406537",
+        "bytes": 1892505
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_kimsoong_loyalty_programme/reference.pptx",
+        "sha256": "584a90994a0121b79a830cc659c16d2cd786340773295fe507bce6afc21a7e2b",
+        "bytes": 3888022,
+        "slide_count": 10
+      }
+    },
+    {
+      "id": "ppt-master-lin_huiyin_architect",
+      "title": "林徽因：当之无愧的建筑师",
+      "style_name": "建筑人文纪念",
+      "description": "深色建筑人文纪念风的林徽因建筑贡献梳理",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_lin_huiyin_architect",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "建筑史",
+        "人文",
+        "深色主题"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect/preview.png",
+        "sha256": "68a23a32a62c645ae6b5f4b1069a9d1a1221bdfa33fc9a17bc69274b23410867",
+        "bytes": 789864,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect/cover.svg",
+        "sha256": "6ef97563cc3143e7275b2fe651020f5dfc8b1ae888882f102c337dfd7fc46ff4",
+        "bytes": 2655592
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect/reference.pptx",
+        "sha256": "262a9c7b7cda35ec60390198ec872387cccb6feece9691eb2760f18e8c0527c8",
+        "bytes": 8125810,
+        "slide_count": 10
+      }
+    },
+    {
+      "id": "ppt-master-lin_huiyin_architect_revised",
+      "title": "重识林徽因建筑师身份",
+      "style_name": "博物馆展陈风",
+      "description": "浅色博物馆展陈风的林徽因建筑贡献修订版",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_lin_huiyin_architect_revised",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "建筑史",
+        "展陈图录",
+        "修订版"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect_revised/preview.png",
+        "sha256": "18e9d99924a85670217d4531226c49a5161045a9ccc53c50019dc94784cd6c04",
+        "bytes": 381275,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect_revised/cover.svg",
+        "sha256": "f4756615a85034cf8f211e6983bc1cedc095a7cda66e120c01193d3a9fcb8f23",
+        "bytes": 627571
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect_revised/reference.pptx",
+        "sha256": "1be3c9a3de906d702dc0c18978da62f269e33262cb646e434cf6a48172b1721f",
+        "bytes": 7674441,
+        "slide_count": 9
+      }
+    },
+    {
+      "id": "ppt-master-liziqi_plant_dye_colors",
+      "title": "李子柒植物染色彩",
+      "style_name": "东方文化叙事",
+      "description": "东方文化叙事下的传统色与植物染研究",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_liziqi_plant_dye_colors",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "传统色",
+        "植物染",
+        "东方美学"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_liziqi_plant_dye_colors/preview.png",
+        "sha256": "c2e5ef6ce4f22fbf6062923631a13775556d23c9b5b699473306e6ac150e859c",
+        "bytes": 281059,
+        "width": 1281,
+        "height": 721
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_liziqi_plant_dye_colors/cover.svg",
+        "sha256": "c64c0e721751905d2c52d71d288c3b896c69f2bf070b9d100c253af0648fda6f",
+        "bytes": 906519
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_liziqi_plant_dye_colors/reference.pptx",
+        "sha256": "3c59831b814e21c80c57b260207c668e7b461a1fe4be00f0549fc928173a0008",
+        "bytes": 9214255,
+        "slide_count": 12
+      }
+    },
+    {
+      "id": "ppt-master-general_dark_tech_claude_code_auto_mode",
+      "title": "Claude Code Auto Mode",
+      "style_name": "General + Dark Tech",
+      "description": "Anthropic AI safety engineering — classifier-based permissions",
+      "asset_kind": "reference-deck",
+      "source_id": "ppt-master",
+      "source_commit": "2296b80c5f2c3df6eac4461dd788b9f526b72e14",
+      "source_project_id": "ppt169_general_dark_tech_claude_code_auto_mode",
+      "license": "MIT",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-validated-for-template-fill",
+      "tags": [
+        "Dark Theme",
+        "AI Safety",
+        "Anthropic"
+      ],
+      "limitations": [
+        "do not copy source facts, brands, photos, animations, narration or slide text without separate review",
+        "do not treat this reference deck as a scene 2 template without template analysis"
+      ],
+      "preview": {
+        "path": "assets/style-library/ppt-master/ppt169_general_dark_tech_claude_code_auto_mode/preview.png",
+        "sha256": "2edbc743651cd88ab5add0c640e044150c36a32d45877bcf643a91e8c9fcedab",
+        "bytes": 85053,
+        "width": 1280,
+        "height": 720
+      },
+      "cover_svg": {
+        "path": "assets/style-library/ppt-master/ppt169_general_dark_tech_claude_code_auto_mode/cover.svg",
+        "sha256": "86806301ffbb11197b2b0a69fe32cfb0a5c839d4a57e36f527cb2b6ddd9f44ce",
+        "bytes": 4289
+      },
+      "reference_deck": {
+        "path": "assets/style-library/ppt-master/ppt169_general_dark_tech_claude_code_auto_mode/reference.pptx",
+        "sha256": "9c9c647867704570e6f91ff984d7dd4f8beca36c0d19d6e6f5e42a181461100d",
+        "bytes": 1633860,
+        "slide_count": 10
+      }
+    },
+    {
+      "id": "gorden-leader-love",
+      "title": "蓝白咨询框架",
+      "style_name": "Blue Consulting Framework",
+      "description": "GordenImagePPTGen bundled reference family",
+      "asset_kind": "style-family",
+      "source_id": "gorden-super-ppt-skills",
+      "source_commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "source_group": "leader_love",
+      "license": "custom README permission; attribution required",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "蓝白",
+        "咨询",
+        "项目管理",
+        "体系总览",
+        "高信息密度"
+      ],
+      "best_for": [
+        "企业方法论",
+        "项目管理体系",
+        "流程与能力地图"
+      ],
+      "limitations": [],
+      "preview": {
+        "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref1.png",
+        "sha256": "f7b54a38765fb2e84ee4c270fb8a9779d5414af0373d0faff26e5e245b45b335",
+        "bytes": 236523,
+        "width": 1600,
+        "height": 900
+      },
+      "samples": [
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref1.png",
+          "sha256": "f7b54a38765fb2e84ee4c270fb8a9779d5414af0373d0faff26e5e245b45b335",
+          "bytes": 236523,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref2.png",
+          "sha256": "792c9ef86a90f7ac87c81a1b0bdb0644e068c99a920528a94bd6b228d158da48",
+          "bytes": 255153,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref3.png",
+          "sha256": "868b43f058e01b266ac0e581e83a791d146e6dd7728eda59a19f7f11f36a0f50",
+          "bytes": 305545,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref4.png",
+          "sha256": "332407d460d0220984db641581f036b0f1821e8f46c3e5c6555ec2ceb21dd364",
+          "bytes": 336228,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref5.png",
+          "sha256": "b62656ba9a4f1ba107715914eb985136adb2c1c1df38c72632f2a71fabb7b085",
+          "bytes": 502961,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref6.png",
+          "sha256": "02b67c07e42e14e35d85931c4933869948e596b7a0d6dd48cb74df5d1b210e9b",
+          "bytes": 373063,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref7.png",
+          "sha256": "6b7d4e5135ef81c30c9ab9553216a6d59af1fd8111a985bd104957807db10ad1",
+          "bytes": 396537,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref8.png",
+          "sha256": "24c3b13bf2db3470a2c11d367c5945fd4b68d0aa2d098e82e8be95687a9b1965",
+          "bytes": 313472,
+          "width": 1600,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "id": "gorden-red-grey-project",
+      "title": "红灰战略经营",
+      "style_name": "Red Grey Strategy",
+      "description": "GordenImagePPTGen bundled reference family",
+      "asset_kind": "style-family",
+      "source_id": "gorden-super-ppt-skills",
+      "source_commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "source_group": "red_grey_project",
+      "license": "custom README permission; attribution required",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "红灰",
+        "战略",
+        "经营分析",
+        "数字卡片"
+      ],
+      "best_for": [
+        "年度战略",
+        "经营分析",
+        "业绩复盘"
+      ],
+      "limitations": [],
+      "preview": {
+        "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref1.png",
+        "sha256": "4d877103a5ca735a41a3f5acc0e8f5810d416cb498c1cc2134d2ecb32a80d179",
+        "bytes": 328416,
+        "width": 1600,
+        "height": 900
+      },
+      "samples": [
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref1.png",
+          "sha256": "4d877103a5ca735a41a3f5acc0e8f5810d416cb498c1cc2134d2ecb32a80d179",
+          "bytes": 328416,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref2.png",
+          "sha256": "babd57f5efb363f6563652baa341b2acaa41dc0b3962abbe68e70a1c222bad90",
+          "bytes": 352464,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref3.png",
+          "sha256": "e89ec8de2ef79b4de3e2970cf9d49000ed495a7e28585a03ea2dac9a910534ef",
+          "bytes": 307024,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref4.png",
+          "sha256": "b95ee8e39638b321d6ab01ce7b8ac393b4d36d24fbf3d88b90d94d58670f1ebd",
+          "bytes": 318645,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref5.png",
+          "sha256": "18f144507a4966a87137c7ec671d5f9533b19e7471d5248d5d60f9b69c2e7773",
+          "bytes": 362282,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref6.png",
+          "sha256": "b7ef8a90b570bbf91b31ff229e9ed62185836541f391c9699981fe1fec4b80c8",
+          "bytes": 451042,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref7.png",
+          "sha256": "6b68661b123e564b4d0c7e2979b1b1d833eaac054bf923b1d961a6e4df29fd3f",
+          "bytes": 281219,
+          "width": 1600,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "id": "gorden-scholar-green",
+      "title": "学术研究绿",
+      "style_name": "Scholar Green",
+      "description": "GordenImagePPTGen bundled reference family",
+      "asset_kind": "style-family",
+      "source_id": "gorden-super-ppt-skills",
+      "source_commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "source_group": "scholar_green",
+      "license": "custom README permission; attribution required",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "学术",
+        "白底",
+        "绿色",
+        "关系图",
+        "研究汇报"
+      ],
+      "best_for": [
+        "学术研究",
+        "政策分析",
+        "法学与社会科学"
+      ],
+      "limitations": [],
+      "preview": {
+        "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref1.png",
+        "sha256": "18ccd123da1a586066f79c0a7293453ee9a47be145e97f0cd1a9878e2bb9ecdf",
+        "bytes": 290694,
+        "width": 1600,
+        "height": 900
+      },
+      "samples": [
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref1.png",
+          "sha256": "18ccd123da1a586066f79c0a7293453ee9a47be145e97f0cd1a9878e2bb9ecdf",
+          "bytes": 290694,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref2.png",
+          "sha256": "8d8da291ed53ee728e72f1985cb9fcf7c7300437fa5d19626c82479d21380a5a",
+          "bytes": 221349,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref3.png",
+          "sha256": "74338d9aad53bc2ff599b8a94dd8c0fc6e31556c070430c27aef515f412fc12e",
+          "bytes": 194540,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref4.png",
+          "sha256": "4776d6ba731f36bd21555ed3dc25bdb14540fa344e1bbbae0b4f6c0e22544083",
+          "bytes": 232963,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref5.png",
+          "sha256": "8a7dc0cba4f1ce5dc8e9c0b85496e487db3214953837115f9e0320552c7cd2c3",
+          "bytes": 206275,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref6.png",
+          "sha256": "b463dac8a117865a31f62660c37afcaf65e0a92a2d887c7cfd22394699bf77cc",
+          "bytes": 245021,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref7.png",
+          "sha256": "826897a353401c13cad32b49309beca366306702a7cc2263e1b906b5a560e68c",
+          "bytes": 215318,
+          "width": 1600,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "id": "gorden-tech-prize",
+      "title": "科技项目申报蓝",
+      "style_name": "Technology Award Blue",
+      "description": "GordenImagePPTGen bundled reference family",
+      "asset_kind": "style-family",
+      "source_id": "gorden-super-ppt-skills",
+      "source_commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "source_group": "tech_prize",
+      "license": "custom README permission; attribution required",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "科技",
+        "项目申报",
+        "蓝白",
+        "证据图片",
+        "传统汇报"
+      ],
+      "best_for": [
+        "重大项目申报",
+        "科技奖项",
+        "成果汇报"
+      ],
+      "limitations": [
+        "legacy-low-resolution reference images"
+      ],
+      "preview": {
+        "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref1.png",
+        "sha256": "bf0b600a181732f354b76bc69240172dccbbdce0550bc5b7397ec5f944219ecc",
+        "bytes": 201426,
+        "width": 1006,
+        "height": 566
+      },
+      "samples": [
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref1.png",
+          "sha256": "bf0b600a181732f354b76bc69240172dccbbdce0550bc5b7397ec5f944219ecc",
+          "bytes": 201426,
+          "width": 1006,
+          "height": 566
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref2.png",
+          "sha256": "6ce30706275f54dd51aca0b35c2a826dc4dc2673ae63881b875bd02aa117e5e0",
+          "bytes": 185487,
+          "width": 1008,
+          "height": 567
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref3.png",
+          "sha256": "0fff2aeb0412d7bed08b0acdc543fbef4174e02f2fa79d2f3cb7b0429e9c14ad",
+          "bytes": 183932,
+          "width": 1007,
+          "height": 566
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref4.png",
+          "sha256": "f2cb1f2e2c4547a89035a2c6c37048174b422138a945ec680b223283e2f7ccbe",
+          "bytes": 170408,
+          "width": 1008,
+          "height": 566
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref5.png",
+          "sha256": "eed0db2e448cfcc19a3ad286b47b7d93f0cc20c740fdc4b9283dfe1e3e2dce0c",
+          "bytes": 190514,
+          "width": 1008,
+          "height": 567
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref6.png",
+          "sha256": "81af020516183bf509dcdcaab7d4656cca6ca49c7df349dff11356ec537bed45",
+          "bytes": 187825,
+          "width": 1008,
+          "height": 567
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref7.png",
+          "sha256": "f46206220e746faff69cb99eff184eb1c64e75c75fee18e91c9ca8da260ad7cc",
+          "bytes": 210020,
+          "width": 1009,
+          "height": 567
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref8.png",
+          "sha256": "e586be0a54c1c0f8248ec896fc5e76b1dab0ae7fd1c53537677f67a056efcb68",
+          "bytes": 181340,
+          "width": 1009,
+          "height": 568
+        }
+      ]
+    },
+    {
+      "id": "gorden-work-result",
+      "title": "红蓝工作总结",
+      "style_name": "Red Blue Work Summary",
+      "description": "GordenImagePPTGen bundled reference family",
+      "asset_kind": "style-family",
+      "source_id": "gorden-super-ppt-skills",
+      "source_commit": "8c05583dab8334182b71738e8dfbbec5c56a1951",
+      "source_group": "work_result",
+      "license": "custom README permission; attribution required",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "红蓝",
+        "工作总结",
+        "计划",
+        "对称结构"
+      ],
+      "best_for": [
+        "半年总结",
+        "年度复盘",
+        "下阶段计划"
+      ],
+      "limitations": [],
+      "preview": {
+        "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref1.png",
+        "sha256": "e13511081e1183309716fb6fd2584f65e7c716aa8117f07c202e35c257f0c763",
+        "bytes": 327498,
+        "width": 1600,
+        "height": 900
+      },
+      "samples": [
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref1.png",
+          "sha256": "e13511081e1183309716fb6fd2584f65e7c716aa8117f07c202e35c257f0c763",
+          "bytes": 327498,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref2.png",
+          "sha256": "4e459d5611ba90619a9450cdcabd59e5cc844ebc2b94749fc7b75ca61763c81d",
+          "bytes": 450883,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref3.png",
+          "sha256": "bf5abc3f00c4b220b6e35332e9a623bc899b86ebdffc1a0f5efb268f903d4e9f",
+          "bytes": 410983,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref4.png",
+          "sha256": "96a63a7935740b2aa4e2e72745d7b5f41ba0714751fb9792980d9c2d3a8f58a5",
+          "bytes": 416226,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref5.png",
+          "sha256": "ddf50974438848a66bf7db26e57bc0a15678c0d826fcfa8f0d2949b4e87afb22",
+          "bytes": 230594,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref6.png",
+          "sha256": "b53959abe6525882d904205effe52a81ce1bac2793deda37c13d699ef8f62b12",
+          "bytes": 303543,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref7.png",
+          "sha256": "5236dab6736e1f44969e1433a98aca9ead8fc83a639257d2aab77d328066b462",
+          "bytes": 339219,
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref8.png",
+          "sha256": "4e83f87e70487c1854bfa3b05fa9f175e89fa34d5197b0faa673f9094e6068eb",
+          "bytes": 355295,
+          "width": 1600,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "id": "san-dark-product-analysis",
+      "title": "深蓝产品分析",
+      "style_name": "Dark Product Analysis",
+      "description": "深蓝渐变、青绿高亮、大字号中文标题和玻璃卡片的八页产品分析样例",
+      "asset_kind": "style-family",
+      "source_id": "ppt-agent-workflow-san",
+      "source_commit": "801cd2bd46c3cc4ca2c846ff28da2d9284816cd9",
+      "license": "Apache-2.0 (declared in upstream README)",
+      "usage": "visual-reference-only",
+      "scene_eligibility": [
+        "new-deck-style-reference",
+        "reference-deck-reference"
+      ],
+      "template_status": "not-a-template",
+      "tags": [
+        "深蓝",
+        "渐变",
+        "科技",
+        "产品分析",
+        "玻璃卡片"
+      ],
+      "best_for": [
+        "产品分析",
+        "科技商业汇报",
+        "竞争格局"
+      ],
+      "limitations": [],
+      "preview": {
+        "path": "assets/style-library/san-dark-product-analysis/slides/01-cover.png",
+        "sha256": "7c430d28023f0cb712dfd9f382ff64023bb97390ac9bbb188146bf4b08c6ece9",
+        "bytes": 943913,
+        "width": 1920,
+        "height": 1080
+      },
+      "samples": [
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/01-cover.png",
+          "sha256": "7c430d28023f0cb712dfd9f382ff64023bb97390ac9bbb188146bf4b08c6ece9",
+          "bytes": 943913,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/02-core-conclusion.png",
+          "sha256": "071a3ae6a95ce6c1abc1c00123ca7e07c2ee445bfc03278d662c50321b923895",
+          "bytes": 326586,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/03-positioning.png",
+          "sha256": "89458649d898095f6715bf2a628cb761397bee58e848d720f74ca488e49252c4",
+          "bytes": 320778,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/04-users-scenarios.png",
+          "sha256": "2af56877edda4a83a321b848e795e6b21c7e04cf41d12b387bd2b4538283104f",
+          "bytes": 381204,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/05-growth-flywheel.png",
+          "sha256": "c24dad7d719ecff01713b3291346bfa651b73dae60f5b95de6616dc5dea30196",
+          "bytes": 754433,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/06-competition.png",
+          "sha256": "3609562c8cee53efffb2a9f6e4ab771fb11249cf0f86b2b054a655676721b2fd",
+          "bytes": 428346,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/07-risks.png",
+          "sha256": "ef595332ad08cfd016dd3c2e52a4d6fc08a98fe9ca3eac78a1f063dd18904505",
+          "bytes": 238567,
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "path": "assets/style-library/san-dark-product-analysis/slides/08-conclusion.png",
+          "sha256": "e8d1d7d0dc5f7881f13a4f2de0eade9f56e341282994c8b45fc16db14afc7a59",
+          "bytes": 383314,
+          "width": 1920,
+          "height": 1080
+        }
+      ]
+    }
+  ],
+  "supporting_assets": [
+    {
+      "path": "assets/style-library/gorden-workflow-examples/example-editable-pptx.png",
+      "sha256": "e3b1aafc92a10861c2f826cdac504816cbad48bfba4e4b269128e7fe71b0d523",
+      "bytes": 2365250,
+      "width": 2278,
+      "height": 1300,
+      "source_id": "gorden-super-ppt-skills",
+      "role": "workflow-example"
+    },
+    {
+      "path": "assets/style-library/gorden-workflow-examples/example-Image-ppt.png",
+      "sha256": "3bbb6bf35de8eb0ac69949a0d3ea70b74ad2fa90ce88c9c094d988de32f33212",
+      "bytes": 3109326,
+      "width": 1920,
+      "height": 1080,
+      "source_id": "gorden-super-ppt-skills",
+      "role": "workflow-example"
+    },
+    {
+      "path": "assets/style-library/gorden-workflow-examples/图标和装饰.png",
+      "sha256": "a5a3bd0b8be169c2a5a4a3bfa0cd5b11260c7b80854c28ebae9e78e78eccc798",
+      "bytes": 1421248,
+      "width": 1254,
+      "height": 1254,
+      "source_id": "gorden-super-ppt-skills",
+      "role": "workflow-example"
+    },
+    {
+      "path": "assets/style-library/gorden-workflow-examples/框架图.png",
+      "sha256": "58f6fa281bdd89f5e49f7e4d921e0a0e75646e68f5c68c541005ac7a01aeb45a",
+      "bytes": 1100483,
+      "width": 1672,
+      "height": 941,
+      "source_id": "gorden-super-ppt-skills",
+      "role": "workflow-example"
+    },
+    {
+      "path": "assets/style-library/gorden-workflow-examples/背景图.png",
+      "sha256": "a887de2f258f8b5ac7aafb69fc5ebeb76fae347a40c08a5ed53672a9f90b2e0f",
+      "bytes": 1247874,
+      "width": 1672,
+      "height": 941,
+      "source_id": "gorden-super-ppt-skills",
+      "role": "workflow-example"
+    },
+    {
+      "path": "assets/style-library/san-dark-product-analysis/workflow-screenshots/1.png",
+      "sha256": "c5201b4ee19065d4465684428b8e2164d309c32c4058a390313f7f1bb9fa8ab3",
+      "bytes": 1256056,
+      "width": 4496,
+      "height": 1564,
+      "source_id": "ppt-agent-workflow-san",
+      "role": "workflow-screenshot"
+    },
+    {
+      "path": "assets/style-library/san-dark-product-analysis/workflow-screenshots/2.png",
+      "sha256": "a2c307c54d1dc1e4e87ce7fe031150aded1f989e195b57cd951672ec24c2f386",
+      "bytes": 708725,
+      "width": 3088,
+      "height": 1526,
+      "source_id": "ppt-agent-workflow-san",
+      "role": "workflow-screenshot"
+    }
+  ]
+}

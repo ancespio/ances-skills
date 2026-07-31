@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/change-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "source_pptx", "changes", "new_pages", "keep_original_slides"],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.change-plan.v1"},
+    "run_id": {"type": "string"},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed", "blocked"]},
+    "source_pptx": {"type": "string", "minLength": 1},
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_slide", "selector", "before", "after", "preserve"],
+        "properties": {
+          "source_slide": {"type": "integer", "minimum": 1},
+          "selector": {"type": "string", "minLength": 1},
+          "before": {},
+          "after": {},
+          "preserve": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "new_pages": {"type": "array"},
+    "keep_original_slides": {"type": "boolean"}
+  }
+}

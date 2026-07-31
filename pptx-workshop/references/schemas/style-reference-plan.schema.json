@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/style-reference-plan.schema.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "status",
+    "catalog_schema_version",
+    "catalog_sha256",
+    "candidates",
+    "selected_ids",
+    "usage_mode",
+    "user_direction"
+  ],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.style-reference-plan.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed"]},
+    "catalog_schema_version": {"const": "pptx-workshop.style-library.v1"},
+    "catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidates": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["id", "source_type", "style_label", "fit_reason", "limitations"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "source_type": {"enum": ["bundled", "user-provided", "custom"]},
+          "catalog_entry_id": {"type": "string", "minLength": 1},
+          "source_path": {"type": "string", "minLength": 1},
+          "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "style_label": {"type": "string", "minLength": 1},
+          "fit_reason": {"type": "string", "minLength": 1},
+          "limitations": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"source_type": {"const": "bundled"}}},
+            "then": {"required": ["catalog_entry_id"]}
+          },
+          {
+            "if": {"properties": {"source_type": {"const": "user-provided"}}},
+            "then": {"required": ["source_path", "source_sha256"]}
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    "selected_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "usage_mode": {"enum": ["direct", "blend", "inspired", "custom"]},
+    "user_direction": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
