@@ -1,18 +1,18 @@
 {
   "schema_version": "pptx-workshop.style-library.v1",
   "library_id": "pptx-workshop-bundled-style-library",
-  "catalog_date": "2026-07-31",
+  "catalog_revision": "2026-07-31-r1",
   "notice": {
     "path": "assets/style-library/NOTICE.md",
-    "sha256": "c0b9a59d40af98122623dff4e31fa7b86ef7ab09b56b038d3449244a8586160c",
-    "bytes": 2430
+    "sha256": "2ef782ff55bbc1a0a0167eb47a2bfaab3ef09bd282c468130e53420c0c091a0b",
+    "bytes": 2463
   },
   "summary": {
     "selectable_entries": 27,
     "reference_decks": 21,
     "style_families": 6,
     "supporting_assets": 7,
-    "bundled_bytes_excluding_catalog": 245141984
+    "bundled_bytes_excluding_catalog": 245145339
   },
   "source_reviews": [
     {
@@ -24,13 +24,13 @@
       "status": "bundled",
       "license_file": {
         "path": "assets/style-library/ppt-master/LICENSE.txt",
-        "sha256": "80cefc234c1ec12a8cece4344f16300c634fa03df7891686fcf979e3828f0921",
-        "bytes": 1069
+        "sha256": "cd9cf27f52d3c336dd42e13f4a1df453da118e25e15520bbe02f91d75531e91b",
+        "bytes": 1090
       },
       "metadata_file": {
         "path": "assets/style-library/ppt-master/upstream-examples.json",
-        "sha256": "e0b9af0078e4a18149f6c1de65a9291fa2fdf60aaf6fa14fa43da360ae7d205a",
-        "bytes": 52706
+        "sha256": "361b3b3a2c53971340d48b5886a8cee85261c50427d0a78294db295e41ff38cb",
+        "bytes": 54537
       }
     },
     {
@@ -42,8 +42,8 @@
       "status": "bundled",
       "license_file": {
         "path": "assets/style-library/san-dark-product-analysis/LICENSE.txt",
-        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
-        "bytes": 11358
+        "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+        "bytes": 11560
       }
     },
     {
@@ -55,8 +55,8 @@
       "status": "bundled-attributed",
       "notice_file": {
         "path": "components/gorden/NOTICE.md",
-        "sha256": "7e17d7752c268cf3bd331c607d597797274d02c53a71c28e66faf5503571d97b",
-        "bytes": 1599
+        "sha256": "66dd3b91727b66e94863ec7fd740834309b8188c9d72ff07b295a63e2480b051",
+        "bytes": 1702
       }
     },
     {
@@ -113,8 +113,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_attention_is_all_you_need/cover.svg",
-        "sha256": "00f673184c4caf10420674c4df872a0a6e1c01caedcd3689c3ac550862db1535",
-        "bytes": 927034
+        "sha256": "d6138c35e38d095c873bcbee6bf7cb1aedf45d2c1fe26967c50143e7f7ec3cb5",
+        "bytes": 927078
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_attention_is_all_you_need/reference.pptx",
@@ -157,8 +157,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_lora_hu_2021/cover.svg",
-        "sha256": "3b0b1639db0ee439688b95cb72991d12a0be70ac9e4d7bd88ddf986c0b666fbf",
-        "bytes": 1018791
+        "sha256": "b1187d092b271293f7559895f2f2abf31cdca8f7d64856fbdca2473cf047e058",
+        "bytes": 1018817
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_lora_hu_2021/reference.pptx",
@@ -201,8 +201,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_brutalist_ai_newspaper_2026/cover.svg",
-        "sha256": "bea9ff2d2ed726c69845d4c562a9136e24e31c3e3bbaa7c0d92abe6669dd9ee7",
-        "bytes": 1900732
+        "sha256": "0423aa9d6feae6836f2ad677c7fb978b55dbca471290ede8ddc22d7f75591489",
+        "bytes": 1900807
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_brutalist_ai_newspaper_2026/reference.pptx",
@@ -245,8 +245,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_pritzker_2026/cover.svg",
-        "sha256": "99b4041b8366b5a8c123fc597251d788572b9cc96633ceddb3d535453f4fe658",
-        "bytes": 201061
+        "sha256": "6d8204e67d6b391d294ac68a0416fa7d232c0741aa93d7157895353a9580377f",
+        "bytes": 201097
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_pritzker_2026/reference.pptx",
@@ -289,8 +289,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_global_ai_capital_2026/cover.svg",
-        "sha256": "85b4814ca570cfbecc9b217ffa156df660280b09b433a2a761e4e18a69d6a99c",
-        "bytes": 1423864
+        "sha256": "b6348f0013d1c1774043ea8e07cd384495c7d994a293ca58fa7ad4ff96483a46",
+        "bytes": 1423902
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_global_ai_capital_2026/reference.pptx",
@@ -333,8 +333,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_swiss_grid_systems/cover.svg",
-        "sha256": "3c3c692f6c1efbba4606a81821d312884971c9e6bef5f83ea24407e3584de46d",
-        "bytes": 562716
+        "sha256": "227979bf3fd62c491bd6fcf44dd9c253dfdf36f08d838131930b1329a202c32c",
+        "bytes": 562742
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_swiss_grid_systems/reference.pptx",
@@ -377,8 +377,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_glassmorphism_demo/cover.svg",
-        "sha256": "1052630ac7db311f3ddd0fd8299bc2008839a4af967bc5956bfb56326f6bb689",
-        "bytes": 1382449
+        "sha256": "178065a8b2b847f75e13006335c3ef18d61272681da293a648a38bcab6605fb0",
+        "bytes": 1382502
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_glassmorphism_demo/reference.pptx",
@@ -421,8 +421,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_sugar_rush_memphis/cover.svg",
-        "sha256": "6adf17070d08c60350fe323ba54a81de472f3be18cd39846882ed0bab5e8a81f",
-        "bytes": 1187588
+        "sha256": "73bd04df842778c1d48eaca15cadf5805b8e0674a63a7cfe6c984065af0b2c7d",
+        "bytes": 1187630
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_sugar_rush_memphis/reference.pptx",
@@ -465,8 +465,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_indie_bookstore_zine_guide/cover.svg",
-        "sha256": "3407101d1f3169c018fc4dd8afb8b1ae8ad4bbd03e8ce11066089690ee726994",
-        "bytes": 1863302
+        "sha256": "e1e429e69859ae45be500bc9c782b5bf7b2f6e74a1faa311a56edeac5f13e61b",
+        "bytes": 1863368
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_indie_bookstore_zine_guide/reference.pptx",
@@ -509,8 +509,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_kubernetes_blueprint_2026/cover.svg",
-        "sha256": "0a308e9094e3d852faaf9b344f459d215d8097a1a1801419a41aec92714618c0",
-        "bytes": 7907
+        "sha256": "ac37c80dcc4ac4790ea3d82db7a085f0d2710d20d1a6b87ac16ebf77d640c721",
+        "bytes": 8012
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_kubernetes_blueprint_2026/reference.pptx",
@@ -553,8 +553,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_high_rise_renewal/cover.svg",
-        "sha256": "e2ebcd46b37c2fa9850f229aa56201f665add8758832b5398cd6c96b298ae83b",
-        "bytes": 487789
+        "sha256": "545bd0bd7c030d7eef0e753138205e2305d18e3d473afdfaec829c6f5f76a4a7",
+        "bytes": 487830
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_high_rise_renewal/reference.pptx",
@@ -597,8 +597,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_cangzhuo/cover.svg",
-        "sha256": "eb4d08b7560b569ec4ae3a24d0e6d4f78acbddea0d3cb75c1e87f31ec08ae9bb",
-        "bytes": 1646543
+        "sha256": "890b67be8a0864faa73c7684c3fce488196f396c65e4a63eb9115de08ce50a35",
+        "bytes": 1646578
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_cangzhuo/reference.pptx",
@@ -641,8 +641,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_image_text_showcase/cover.svg",
-        "sha256": "ecc4c74b31e5a0a002d85475da9e1b2915b372492181e09603ab53359934c7bb",
-        "bytes": 2361726
+        "sha256": "42231fdff960c070e161005747cf00c78f0fded87f890e046d23d24504603b83",
+        "bytes": 2361807
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_image_text_showcase/reference.pptx",
@@ -685,8 +685,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_building_effective_agents/cover.svg",
-        "sha256": "57e7fe9c5b377ffe3a8237cfd7eabf0a3a1ff52954c4d55e7f9e15650803e517",
-        "bytes": 4727
+        "sha256": "7386662a26aba34a1e399a317b6a8e960cc4fde368f27d0b27d3bb5a9a58860f",
+        "bytes": 4810
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_building_effective_agents/reference.pptx",
@@ -729,8 +729,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_fashion_weekly_digest/cover.svg",
-        "sha256": "ec33be4c806568752156fc9914a632c0c3e87a942eb4a2d859ded039a0c590b7",
-        "bytes": 68587
+        "sha256": "b8a9aeebf6a1d4c41e3cdb4e38802c173eedb5a817934a199c5a4bc2ca01f840",
+        "bytes": 68644
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_fashion_weekly_digest/reference.pptx",
@@ -773,8 +773,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_home_design_trends_2026/cover.svg",
-        "sha256": "da399d5ca5a8d8703e68c7fdcdfd6d9989ae1f45037cec5cb76a9ce30ca0c254",
-        "bytes": 604757
+        "sha256": "6e35c7717e90fae01c096a7ad9b1e5654d0edd18dfe6ffe71bde69935b1f1ada",
+        "bytes": 604820
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_home_design_trends_2026/reference.pptx",
@@ -817,8 +817,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_kimsoong_loyalty_programme/cover.svg",
-        "sha256": "9d4044b3ad7f869fec401180e9808d9b81cf2cab233e23dba7d72bdb86406537",
-        "bytes": 1892505
+        "sha256": "61d3d3c60c7cf29dd8c5bd74cfbd825162094a64b03481dcd8d722863cd8b0bc",
+        "bytes": 1892563
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_kimsoong_loyalty_programme/reference.pptx",
@@ -861,8 +861,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect/cover.svg",
-        "sha256": "6ef97563cc3143e7275b2fe651020f5dfc8b1ae888882f102c337dfd7fc46ff4",
-        "bytes": 2655592
+        "sha256": "fabed863577ddfb0d0766188ccaab34872fe483db43b148ec2657968fa662a9b",
+        "bytes": 2655685
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect/reference.pptx",
@@ -905,8 +905,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect_revised/cover.svg",
-        "sha256": "f4756615a85034cf8f211e6983bc1cedc095a7cda66e120c01193d3a9fcb8f23",
-        "bytes": 627571
+        "sha256": "d8bc51e93f88ae6db4d7d9bee52f877e1b6686604dad1b4672403f02f8d69cbe",
+        "bytes": 627647
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_lin_huiyin_architect_revised/reference.pptx",
@@ -949,8 +949,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_liziqi_plant_dye_colors/cover.svg",
-        "sha256": "c64c0e721751905d2c52d71d288c3b896c69f2bf070b9d100c253af0648fda6f",
-        "bytes": 906519
+        "sha256": "00154e8b434cc730480e6a456bd23a9d20624515b6c5227bdde3e98772aee464",
+        "bytes": 906604
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_liziqi_plant_dye_colors/reference.pptx",
@@ -993,8 +993,8 @@
       },
       "cover_svg": {
         "path": "assets/style-library/ppt-master/ppt169_general_dark_tech_claude_code_auto_mode/cover.svg",
-        "sha256": "86806301ffbb11197b2b0a69fe32cfb0a5c839d4a57e36f527cb2b6ddd9f44ce",
-        "bytes": 4289
+        "sha256": "883775722b42fd086407563fe2bdb49dee20a7973d0c01dd54d3d243085ca5d5",
+        "bytes": 4374
       },
       "reference_deck": {
         "path": "assets/style-library/ppt-master/ppt169_general_dark_tech_claude_code_auto_mode/reference.pptx",

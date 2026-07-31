@@ -30,7 +30,7 @@
 
 对场景 3 的每个 PNG 额外核对：真实 PNG 签名/结构、实际像素尺寸与计划一致、按放置区域计算的长边 1920 px 基准分辨率、无普通文字、计划/构建/回读的 asset ID 一致和不可编辑影响披露。全页背景/框架 PNG 必须先证明普通文字已清除；不得用双层重复文字掩盖未清理底图。场景 1 的整页 PNG 本来就包含最终文字，按上一节检查，不套用“无普通文字”规则。
 
-使用 Gorden 时还要核对真实 imagegen manifest。场景 3 运行并检查 `layout_guard.py --strict`、`placement_qa.py` 和 `visual_compare_qa.py` 的产物；场景 1 按上一节检查生成阶段、页合同、逐字文字、位置和代表页复用。组件 QA 不能替代真实 PPTX 渲染；两套门禁任一失败都不得交付。
+使用 Gorden 时还要核对真实 imagegen manifest。场景 3 对每个 `page_id` 分别运行并检查 `layout_guard.py --strict`、`placement_qa.py` 和 `visual_compare_qa.py`，manifest 中以 `(tool,page_id)` 唯一登记；final 阶段必须覆盖全部计划页。实际查看 source、preview、side-by-side、blend 和 diff heatmap 后，只有普通文字无重叠、关键结构无漂移、主要对齐无漂移、颜色无明显漂移时才可把四项布尔检查写为 `false` 并判 pass。`pass_with_declared_fidelity_gap`、平均像素差或备注都不能放行其中任一缺陷。场景 1 按上一节检查生成阶段、页合同、逐字文字、位置和代表页复用。组件 QA 不能替代真实 PPTX 渲染；两套门禁任一失败都不得交付。
 
 ## 回读与可编辑性
 

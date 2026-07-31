@@ -9,6 +9,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from validate_contracts import APPROVAL_GATES
+
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -26,6 +28,13 @@ def main() -> int:
     parser.add_argument("subject", help="Subject path relative to run_dir")
     parser.add_argument("--decision-json", default="{}", help="JSON object with the user's exact choice")
     args = parser.parse_args()
+
+    if args.gate not in APPROVAL_GATES:
+        print(
+            "Unknown approval gate. Allowed gates: "
+            + ", ".join(sorted(APPROVAL_GATES))
+        )
+        return 1
 
     root = Path(args.run_dir).expanduser().resolve()
     subject = (root / args.subject).resolve()

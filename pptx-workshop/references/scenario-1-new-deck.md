@@ -37,6 +37,8 @@ brief.json → evidence_plan.json → outline.json → slide_plan.json
 
 每页可见文字必须与已确认文案完全一致，包括标题、正文、数字、标点、大小写和换行。出现错字、漏字、乱码或事实偏差时必须重生成该页，不能把错误留给后续编辑阶段。
 
+每次 imagegen prompt 必须逐个包含当前页 `content_blocks[]` 的完整 `text`，以及同一 block 的 bbox JSON 字面量；bbox 只能使用 JSON compact 或默认带空格格式，不能改写成百分比或自然语言。单行示例：`block={"text":"年度收入 12.6 亿元","bbox":[0.08,0.22,0.36,0.12]}`。页面有几个 block，prompt 就必须逐字列出几个 block，不得只给主题、摘要或 `visual_generation_prompt`。
+
 场景 1 的最终产物是逐页 PNG，以及每页只铺放对应全页 PNG 的图片型 PPTX。保留 manifest、输出目录和实际生成资产，最终构建绑定 `gorden_component.json` 的 SHA-256；完成真实渲染、逐页视觉检查和对象回读后，必须向用户明确说明“文字和页面元素不可编辑”，并等待 `image-deck-final` 确认。
 
 如果用户还需要可编辑版本，场景 1 必须先完成并验收。随后以已确认的逐页 PNG 为输入，新建独立运行目录并重新进入场景 3，重新生成 `reconstruction_plan.json`、资产计划、审批、两页原型和 QA；禁止在场景 1 内自动调用 `GordenImage2PPTX`，也不得把场景 1 的审批视为场景 3 已通过。

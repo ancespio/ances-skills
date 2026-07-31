@@ -22,7 +22,7 @@
     "candidates": {
       "type": "array",
       "minItems": 3,
-      "maxItems": 9,
+      "maxItems": 6,
       "items": {
         "type": "object",
         "required": ["id", "source_type", "style_label", "fit_reason", "limitations"],

@@ -311,7 +311,7 @@ def build_catalog() -> dict[str, Any]:
     return {
         "schema_version": CATALOG_VERSION,
         "library_id": "pptx-workshop-bundled-style-library",
-        "catalog_date": "2026-07-31",
+        "catalog_revision": "2026-07-31-r1",
         "notice": notice,
         "summary": {
             "selectable_entries": len(entries),

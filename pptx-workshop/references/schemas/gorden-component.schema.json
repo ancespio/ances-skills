@@ -52,7 +52,7 @@
       "required": ["page_count", "estimated_imagegen_calls_min", "basis", "user_notice"],
       "properties": {
         "page_count": {"type": "integer", "minimum": 1},
-        "estimated_imagegen_calls_min": {"type": "integer", "minimum": 1},
+        "estimated_imagegen_calls_min": {"type": "integer", "minimum": 0},
         "basis": {"type": "string", "minLength": 1},
         "user_notice": {"type": "string", "minLength": 1}
       },

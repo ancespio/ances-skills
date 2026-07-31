@@ -4,12 +4,11 @@
   "type": "object",
   "required": ["schema_version", "run_id", "component", "calls", "qa_results"],
   "properties": {
-    "schema_version": {"const": "pptx-workshop.gorden-generation-manifest.v3"},
+    "schema_version": {"const": "pptx-workshop.gorden-generation-manifest.v4"},
     "run_id": {"type": "string", "minLength": 1},
     "component": {"enum": ["GordenImagePPTGen", "GordenImage2PPTX"]},
     "calls": {
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
         "required": [
@@ -25,9 +24,11 @@
         ],
         "properties": {
           "id": {"type": "string", "minLength": 1},
-          "purpose": {"enum": ["style-option-a", "style-option-b", "style-option-c", "final-page", "background", "frame", "icons"]},
+          "purpose": {"enum": ["style-option-a", "style-option-b", "style-option-c", "final-page", "visual-region"]},
           "workflow_phase": {"enum": ["style-selection", "formal-generation", "reconstruction"]},
           "page_id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+          "asset_id": {"type": "string", "minLength": 1},
+          "source_page_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
           "slide_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
           "style_reference_ids": {
             "type": "array",
@@ -53,6 +54,13 @@
               "required": ["purpose"]
             },
             "then": {"required": ["slide_contract_sha256", "style_reference_ids"]}
+          },
+          {
+            "if": {
+              "properties": {"purpose": {"const": "visual-region"}},
+              "required": ["purpose"]
+            },
+            "then": {"required": ["asset_id", "source_page_sha256"]}
           }
         ],
         "additionalProperties": false
@@ -62,13 +70,34 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["tool", "status", "report_path", "report_sha256"],
+        "required": ["page_id", "tool", "status", "report_path", "report_sha256"],
         "properties": {
+          "page_id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
           "tool": {"enum": ["layout_guard", "placement_qa", "visual_compare_qa"]},
           "status": {"const": "pass"},
           "report_path": {"type": "string", "minLength": 1},
-          "report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          "report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "checks": {
+            "type": "object",
+            "required": ["text_overlap", "critical_structure_drift", "major_alignment_drift", "major_color_drift"],
+            "properties": {
+              "text_overlap": {"const": false},
+              "critical_structure_drift": {"const": false},
+              "major_alignment_drift": {"const": false},
+              "major_color_drift": {"const": false}
+            },
+            "additionalProperties": false
+          }
         },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"tool": {"const": "visual_compare_qa"}},
+              "required": ["tool"]
+            },
+            "then": {"required": ["checks"]}
+          }
+        ],
         "additionalProperties": false
       }
     }

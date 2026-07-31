@@ -48,3 +48,5 @@ python scripts/manage_style_library.py --check
 ```
 
 `--check` 会核对完整文件清单、SHA-256、PNG 尺寸、PPTX 页数、目录条目数量和模板安全标记。禁止手工改 `catalog.json` 来绕过素材变化。
+
+`catalog_revision` 是人工递增的固定目录修订号，不是脚本运行日期；只有发布一版新的可复现目录快照时才修改。目录构建直接读取 `components/gorden/GordenImagePPTGen/参考图/`：其中任一文件增删、改名或内容变化都会改变目录和 `catalog.json` 哈希，必须运行 `--write` 与 `--check`，重新向用户展示候选；所有绑定旧 catalog SHA-256 的 `style_reference_plan.json` 与 `style-reference-choice` 自动失效。

@@ -31,6 +31,7 @@
 - `artistic-text-assets`；
 - `template-representatives`；
 - `reference-representatives`；
+- `primary-reference`（场景 4 多份参考冲突时，subject 为 `reference_profile.json`，decision 的 `primary_reference` 记录用户指定的主参考 ID）；
 - `change-scope`；
 - `delete-original-slides`。
 

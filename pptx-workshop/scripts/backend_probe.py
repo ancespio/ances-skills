@@ -65,6 +65,10 @@ def main() -> int:
         "image_to_pptx": {
             "available": bool(image_to_pptx and (image_to_pptx / "SKILL.md").is_file()),
             "compose_pptx": bool(image_to_pptx and (image_to_pptx / "scripts" / "compose_pptx.py").is_file()),
+            "extract_source_region": bool(
+                image_to_pptx
+                and (image_to_pptx / "scripts" / "extract_source_region.py").is_file()
+            ),
             "layout_guard": bool(image_to_pptx and (image_to_pptx / "scripts" / "layout_guard.py").is_file()),
             "placement_qa": bool(image_to_pptx and (image_to_pptx / "scripts" / "placement_qa.py").is_file()),
             "visual_compare_qa": bool(

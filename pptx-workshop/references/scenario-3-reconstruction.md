@@ -6,9 +6,9 @@
 
 写入 `reconstruction_plan.json`：每页源尺寸、文字块、非文字视觉、源像素 bbox、目标 fraction bbox、层级、置信度和目标实现方式。
 
-读取 [gorden-integration.md](gorden-integration.md)。场景 3 只执行 `GordenImage2PPTX`，它是默认且必需的逐页重建执行器；先写入 `gorden_component.json`，保存能力探针并向用户说明无重试最低 `3N` 次 imagegen 的生成范围，对应每页 B2、B3、B4。Gorden 只接管 B1–B9 执行，不接管源内容锁定、用户确认和最终门禁。
+读取 [gorden-integration.md](gorden-integration.md)。场景 3 只执行 `GordenImage2PPTX`，它是默认且必需的逐页重建执行器；先为每页绑定锁定的 `source_image.path`、SHA-256 与真实像素尺寸，再在 `asset_plan.json` 逐区域选择保真方法。写入 `gorden_component.json` 时，向用户说明无重试最低 imagegen 次数等于当前计划中 `imagegen-detexted-png` 区域数，可以为 0；不得再固定按每页背景、框架、图标三次生成。Gorden 只执行已批准的区域资产、原生文字回填和逐页 QA，不接管源内容锁定、用户确认和最终门禁。
 
-若输入来自场景 1，必须在场景 1 完成图片型 PPTX 与逐页 PNG 的 `image-deck-final` 验收后，另建独立运行目录再开始。新运行写 `scene1_handoff.json`，逐项绑定上游 run ID、最终图片型 PPTX、`image-deck-final` 审批文件及每页 PNG 的路径与 SHA-256；用户确认该交接文件并形成 `start-reconstruction` 后才能进入原型。场景 3 必须拥有独立的计划、审批、原型、产物登记与 QA；禁止在场景 1 内自动串联，也不得复制场景 1 的审批文件冒充场景 3 已获确认。
+若输入来自场景 1，必须在场景 1 完成图片型 PPTX 与逐页 PNG 的 `image-deck-final` 验收后，另建独立运行目录再开始。新运行写 `scene1_handoff.json`，逐项绑定上游 run ID、最终图片型 PPTX、`image-deck-final` 审批文件及每页 PNG 的**上游原始绝对路径**与 SHA-256；不得把 PNG 复制到新 run 后改写 handoff 路径。用户确认该交接文件并形成 `start-reconstruction` 后才能进入原型。场景 3 必须拥有独立的计划、审批、原型、产物登记与 QA；禁止在场景 1 内自动串联，也不得复制场景 1 的审批文件冒充场景 3 已获确认。
 
 ## 文字优先
 
@@ -21,11 +21,11 @@
 不以格式统一代替视觉判断：
 
 1. 普通文字始终使用原生文本框。
-2. Gorden B2/B3/B4 生成的无文字背景、整体框架、图标、装饰和艺术字使用受控 PNG；默认保留整体 frame，不为局部可编辑机械切碎。
-3. 照片、纹理、复杂插画、3D/透视画面、密集屏幕、阴影/渐变/光效和复杂图表以视觉相似性优先，不改画成通用图标或低质量原生形状。
+2. 无普通文字的照片、纹理、复杂插画、3D/透视画面、密集屏幕、阴影/渐变/光效、复杂图表和装饰区域，优先从锁定源页按真实像素 bbox 原样裁取为 `source-preserved-png`；不得重画、重采样或替换内容。
+3. 文字与复杂视觉交织、必须先去除普通文字且无法用原生对象保真构建时，只对该必要区域使用 `imagegen-detexted-png`；每次调用绑定源页 SHA-256、asset ID 与 edit target。整页 background/frame/icons 三层重画不得作为默认路径。
 4. 若用户明确要求某个简单视觉改为 SVG，可在 Gorden 原型之后单独提出替换计划并重新确认；这不是默认批量路径。
 
-每个 PNG 必须在 `asset_plan.json` 记录页面、fraction bbox、视觉角色、来源类型、选择原因、可编辑性影响、实际像素尺寸和文字清理状态。进入原型前必须通过 `asset-plan` 与 `reconstruction-png-assets` 两道用户确认。
+每个 PNG 必须在 `asset_plan.json` 记录页面、目标 fraction bbox、视觉角色、来源类型、`reconstruction_method`、选择原因、可编辑性影响、实际像素尺寸和文字清理状态。还必须用 `source_region.page_id` 与 `source_region.bbox_px` 绑定锁定源页；`source-preserved-png` 的交付像素必须与该源区逐像素一致，`imagegen-detexted-png` 必须有对应 generation manifest 调用。进入原型前必须通过 `asset-plan` 与 `reconstruction-png-assets` 两道用户确认。
 
 页级背景或整体框架 PNG 可以全页放置，但必须已验证清除普通文字，再叠加原生文本层。不得将包含原普通文字的整页截图垫底后重复叠字。
 
@@ -37,7 +37,7 @@
 - noisy raster tracing；
 - PNG 中固化普通文字，或将不确定文字藏进图像。
 
-对例外 SVG 构建前运行 `scripts/validate_svg_assets.py <asset-or-dir>`；PNG 的文件类型、像素尺寸、计划登记、文字政策和构建/回读一致性由 `validate_contracts.py` 校验。Gorden 的 manifest 与三项 QA 脚本结果必须同时保留。
+对例外 SVG 构建前运行 `scripts/validate_svg_assets.py <asset-or-dir>`；艺术字 SVG 必须先转曲，任何 `<text>` 元素都失败。PNG 的文件类型、像素尺寸、计划登记、源区 provenance、文字政策和构建/回读一致性由 `validate_contracts.py` 校验。Gorden 的 manifest 与逐页三项 QA 脚本结果必须同时保留。
 
 ## 两页原型门
 
@@ -50,4 +50,5 @@
 - 主要元素尺寸偏差不超过 2%；
 - 已实际查看 side-by-side、blend 和 diff heatmap。
 
-像素差只用于定位，不自动判断语义正确。用户确认两页后才批量重建。
+任何普通文字重叠、关键结构漂移、主要对齐漂移或明显颜色漂移都直接判失败；不得使用 `pass_with_declared_fidelity_gap`、备注或平均像素指标绕过。像素差只用于定位，不自动判断语义正确。
+用户确认两页后才批量重建。

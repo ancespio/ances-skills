@@ -10,6 +10,12 @@ description: >-
 
 本组件只执行 `pptx-workshop` 场景 1 已确认的图片生产合同，不是独立策划入口。可使用内置风格参考库，但必须先由父流程展示并取得用户确认，不能把图库变成默认输入。
 
+## PPTX Workshop 组件合同
+
+- 只接受父运行已确认的 `slide_plan.json`、`style_reference_plan.json`、`asset_plan.json`、`gorden_component.json` 与审批文件；不得在组件内重做内容、版式或风格决策。
+- 所有输出写入父 `gorden_component.json` 指定的 `<run>/work/gorden/image-deck/`，统一 generation manifest 写入父 run；不得创建组件外独立任务根。
+- 任何 imagegen 调用只能发生在 `gorden-generation-scope` 之后；组件 QA 不能替代父流程每个 PPTX 的真实渲染、视觉检查与对象回读。
+
 ## 必需输入
 
 开始任何 imagegen 调用前，确认：
@@ -71,7 +77,7 @@ description: >-
 
 - 页面 ID 与阶段：`style-option-a|b|c` 或 `final-page`；
 - 已确认的全部可见文字，逐字给出；
-- 每个文字块的 bbox、阅读顺序和层级；
+- 每个文字块的 bbox JSON 字面量、阅读顺序和层级；`text` 与 bbox 必须从同一 `content_blocks[]` 项逐字编译，compact 或默认带空格 JSON 均可，例如 `block={"text":"年度收入 12.6 亿元","bbox":[0.08,0.22,0.36,0.12]}`；
 - 已确认的资产区域与装饰安全区；
 - 当前候选风格或已选风格的明确视觉属性；
 - 已确认参考 ID、使用方式及只读预览/样例路径；

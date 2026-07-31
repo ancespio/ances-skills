@@ -9,7 +9,7 @@
 - [project.schema.json](project.schema.json)：运行身份、场景、阶段与路径。
 - [brief.schema.json](brief.schema.json)：目标、受众、事实边界与交付约束。
 - [approval.schema.json](approval.schema.json)：用户确认及其父对象哈希。
-- [asset-plan.schema.json](asset-plan.schema.json)：最终资产及其审批边界。
+- [asset-plan.schema.json](asset-plan.schema.json)：最终资产、场景 3 逐区域重建方法、源区 provenance 及审批边界。
 - [pptx-artifacts.schema.json](pptx-artifacts.schema.json)：PPTX、父计划与 QA 绑定。
 - [visual-qa.schema.json](visual-qa.schema.json)：逐页视觉检查。
 - [editability-report.schema.json](editability-report.schema.json)：对象回读与可编辑性披露。
@@ -27,7 +27,7 @@
 - [template-analysis.schema.json](template-analysis.schema.json)：场景 2 模板分析。
 - [adaptation-report.schema.json](adaptation-report.schema.json)：场景 2 内容适配结果。
 - [fill-plan.schema.json](fill-plan.schema.json)：场景 2 模板填充计划。
-- [reconstruction-plan.schema.json](reconstruction-plan.schema.json)：场景 3 重建范围与分层策略。
+- [reconstruction-plan.schema.json](reconstruction-plan.schema.json)：场景 3 锁定源页、重建范围与分层策略。
 - [scene1-handoff.schema.json](scene1-handoff.schema.json)：场景 1 图片成稿转场景 3 的独立交接。
 - [reference-profile.schema.json](reference-profile.schema.json)：场景 4 主参考与继承规则。
 - [change-plan.schema.json](change-plan.schema.json)：场景 5 对象级修改范围。
@@ -35,4 +35,4 @@
 ## Gorden 执行合同
 
 - [gorden-component.schema.json](gorden-component.schema.json)：组件能力、生成范围和用户确认。
-- [gorden-generation-manifest.schema.json](gorden-generation-manifest.schema.json)：逐次生成阶段、prompt、父页合同和产物记录。
+- [gorden-generation-manifest.schema.json](gorden-generation-manifest.schema.json)：逐次生成阶段、prompt、源页/资产绑定、产物与逐页 QA 记录。

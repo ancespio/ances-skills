@@ -21,7 +21,7 @@
 | 4 | `brief.json`、`reference_profile.json`、`evidence_plan.json`、`outline.json`、`slide_plan.json`、`asset_plan.json` |
 | 5 | `brief.json`、`change_plan.json`；存在新增页时追加 `outline.json`、`slide_plan.json` |
 
-`style_reference_plan.json` 绑定当前内置目录 SHA-256，记录实际展示给用户的 3–9 个候选和用户选中的 1–3 个参考。它只能在全量无风格版式确认后生效，并由 `style-reference-choice` 明确确认；A/B/C 代表稿均以它和版式预览为直接父合同。
+`style_reference_plan.json` 绑定当前内置目录 SHA-256，记录实际展示给用户的 3–6 个候选和用户选中的 1–3 个参考。它只能在全量无风格版式确认后生效，并由 `style-reference-choice` 明确确认；A/B/C 代表稿均以它和版式预览为直接父合同。
 
 场景 1 的 `manifests/gorden-generation.json` 还必须逐次绑定对应 slide contract 的 SHA-256、已确认的 `style_reference_ids`，并区分 `style-selection` 与 `formal-generation`。A/B/C 代表图只能属于前者；选定代表页不得出现成功的 `final-page` 重生成记录。
 

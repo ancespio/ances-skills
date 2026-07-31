@@ -20,14 +20,14 @@ components/gorden/
 python scripts/backend_probe.py > manifests/backend_probe.json
 ```
 
-探针检查内置提交标记、两个组件入口、合成脚本、三项重建 QA 脚本，以及 `python-pptx`、Pillow、NumPy。缺依赖时停止并告知用户，不自动安装。
+探针检查内置提交标记、两个组件入口、源区无损裁取脚本、合成脚本、三项重建 QA 脚本，以及 `python-pptx`、Pillow、NumPy。缺依赖时停止并告知用户，不自动安装。
 
 执行当前场景前，完整读取对应内置组件的 `SKILL.md`：
 
 - 场景 1：只读 [GordenImagePPTGen/SKILL.md](../components/gorden/GordenImagePPTGen/SKILL.md)；
 - 场景 3：读 [GordenImage2PPTX/SKILL.md](../components/gorden/GordenImage2PPTX/SKILL.md)。
 
-组件中的图像生成、manifest、逐页 edit target、抠图和 QA 细则继续生效；其中独立策划、风格询问、依赖安装等内容若与本 Skill 冲突，以两个组件入口顶部的“PPTX Workshop 组件覆盖约束”和父 Skill 合同为准。
+组件中的图像生成、manifest、逐页 edit target、抠图和 QA 细则继续生效；其中独立策划、风格询问、依赖安装等内容若与本 Skill 冲突，以两个组件入口的 `## PPTX Workshop 组件合同` 和父 Skill 合同为准。不得读取或引用仓库外的同名 Skill 文件。
 
 ## 场景 1：策划后生成图片型成稿
 
@@ -64,7 +64,7 @@ brief.json
 
 场景 1 到图片型 PPTX 验收即结束，不得在同一次运行中调用 Image2PPTX。若用户需要可编辑版本，必须先完成 `image-deck-final` 确认，再以已确认的逐页 PNG 为输入，新建独立运行目录并重新进入场景 3；新的 `reconstruction_plan.json`、审批、原型和 QA 均不得沿用场景 1 结果冒充通过。
 
-## 场景 3：四层重建
+## 场景 3：逐区域保真重建
 
 固定顺序：
 
@@ -77,13 +77,15 @@ brief.json
 → gorden_component.json 与生成范围确认
 → 一页文字密集页 + 一页视觉复杂页原型
 → 用户确认原型
-→ 批量 B1–B9
+→ 按批准资产区域批量重建
 → 最终全量渲染、逐页对照和对象回读
 ```
 
-Image2PPTX 负责逐页执行：B1 探色；B2 生成无文字背景；B3 生成整体框架；B4 生成图标、装饰和艺术字；B5 抠图与切片；B6 提取普通文字；B7/B8 合成并渲染；B9 运行坐标、摆放与视觉对照 QA。
+Image2PPTX 负责逐页执行已批准的资产方法：无普通文字的复杂区域按源像素 bbox 原样保留为 `source-preserved-png`；只有必须去字的复杂区域才以当前源页为 edit target 生成 `imagegen-detexted-png`；普通文字回填为原生文本框；经用户明确要求的简单视觉才使用 `approved-svg`。组件不得重新决定区域方法，也不得默认重画整页背景、框架与图标。
 
-一次无重试的最低调用量是每页 3 次，对应 B2、B3、B4。普通文字识别和 PPTX 合成本身不计为 imagegen 调用。批量前同样必须由用户确认页数与生成范围。
+一次无重试的最低 imagegen 调用量等于 `asset_plan.json` 中 `reconstruction_method: imagegen-detexted-png` 的资产数；全部复杂区域都能安全原样保留时可以为 0。普通文字识别、源区裁取和 PPTX 合成本身不计为 imagegen 调用。批量前必须向用户说明区域数、最低调用量、重试会增加的成本并确认。
+
+父 `gorden_component.json` 固定把 Image2PPTX 的运行根映射为 `<run>/work/gorden/image2pptx/`。组件内的 `RUN_ROOT` 就是这个目录；所有 source mapping、prompts、assets、layout、preview 和 QA 必须留在父 run 内，不得使用 `$PWD/image2pptx_runs/` 或另建独立任务根。
 
 这里“取代场景 3”只表示内置 Image2PPTX 取代原来的重建执行方法。父 Skill 的源事实锁定、不确定文字、资产计划、艺术字确认、两页原型、用户确认、最终真实渲染、对象回读和可编辑性披露全部保留。
 
@@ -93,23 +95,24 @@ Image2PPTX 负责逐页执行：B1 探色；B2 生成无文字背景；B3 生成
 
 调用 imagegen 前，根据逐页识别结果预登记稳定路径、bbox、目标像素尺寸和视觉角色：
 
-- `background-pNN`：全页无普通文字背景；
-- `frame-pNN`：全页透明整体框架，默认不机械切碎；
-- `icon-pNN-*`：图标、装饰或艺术字；
+- `source-preserved-pNN-*`：锁定源页中已确认无普通文字的原样像素区域；
+- `detexted-pNN-*`：确需去字、且已批准调用 imagegen 的局部复杂视觉；
+- `approved-svg-pNN-*`：用户明确要求转为 SVG 的简单视觉或已转曲艺术字；
 - 普通文字不登记为图片资产，进入原生文本对象计划。
 
-每个实际生成的 background、frame 和切分图标必须映射到 `asset_plan.json` 的 asset ID。数量、路径、bbox 或像素尺寸变化会使原确认失效，必须更新计划并重新确认。任何包含普通文字的视觉 PNG 都失败。
+每个实际 PNG/SVG 必须映射到 `asset_plan.json` 的 asset ID。PNG 还必须绑定 `source_region.page_id` 和源像素 bbox；source-preserved 资产须逐像素等于该源区，imagegen-detexted 资产须有同 asset ID 的真实生成调用。数量、方法、路径、bbox 或像素尺寸变化会使原确认失效，必须更新计划并重新确认。任何包含普通文字的视觉 PNG 都失败。
 
 ## 双重质量门
 
 组件质量门与父 Skill 质量门同时成立：
 
-1. 统一保留 `manifests/gorden-generation.json`，记录阶段、真实生成源、完整 prompt、父页合同哈希、已确认 `style_reference_ids` 和复制路径；
-2. 场景 1 核对风格选择/正式生成阶段、完整文字与 bbox 绑定、代表页复用；场景 3 运行内置 `layout_guard.py --strict`、`placement_qa.py`、`visual_compare_qa.py`；
+1. 统一保留 `manifests/gorden-generation.json`，记录阶段、真实生成源、完整 prompt、父页/源页哈希、asset ID、已确认 `style_reference_ids` 和输出路径；
+2. 场景 1 核对风格选择/正式生成阶段、完整文字与 bbox 绑定、代表页复用；场景 3 对每一页分别运行并登记 `layout_guard.py --strict`、`placement_qa.py`、`visual_compare_qa.py`，唯一键为 `(tool,page_id)`；
 3. 每个 PPTX 登记进 `pptx_artifacts.json`，用真实渲染器渲染全部页面并写 `visual_qa.json`；
 4. 场景 1 最终回读必须确认每页只有一张全页 PNG，并明确披露不可编辑；场景 3 最终回读中普通文字必须是原生文本框，PNG 视觉层按非对象级可编辑披露；
-5. 任一层 QA 失败都不得交付。
+5. 场景 3 的逐页视觉判定只在 `text_overlap`、`critical_structure_drift`、`major_alignment_drift`、`major_color_drift` 全部为 `false` 时才可 pass；不得使用“已声明保真差距”放行；
+6. 任一层 QA 失败都不得交付。
 
 ## 阻断条件
 
-内置提交标记或当前场景所需组件文件缺失、风格目录校验失败、依赖缺失、imagegen 不可用、生成范围未确认、manifest 缺失、PPTX 真实渲染失败或回读失败时立即停止。场景 1 还需阻断未完成的 `style-reference-choice`、生成调用与已选目录 ID 不一致、任何可见文字错误以及未完成的 `image-deck-final` 确认；场景 3 还需阻断背景/frame/icon 含普通文字、两页原型未确认或试图沿用场景 1 审批的情况。不得改用程序绘图、旧任务资产或未登记整页截图兜底。
+内置提交标记或当前场景所需组件文件缺失、风格目录校验失败、依赖缺失、需要 imagegen 的计划却无真实后端、生成范围未确认、manifest 缺失、PPTX 真实渲染失败或回读失败时立即停止。场景 1 还需阻断未完成的 `style-reference-choice`、生成调用与已选目录 ID 不一致、任何可见文字错误以及未完成的 `image-deck-final` 确认；场景 3 还需阻断源区未绑定、source-preserved 像素不一致、imagegen 区域缺真实调用、视觉 PNG 含普通文字、逐页三项 QA 不齐、关键视觉缺陷、两页原型未确认或试图沿用场景 1 审批的情况。不得改用旧任务资产或未登记整页截图兜底。

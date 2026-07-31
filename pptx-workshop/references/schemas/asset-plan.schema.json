@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["schema_version", "run_id", "status", "items"],
   "properties": {
-    "schema_version": {"const": "pptx-workshop.asset-plan.v2"},
+    "schema_version": {"const": "pptx-workshop.asset-plan.v3"},
     "run_id": {"type": "string"},
     "status": {"enum": ["draft", "awaiting_user", "confirmed"]},
     "items": {
@@ -24,6 +24,26 @@
           "text_removal_status": {"enum": ["not-applicable", "verified-clean", "artistic-only-user-confirmation"]},
           "visual_role": {"enum": ["full-slide-image", "background", "frame", "photo", "texture", "illustration", "screenshot", "chart-or-diagram", "icon", "artistic-text", "other-complex-visual"]},
           "source_kind": {"enum": ["original", "extracted", "generated", "redrawn"]},
+          "reconstruction_method": {"enum": ["source-preserved-png", "imagegen-detexted-png", "approved-svg"]},
+          "source_region": {
+            "type": "object",
+            "required": ["page_id", "bbox_px"],
+            "properties": {
+              "page_id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+              "bbox_px": {
+                "type": "array",
+                "prefixItems": [
+                  {"type": "integer", "minimum": 0},
+                  {"type": "integer", "minimum": 0},
+                  {"type": "integer", "minimum": 1},
+                  {"type": "integer", "minimum": 1}
+                ],
+                "minItems": 4,
+                "maxItems": 4
+              }
+            },
+            "additionalProperties": false
+          },
           "selection_reason": {"type": "string", "minLength": 1},
           "editability_impact": {"type": "string", "minLength": 1},
           "bbox": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}], "minItems": 4, "maxItems": 4},

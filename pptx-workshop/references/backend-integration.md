@@ -25,4 +25,4 @@
 
 本 skill 不复制 PPT Master 的大体积耦合源码；通过能力合同接入宿主或独立安装的固定版本后端。Validator、SVG 安全检查和确认门禁是本 skill 自包含能力。
 
-Gorden 两个子组件位于 `components/gorden/`。运行 `backend_probe.py` 并保存报告；探针检查内置提交标记、署名文件、两个子 Skill、合成脚本、三项 QA 脚本以及 Python 依赖。交付或再发布本 Skill 时保留 `components/gorden/NOTICE.md`。
+Gorden 两个子组件位于 `components/gorden/`。运行 `backend_probe.py` 并保存报告；探针检查内置提交标记、署名文件、两个子 Skill、合成脚本、场景 3 的源区无损裁取脚本、三项 QA 脚本以及 Python 依赖。交付或再发布本 Skill 时保留 `components/gorden/NOTICE.md`。
