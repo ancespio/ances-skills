@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/gorden-component.schema.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "status",
+    "repository",
+    "expected_commit",
+    "component_location",
+    "notice_path",
+    "probe_report",
+    "probe_sha256",
+    "integration_mode",
+    "pipeline",
+    "stages",
+    "generation_scope",
+    "source_bundled",
+    "attribution_url"
+  ],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.gorden-component.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed"]},
+    "repository": {"const": "GordenSun/GordenSuperPPTSkills"},
+    "expected_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "component_location": {"const": "components/gorden"},
+    "notice_path": {"const": "components/gorden/NOTICE.md"},
+    "probe_report": {"type": "string", "minLength": 1},
+    "probe_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "integration_mode": {"const": "bundled-attributed"},
+    "pipeline": {"enum": ["image-ppt", "image2pptx"]},
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["component", "purpose", "output_root", "manifest_path"],
+        "properties": {
+          "component": {"enum": ["GordenImagePPTGen", "GordenImage2PPTX"]},
+          "purpose": {"type": "string", "minLength": 1},
+          "output_root": {"type": "string", "minLength": 1},
+          "manifest_path": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "generation_scope": {
+      "type": "object",
+      "required": ["page_count", "estimated_imagegen_calls_min", "basis", "user_notice"],
+      "properties": {
+        "page_count": {"type": "integer", "minimum": 1},
+        "estimated_imagegen_calls_min": {"type": "integer", "minimum": 1},
+        "basis": {"type": "string", "minLength": 1},
+        "user_notice": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "source_bundled": {"const": true},
+    "attribution_url": {"const": "https://github.com/GordenSun/GordenSuperPPTSkills"}
+  },
+  "additionalProperties": false
+}

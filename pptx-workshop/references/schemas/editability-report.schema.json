@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/editability-report.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "output_pptx", "output_sha256", "slides", "limitations"],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.editability-report.v3"},
+    "run_id": {"type": "string"},
+    "output_pptx": {"type": "string"},
+    "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "native_text", "native_objects", "svg_assets", "raster_assets", "warnings"],
+        "properties": {
+          "id": {"type": "string"},
+          "native_text": {"type": "integer", "minimum": 0},
+          "native_objects": {"type": "integer", "minimum": 0},
+          "svg_assets": {"type": "integer", "minimum": 0},
+          "raster_assets": {"type": "array", "items": {"$ref": "#/$defs/rasterAsset"}},
+          "warnings": {"type": "array"}
+        }
+      }
+    },
+    "limitations": {"type": "array"},
+    "change_map": {"type": "array"}
+  },
+  "$defs": {
+    "rasterAsset": {
+      "type": "object",
+      "required": ["asset_id", "format", "visual_role", "source_kind", "editable", "contains_semantic_text", "editability_impact"],
+      "properties": {
+        "asset_id": {"type": "string"},
+        "format": {"const": "png"},
+        "visual_role": {"type": "string"},
+        "source_kind": {"type": "string"},
+        "editable": {"const": false},
+        "contains_semantic_text": {"type": "boolean"},
+        "editability_impact": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

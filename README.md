@@ -14,7 +14,7 @@
 | -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
 | [personal-knowledge-base](./personal-knowledge-base/) | 创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库 | [使用说明](./personal-knowledge-base/README.md) |
 | [multimodal-evidence](./multimodal-evidence/) | 统一多模态证据提取与独立外部核验协议 | [SKILL.md](./multimodal-evidence/SKILL.md) |
-| [craft-editable-pptx](./craft-editable-pptx/) | 策划、制作、模板填充、严格重建及续写修改可编辑 PowerPoint | [SKILL.md](./craft-editable-pptx/SKILL.md) |
+| [pptx-workshop](./pptx-workshop/) | 策划并制作图片版 PPT，以及模板填充、严格重建和续写修改可编辑 PowerPoint | [SKILL.md](./pptx-workshop/SKILL.md) |
 
 ## 安装方式
 
@@ -42,19 +42,19 @@
 使用 $skill-installer 安装：https://github.com/ancespio/ances-skills/tree/main/multimodal-evidence
 ```
 
-安装可编辑 PPTX skill：
+安装 PPTX Workshop：
 
 ```text
-帮我安装这个 skill：https://github.com/ancespio/ances-skills/tree/main/craft-editable-pptx
+帮我安装这个 skill：https://github.com/ancespio/ances-skills/tree/main/pptx-workshop
 ```
 
 ## Skills
 
-### craft-editable-pptx（可编辑演示文稿）
+### pptx-workshop（策划与演示文稿工作台）
 
-用户只需说明“根据资料从 0 制作”“按原生模板填充”“图片/PDF 重建”“参考稿制作新稿”或“续写/修改已有 PPT”中的一种场景。Skill 会先完成对应策划和用户确认；场景 3 强制普通文字原生可编辑、复杂视觉仅使用纯 SVG。每个生成的 PPTX 都必须真实渲染、逐页检查并绑定 `visual_qa.json`。
+用户只需说明“根据资料从 0 制作”“按原生模板填充”“图片/PDF 重建”“参考稿制作新稿”或“续写/修改已有 PPT”中的一种场景。场景 1 先锁定逐页完整文字和大致位置并确认全量无风格版式，再从内置 27 项风格参考库或用户自带参考中确认方向，生成 A/B/C 代表图；选中代表页直接复用，正式生成只补剩余页面，最终交付逐页 PNG 与图片型 PPTX。若还需要可编辑版本，再以这些 PNG 单独启动场景 3。每个生成的 PPTX 都必须真实渲染、逐页检查并绑定 `visual_qa.json`。
 
-→ [SKILL.md](./craft-editable-pptx/SKILL.md)
+→ [SKILL.md](./pptx-workshop/SKILL.md)
 
 ### multimodal-evidence（多模态证据）
 
@@ -128,6 +128,6 @@ Ask to GPTs：我最近关注的内容有什么新的进展吗？跟知识库已
 
 ## 许可证
 
-[MIT License](./LICENSE)。可以使用、修改和再分发，但请自行审查工作流对本地文件和隐私数据的影响。
+仓库自有内容采用 [MIT License](./LICENSE)。`pptx-workshop` 内置的第三方组件与风格参考保留各自授权和署名边界，不纳入本仓库的统一 MIT 再授权；复用或公开再发布前必须阅读 [Gorden NOTICE](./pptx-workshop/components/gorden/NOTICE.md) 与 [风格库 NOTICE](./pptx-workshop/assets/style-library/NOTICE.md)。
 
 Made by [@ancespio](https://github.com/ancespio)

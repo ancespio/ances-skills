@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/build-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "parents", "slides"],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.build-plan.v2"},
+    "run_id": {"type": "string"},
+    "parents": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/parent"}},
+    "slides": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/slide"}}
+  },
+  "$defs": {
+    "parent": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "slide": {
+      "type": "object",
+      "required": ["id", "objects"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "bbox", "build_method", "editable"],
+            "properties": {
+              "id": {"type": "string"},
+              "kind": {"enum": ["native_text", "native_shape", "native_table", "native_chart", "svg", "raster"]},
+              "bbox": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}], "minItems": 4, "maxItems": 4},
+              "build_method": {"type": "string"},
+              "editable": {"type": "boolean"},
+              "asset_id": {"type": "string"},
+              "source_path": {"type": "string"},
+              "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

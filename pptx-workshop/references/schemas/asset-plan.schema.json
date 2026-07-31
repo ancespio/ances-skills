@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/asset-plan.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "items"],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.asset-plan.v2"},
+    "run_id": {"type": "string"},
+    "status": {"enum": ["draft", "awaiting_user", "confirmed"]},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pages", "purpose", "asset_type", "source", "contains_semantic_text"],
+        "properties": {
+          "id": {"type": "string"},
+          "pages": {"type": "array", "items": {"type": "string"}},
+          "purpose": {"type": "string"},
+          "asset_type": {"enum": ["svg", "png", "raster", "native"]},
+          "source": {"type": "string"},
+          "contains_semantic_text": {"type": "boolean"},
+          "ordinary_text_in_asset": {"type": "boolean"},
+          "semantic_text_policy": {"enum": ["none", "artistic-user-confirmation"]},
+          "text_removal_status": {"enum": ["not-applicable", "verified-clean", "artistic-only-user-confirmation"]},
+          "visual_role": {"enum": ["full-slide-image", "background", "frame", "photo", "texture", "illustration", "screenshot", "chart-or-diagram", "icon", "artistic-text", "other-complex-visual"]},
+          "source_kind": {"enum": ["original", "extracted", "generated", "redrawn"]},
+          "selection_reason": {"type": "string", "minLength": 1},
+          "editability_impact": {"type": "string", "minLength": 1},
+          "bbox": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}, {"type": "number"}, {"type": "number"}], "minItems": 4, "maxItems": 4},
+          "pixel_width": {"type": "integer", "minimum": 1},
+          "pixel_height": {"type": "integer", "minimum": 1}
+        }
+      }
+    }
+  }
+}

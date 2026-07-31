@@ -1,0 +1,7 @@
+interface:
+  display_name: "PPTX Workshop"
+  short_description: "策划优先的图片版PPT制作与可编辑PPTX工作台"
+  default_prompt: "使用 $pptx-workshop，根据我的材料选择正确场景；先锁定逐页完整文字和大致位置、确认无风格版式，再按场景选择风格或继承模板，生成并视觉检验对应的图片版或可编辑 PPTX。"
+
+policy:
+  allow_implicit_invocation: true

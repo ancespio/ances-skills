@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pptx-workshop/gorden-generation-manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "run_id", "component", "calls", "qa_results"],
+  "properties": {
+    "schema_version": {"const": "pptx-workshop.gorden-generation-manifest.v3"},
+    "run_id": {"type": "string", "minLength": 1},
+    "component": {"enum": ["GordenImagePPTGen", "GordenImage2PPTX"]},
+    "calls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "purpose",
+          "workflow_phase",
+          "page_id",
+          "provider",
+          "model",
+          "prompt",
+          "generated_at",
+          "status"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "purpose": {"enum": ["style-option-a", "style-option-b", "style-option-c", "final-page", "background", "frame", "icons"]},
+          "workflow_phase": {"enum": ["style-selection", "formal-generation", "reconstruction"]},
+          "page_id": {"type": "string", "pattern": "^P[0-9]{2,3}$"},
+          "slide_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "style_reference_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "provider": {"type": "string", "minLength": 1},
+          "model": {"type": "string", "minLength": 1},
+          "prompt": {"type": "string", "minLength": 1},
+          "generated_at": {"type": "string", "format": "date-time"},
+          "status": {"enum": ["succeeded", "failed"]},
+          "output_path": {"type": "string", "minLength": 1},
+          "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "purpose": {"enum": ["style-option-a", "style-option-b", "style-option-c", "final-page"]}
+              },
+              "required": ["purpose"]
+            },
+            "then": {"required": ["slide_contract_sha256", "style_reference_ids"]}
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    "qa_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool", "status", "report_path", "report_sha256"],
+        "properties": {
+          "tool": {"enum": ["layout_guard", "placement_qa", "visual_compare_qa"]},
+          "status": {"const": "pass"},
+          "report_path": {"type": "string", "minLength": 1},
+          "report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
