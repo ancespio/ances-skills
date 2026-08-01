@@ -9,15 +9,15 @@
 
 ## PPTX Workshop 不变量
 
-- 场景 1 先完成 `brief.json → evidence_plan.json → outline.json → slide_plan.json → 全量无风格版式预览 → 内置/用户风格参考选择 → 三套风格代表稿`，最终交付逐页 PNG 和图片型 PPTX。每套代表稿数量按实际页数取 `R=min(N,3)`；需要可编辑稿时，必须在场景 1 终验后新建场景 3。
+- 场景 1 先完成 `brief.json → evidence_plan.json → outline.json → slide_plan.json → 全量无风格版式预览`，用户确认一次后直接执行 Skill 根目录内嵌的 GordenImagePPTGen A1–A5；最终交付逐页 PNG 和图片型 PPTX。需要可编辑稿时，必须在场景 1 终验后新建场景 3。
 - 场景 2 锁定模板的 Theme、Master、Layout、字体、字号和颜色；模板可以只规定视觉框架，不强制依赖占位符。
 - 场景 3 视觉相似性优先，但普通文字必须是原生文本框；复杂视觉可使用经计划、说明并确认的 PNG，简单视觉仅在用户要求时改用 SVG。
 - 场景 4 继承主参考风格，仍须先策划和确认全量版式。
 - 场景 5 局部修改必须复制目标页并保留格式；新增页仍走版式预览。是否删除原页由用户决定，源 PPTX 保持只读。
 - 每生成一个 PPTX，都必须立即真实渲染、逐页视觉检查、对象回读并绑定父计划与 SHA-256；没有 `visual_qa.json` 的 PPTX 不得交付。
-- 内置 Gorden 组件只执行父流程已经批准的生成或重建任务，不得重新决定内容、版式或风格，也不得跳过用户确认。保留 `pptx-workshop/components/gorden/NOTICE.md` 和固定上游提交信息。
+- 内嵌 Gorden 原版流程只执行父流程已经批准的生成或重建任务，不得跳过一次版式确认。保留 `pptx-workshop/GordenImagePPTGen/`、`pptx-workshop/GordenImage2PPTX/`、`pptx-workshop/GORDEN_NOTICE.md` 和固定上游提交信息；原版 A1–A5/B0–B9 不由父流程重写。
 - 所有机器可读合同统一放在 `pptx-workshop/references/schemas/`；不得在 `references/` 根目录散放 `*.schema.json`。Schema 的 `$id` 是稳定合同标识，不随目录整理改写。
-- `pptx-workshop/assets/style-library/catalog.json` 与 Gorden 上游示例图库是可发布内置风格参考；全量无风格版式确认后必须主动展示相关候选，但不得静默套用。用户选择写入 `style_reference_plan.json` 并确认后，Gorden 才能使用对应目录 ID。
+- `pptx-workshop/assets/style-library/catalog.json` 与 Gorden 上游示例图库是可发布内置风格参考；完整素材库必须保留，但场景 1/3 不得静默套用。只有用户主动选择或场景 4 合同明确引用时，才写入 `style_reference_plan.json` 并登记来源。
 
 ## 修改与发布
 

@@ -45,15 +45,14 @@ python scripts/validate_contracts.py <run-dir> --phase plan|preview|final
 
 - 场景 1/4 必须先完成 `brief.json → evidence_plan.json → outline.json → slide_plan.json`；`slide_plan.json` 必须逐页锁定每个可见文字块的完整文字、`[x,y,w,h]` 大致位置、阅读顺序和装饰安全区。
 - 场景 1/4 和场景 5 的任何新增页面，必须先交付覆盖全部新增页面的无风格版式布局 PPTX，并由用户确认。
-- 场景 1 在全量版式确认后必须检查内置风格库，主动展示 3–6 个最相关的可视化候选，并允许用户改用自带参考或自定义方向。用户通过 `style_reference_plan.json` 与 `style-reference-choice` 确认参考后，才为同一组 `R=min(N,3)` 个代表页生成 A/B/C 三套可直接复用的图片生产稿；不得静默套用任何样例。用户再选中实际代表稿后，代表页原图直接进入最终成稿，正式生成阶段只补齐其余 `N-R` 页。
+- 场景 1 在一次版式确认后直接进入随 Skill 原样复制的 `GordenImagePPTGen`；不再增加父流程自己的风格库选择、A/B/C 代表稿或二次策划门。Gorden 原版 A1–A5 继续生效。
 - 场景 1 的最终产物是逐页 PNG 与每页一张全幅图片的 PPTX；图片内部文字和图形不声明可编辑。
 - 场景 2 先确认模板分析、适配报告和 fill plan，再生成代表页。
-- 场景 3 锁定源页数、顺序、文字与布局；逐区域选择最保真的 `source-preserved-png`、`imagegen-detexted-png` 或经批准 SVG，先确认不确定文字，再生成一页文字密集和一页视觉复杂原型。禁止把整页三层 imagegen 当作固定默认。
+- 场景 3 在一次版式确认后直接进入随 Skill 原样复制的 `GordenImage2PPTX`；不再增加父流程自己的逐区域方法选择、源像素裁切门或两页原型门。Gorden 原版 B0–B9 的四层重建和 QA 继续生效。
 - 场景 4 由参考稿锁定风格；多个冲突参考必须由用户指定主参考，不重新进行风格三选一。
 - 场景 5 先确认对象级 change plan；局部修改只改目标页副本，默认在原页后保留修改副本。
 - 默认可以搜索外部信息，但候选证据只有经用户确认后才能进入正式稿。
-- 任何进入最终稿的图片、SVG 或艺术字资产都必须先列入资产计划并确认；风格选择阶段未入选的 A/B/C 候选图记录在生成 manifest 中，不作为最终资产。计划外最终资产必须重新确认。
-- 场景 1/3 使用内置 Gorden 组件前，必须向用户说明页数、按当前计划计算的最低 imagegen 调用次数、时间/额度影响并确认 `gorden-generation-scope`。场景 3 的次数等于批准的 `imagegen-detexted-png` 区域数，可以为 0，不得再按固定 `3N` 估算。
+- 进入最终稿的资产仍须登记并披露来源；内置风格库继续完整保留，但不作为场景 1/3 的默认输入。Gorden 原版 manifest 是生成证据的唯一来源，父流程不再推算或硬编码 imagegen 调用次数。
 - 用户需要把场景 1 成品转为可编辑版本时，先完成并确认图片版，再以逐页 PNG 为只读源新建独立场景 3；新运行必须用 `scene1_handoff.json` 与 `start-reconstruction` 绑定上游终验和逐页哈希，不得在场景 1 内自动串联 Image2PPTX。
 - 场景 1 图片里的全部可见文字必须与已确认策划一致；错字、漏字、乱码或占位文字必须重生成图片，不得留给未来的场景 3 修正。最终图片型 PPTX 还必须通过 `image-deck-final` 用户确认。
 - 缺失字体不得自动替换；先报告，再由用户确认候选字体或资产替代方案。
@@ -63,20 +62,21 @@ python scripts/validate_contracts.py <run-dir> --phase plan|preview|final
 
 除场景 1 明确交付图片型 PPTX 外，普通标题、正文、数字、日期、标签和表格文字优先使用 PowerPoint 原生文本对象。不要为了“原生”而用大量小形状机械重画复杂插画。
 
-- 场景 1：最终每页为一个全幅 PNG 图片对象；源资产与生成过程仍须按 `asset_plan.json` 确认。
+- 场景 1：最终每页为一个全幅 PNG 图片对象；源资产与生成过程以 Gorden 原版 `imagegen-manifest.json` 为准，父运行只保留必要的资产登记。
 - 场景 4：允许使用经审批的 SVG 或栅格图片资产。
 - 场景 2/5：优先保留原对象和格式；替换资产必须单独确认。
-- 场景 3：普通文字必须为原生文本框。无普通文字的复杂视觉区域优先从已锁定源页原样保留为受控 PNG；只有文字与复杂视觉交织、必须先去字且无法原生构建时才调用 imagegen 生成该局部的无文字 PNG。不得默认让 imagegen 重画整页框架、背景和图标。PNG 必须计划内、绑定源页与源 bbox、无普通文字、分辨率合格、经用户专门确认并披露不可编辑影响；只有用户明确要求时才把某个简单视觉改为 SVG。禁止 JPG/WebP、SVG 内嵌 raster、未登记 raster 和噪声位图描摹。
+- 场景 3：普通文字按 Gorden 原版写入原生文本框；背景、框架、图标、装饰和复杂图表按 Gorden 原版作为图片层处理，并在 manifest 与回读报告中披露不可对象级编辑。允许 PNG；仍禁止 JPG/WebP、SVG 内嵌 raster、未登记 raster 和噪声位图描摹。
 - 艺术字可作为 SVG 或 PNG 资产；必须向用户说明它不是普通可编辑文字，并取得单独确认。
 
 ## 后端选择
 
-场景 1/3 在写策划文件、请求确认或承诺执行前，必须先确认当前宿主确实提供可调用的 raster imagegen 能力。`backend_probe.py` 中的 `imagegen_required: true` 只是需求声明，不是能力探测结果；若宿主没有真实 imagegen，立即说明该场景被阻断，不让用户走完整规划后才得知无法生成。
+场景 1/3 在执行 Gorden 原版前，必须先确认当前宿主确实提供可调用的 raster imagegen 能力。`backend_probe.py` 中的 `imagegen_required: true` 只是需求声明，不是能力探测结果；若宿主没有真实 imagegen，立即说明该场景被阻断。
 
-读取 [backend-integration.md](references/backend-integration.md)。场景 1/3 同时读取 [gorden-integration.md](references/gorden-integration.md) 和对应的内置组件入口：场景 1 只运行 `components/gorden/GordenImagePPTGen`；场景 3 运行 `components/gorden/GordenImage2PPTX`。先运行能力探针，不自行安装依赖，不跨场景静默串联。
+读取 [backend-integration.md](references/backend-integration.md)。场景 1/3 同时读取 [gorden-integration.md](references/gorden-integration.md) 和对应的内嵌 Gorden 流程入口：场景 1 只运行 `GordenImagePPTGen`；场景 3 运行 `GordenImage2PPTX`。先运行能力探针，不自行安装依赖，不跨场景静默串联。
 
 ```text
 python scripts/backend_probe.py [--ppt-master-root <path>]
+# 仅当用户要求使用内置参考时检查完整素材库
 python scripts/manage_style_library.py --check
 ```
 

@@ -52,7 +52,7 @@
 
 ### pptx-workshop（策划与演示文稿工作台）
 
-用户只需说明“根据资料从 0 制作”“按原生模板填充”“图片/PDF 重建”“参考稿制作新稿”或“续写/修改已有 PPT”中的一种场景。场景 1 先锁定逐页完整文字和大致位置并确认全量无风格版式，再从内置 27 项风格参考库或用户自带参考中确认方向，生成 A/B/C 代表图；选中代表页直接复用，正式生成只补剩余页面，最终交付逐页 PNG 与图片型 PPTX。若还需要可编辑版本，再以这些 PNG 单独启动场景 3。每个生成的 PPTX 都必须真实渲染、逐页检查并绑定 `visual_qa.json`。
+用户只需说明“根据资料从 0 制作”“按原生模板填充”“图片/PDF 重建”“参考稿制作新稿”或“续写/修改已有 PPT”中的一种场景。场景 1 和场景 3 先各做一次覆盖全量页面的无风格版式预览并确认，随后分别原样执行内置 GordenImagePPTGen A1–A5 或 GordenImage2PPTX B0–B9；不再叠加父流程自己的 A/B/C 风格或逐区域重建门。内置 27 项完整素材库仍保留为可选参考。场景 1 交付逐页 PNG 与图片型 PPTX；若还需要可编辑版本，再以这些 PNG 单独启动场景 3。每个生成的 PPTX 都必须真实渲染、逐页检查并绑定 `visual_qa.json`。
 
 → [SKILL.md](./pptx-workshop/SKILL.md)
 
@@ -128,6 +128,6 @@ Ask to GPTs：我最近关注的内容有什么新的进展吗？跟知识库已
 
 ## 许可证
 
-仓库自有内容采用 [MIT License](./LICENSE)。`pptx-workshop` 内置的第三方组件与风格参考保留各自授权和署名边界，不纳入本仓库的统一 MIT 再授权；复用或公开再发布前必须阅读 [Gorden NOTICE](./pptx-workshop/components/gorden/NOTICE.md) 与 [风格库 NOTICE](./pptx-workshop/assets/style-library/NOTICE.md)。
+仓库自有内容采用 [MIT License](./LICENSE)。`pptx-workshop` 直接嵌入的第三方 Gorden 原版流程与风格参考保留各自授权和署名边界，不纳入本仓库的统一 MIT 再授权；复用或公开再发布前必须阅读 [Gorden NOTICE](./pptx-workshop/GORDEN_NOTICE.md) 与 [风格库 NOTICE](./pptx-workshop/assets/style-library/NOTICE.md)。
 
 Made by [@ancespio](https://github.com/ancespio)

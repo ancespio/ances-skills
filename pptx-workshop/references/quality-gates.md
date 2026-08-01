@@ -16,7 +16,7 @@
 
 同时逐页核对 `slide_plan.json` 的每个文字块、bbox、阅读顺序、数据、图表含义和元素位置。最终可见文字必须准确、完整、无乱码和占位符；错字、漏字、事实错误、跨区摆放或阅读顺序变化必须回到图片生成阶段重做，不能以“之后可以转可编辑版”为由放行。
 
-生成 manifest 必须证明：每次场景 1 调用都携带与 `style_reference_plan.json` 完全一致的 `style_reference_ids`，并发生在 `style-reference-choice` 与 `gorden-generation-scope` 确认之后；A/B/C 的成功调用均为 `style-selection` 且只覆盖同一组代表页；正式页面调用均为 `formal-generation`，发生在 `style-choice` 后，只覆盖剩余页面；选中代表页的最终 PNG 与风格候选原图哈希一致，没有被正式生成阶段重做。
+生成 manifest 必须证明：每页都来自真实 imagegen，记录 prompt、generated source、copied output 和 backend；父流程只检查 manifest 存在、路径可追溯且与最终产物一致，不重写 Gorden 的风格阶段或调用预算。
 
 最终 PPTX 每页只能有一个覆盖全画布的 raster 图片对象。回读报告必须明确每页原生文字、原生对象和 SVG 均为 0，raster 为 1，且图片内部内容不可编辑。全量图片成稿及其 PPTX 通过视觉 QA 后，还必须取得绑定最终 PPTX 哈希的 `image-deck-final` 用户确认；该确认只允许后续新建场景 3，不会把当前运行改成可编辑重建。
 
@@ -28,9 +28,9 @@
 
 同时输出并实际查看 source、preview、side-by-side、blend 和 diff heatmap。主要元素中心偏差不超过页面尺寸 1%，尺寸偏差不超过 2%；像素差仅作诊断。
 
-对场景 3 的每个 PNG 额外核对：真实 PNG 签名/结构、实际像素尺寸与计划一致、按放置区域计算的长边 1920 px 基准分辨率、无普通文字、计划/构建/回读的 asset ID 一致和不可编辑影响披露。全页背景/框架 PNG 必须先证明普通文字已清除；不得用双层重复文字掩盖未清理底图。场景 1 的整页 PNG 本来就包含最终文字，按上一节检查，不套用“无普通文字”规则。
+对场景 3 的 Gorden 图片层核对：真实 PNG 签名/结构、manifest 来源、最终路径和不可编辑影响披露。普通文字必须由 Gorden 写入原生文本框；父流程不另加 source bbox、固定分辨率或逐区域方法门。场景 1 的整页 PNG 本来就包含最终文字，按上一节检查。
 
-使用 Gorden 时还要核对真实 imagegen manifest。场景 3 对每个 `page_id` 分别运行并检查 `layout_guard.py --strict`、`placement_qa.py` 和 `visual_compare_qa.py`，manifest 中以 `(tool,page_id)` 唯一登记；final 阶段必须覆盖全部计划页。实际查看 source、preview、side-by-side、blend 和 diff heatmap 后，只有普通文字无重叠、关键结构无漂移、主要对齐无漂移、颜色无明显漂移时才可把四项布尔检查写为 `false` 并判 pass。`pass_with_declared_fidelity_gap`、平均像素差或备注都不能放行其中任一缺陷。场景 1 按上一节检查生成阶段、页合同、逐字文字、位置和代表页复用。组件 QA 不能替代真实 PPTX 渲染；两套门禁任一失败都不得交付。
+使用 Gorden 时还要核对其原版 imagegen manifest 和原版 QA。组件 QA 不能替代真实 PPTX 渲染；两套门禁任一失败都不得交付。
 
 ## 回读与可编辑性
 

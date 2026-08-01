@@ -1,60 +1,46 @@
 # 场景 1：根据资料从 0 制作
 
-## 策划优先
+场景 1 的父流程只增加一次版式确认，图片成稿本身完全交给随 Skill 原样复制的 `GordenImagePPTGen`。
 
-依次写入并校验：
+## 父流程：只确认版式
+
+运行记录可以包含 `brief.json`、`evidence_plan.json`、`outline.json` 和 `slide_plan.json`。它们用于把已确认的内容整理成一份覆盖全部页面的 `layout-preview.pptx`，不在父流程重复实现 Gorden 的内容策划、风格确认或图片生成。
+
+`layout-preview.pptx` 只表达：
+
+- 每个可见文字块的完整文字；
+- 每个文字块的大致 `[x,y,w,h]` 位置、大小、层级、对齐方式和阅读顺序；
+- 图片、图表、表格、SVG 等资产预留区；
+- 内容区、装饰安全区和禁止侵入区。
+
+预览使用中性线框、灰阶区块和原生文本框，不加入候选风格、装饰语言或动效。真实渲染并写 `visual_qa.json` 后，向用户展示整套预览，只取得一次 `layout-preview` 确认。未确认前不得调用 Gorden。
+
+## Gorden 原版：A1–A5 原样执行
+
+确认版式后，读取 [gorden-integration.md](gorden-integration.md) 和 [GordenImagePPTGen/SKILL.md](../GordenImagePPTGen/SKILL.md)，按上游原版执行：
 
 ```text
-brief.json → evidence_plan.json → outline.json → slide_plan.json
+A1 确认风格 / 受众 / 页数 / 语言
+→ A2 outline.json
+→ A3 每页 prompts/NN-*.md
+→ A4 调用 imagegen，复制逐页 PNG，写 imagegen-manifest.json
+→ A5 用 compose_pptx.py 合成图片型 PPTX
 ```
 
-默认可以检索外部资料，但先写 `evidence_plan.json`。候选事实、数据、引用和来源经用户批量确认后才能进入 outline 或页面文案。
+父流程不增加 `style_reference_plan.json`、style-reference-choice、A/B/C 代表稿、固定调用次数或自定义 prompt 合同。Gorden 原版自己的风格询问和默认规则继续生效；父流程不会静默改写它们。
 
-场景 1 的核心工作是先把目标、受众、页数、叙事结构、逐页文案、证据、版式和资产需求策划清楚。策划没有完成或任一父合同未通过校验时，不得生成风格代表页、正式页面或最终 PPTX。
+当前完整素材库仍保留在 `assets/style-library/`，但不会自动套用。只有用户在 Gorden A1 中明确提供或选择参考时，才把对应素材作为本次输入并登记来源。
 
-## 完整版式预览门
+## 交付与转场
 
-根据 `slide_plan.json` 生成覆盖全部页面的 `layout-preview.pptx`。它只表达：
+场景 1 交付逐页 PNG 和每页一张全幅 PNG 的图片型 PPTX。必须真实渲染、逐页视觉检查、回读对象，并取得 `image-deck-final` 确认；图片内部文字和图形不可按普通 PPT 对象编辑。
 
-- 每个可见文字块的完整最终文字，包括标题、正文、数字、单位、标签、注释和标点；
-- 每个文字块的 `[x,y,w,h]` 大致位置、大小、层级、对齐方式和阅读顺序；
-- 图片、图表、表格、SVG 等资产的预留区；
-- 内容区、装饰安全区、禁止侵入区和页面密度。
-
-预览可以使用中性线框、灰阶区块和原生文本框，但不得加入候选风格、装饰语言或动效。真实渲染并写 QA 后，等待用户确认；文字或位置尚未确定时不得进入风格选择。
-
-## 三套风格门
-
-版式确认后先读取 [内置风格参考库](style-library.md)，运行目录校验，并向用户展示 3–6 个与主题、受众和密度匹配的候选预览。用户可以选择一个、融合最多三个、改用自带参考或要求自定义方向；将展示范围、选择、适用理由、限制、目录 SHA-256 和用户方向写入 `style_reference_plan.json`，取得 `style-reference-choice` 确认。不得跳过展示，也不得静默使用仓库样例。
-
-随后写 `asset_plan.json` 与 `gorden_component.json`，说明页数、生成预算和代表页复用规则，并完成 `gorden-generation-scope` 确认。然后进入风格选择阶段，用 `GordenImagePPTGen` 按已确认的 `style_reference_ids`，为同一组 `R=min(N,3)` 个代表页制作 A/B/C 三套可直接进入最终稿的生产级图片方案。单一参考时比较同一视觉语言的不同落地；融合参考时比较不同权重，但三套都不得引入未确认风格。代表角色按实际页数依次覆盖封面、常规页和复杂页；三套方案只能改变配色、字体气质、图形语言、材质、留白和装饰，不得改变已确认文字、bbox、模块或信息密度。
-
-风格代表图的全部 imagegen 调用都属于本阶段。用户选定一套后，该套 `R` 张页面 PNG 原样复用到最终稿，不重新生成；正式生成阶段只按同一风格生成其余 `N-R` 页，不再探索或选择风格。无重试时最低 imagegen 预算为 `3R+(N-R)=N+2R` 次；`N>=3` 时为 `N+6` 次。任何错字、视觉返工或生成失败都会增加调用量。
-
-## Gorden 生产段
-
-读取 [gorden-integration.md](gorden-integration.md)。场景 1 只执行 `GordenImagePPTGen`。风格选择阶段只生成 A/B/C 代表页；每次调用同时绑定 `style_reference_plan.json` 中已确认的参考 ID。取得 `style-choice` 后，正式生成阶段只按已确认的 `slide_plan.json`、版式预览和选定风格生成剩余页面 PNG。不得重新策划、重新生成选中代表页，或改变页数、文案、bbox、版式与信息密度。
-
-每页可见文字必须与已确认文案完全一致，包括标题、正文、数字、标点、大小写和换行。出现错字、漏字、乱码或事实偏差时必须重生成该页，不能把错误留给后续编辑阶段。
-
-每次 imagegen prompt 必须逐个包含当前页 `content_blocks[]` 的完整 `text`，以及同一 block 的 bbox JSON 字面量；bbox 只能使用 JSON compact 或默认带空格格式，不能改写成百分比或自然语言。单行示例：`block={"text":"年度收入 12.6 亿元","bbox":[0.08,0.22,0.36,0.12]}`。页面有几个 block，prompt 就必须逐字列出几个 block，不得只给主题、摘要或 `visual_generation_prompt`。
-
-场景 1 的最终产物是逐页 PNG，以及每页只铺放对应全页 PNG 的图片型 PPTX。保留 manifest、输出目录和实际生成资产，最终构建绑定 `gorden_component.json` 的 SHA-256；完成真实渲染、逐页视觉检查和对象回读后，必须向用户明确说明“文字和页面元素不可编辑”，并等待 `image-deck-final` 确认。
-
-如果用户还需要可编辑版本，场景 1 必须先完成并验收。随后以已确认的逐页 PNG 为输入，新建独立运行目录并重新进入场景 3，重新生成 `reconstruction_plan.json`、资产计划、审批、两页原型和 QA；禁止在场景 1 内自动调用 `GordenImage2PPTX`，也不得把场景 1 的审批视为场景 3 已通过。
+如果用户还需要可编辑版本，先完成图片型 PPTX 验收，再新建独立场景 3 运行；不得在本次运行内自动串联 `GordenImage2PPTX`。
 
 ## 禁止
 
-- 未确认版式就生成完整正式稿；
-- 在逐页完整文字与大致位置未锁定前生成风格代表图；
-- 用一次性风格图片冒充代表页；
-- 把未确认外部证据或计划外资产加入正式稿；
-- 自动选择风格；
-- 不展示目录预览、不写 `style_reference_plan.json` 或未取得 `style-reference-choice` 就生成代表图；
-- 把 A/B/C 代表图放到正式生成阶段，或在正式生成阶段继续试风格；
-- 未经用户选择就默认套用高密度、繁华、豪华、科技商务或任一仓库参考风格；
-- 让 Gorden 重新决定页数、内容、布局或风格；
-- 把有错字、漏字、乱码或未确认内容的 PNG 放入最终稿；
-- 在同一次场景 1 运行中自动串联 `GordenImage2PPTX`；
-- 将图片型 PPTX 宣称为可编辑 PPTX；
-- 增加动画、转场、旁白或视频。
+- 未确认版式就调用 Gorden；
+- 把版式预览中的占位文字留到正式图片；
+- 在父流程偷偷改写 Gorden A1–A5、跳过 `imagegen-manifest.json` 或伪造 imagegen 结果；
+- 把图片型 PPTX 宣称为可编辑 PPTX；
+- 增加动画、转场、旁白、音频或视频。

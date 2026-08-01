@@ -4,15 +4,15 @@
   "catalog_revision": "2026-07-31-r1",
   "notice": {
     "path": "assets/style-library/NOTICE.md",
-    "sha256": "2ef782ff55bbc1a0a0167eb47a2bfaab3ef09bd282c468130e53420c0c091a0b",
-    "bytes": 2463
+    "sha256": "0e90bae02ecbaa7f3dce7f4b1a4910e4401cbf9b1762e6a05999851fa04afe49",
+    "bytes": 2479
   },
   "summary": {
     "selectable_entries": 27,
     "reference_decks": 21,
     "style_families": 6,
     "supporting_assets": 7,
-    "bundled_bytes_excluding_catalog": 245145339
+    "bundled_bytes_excluding_catalog": 245145355
   },
   "source_reviews": [
     {
@@ -54,9 +54,9 @@
       "license": "custom README permission; attribution required",
       "status": "bundled-attributed",
       "notice_file": {
-        "path": "components/gorden/NOTICE.md",
-        "sha256": "66dd3b91727b66e94863ec7fd740834309b8188c9d72ff07b295a63e2480b051",
-        "bytes": 1702
+        "path": "GORDEN_NOTICE.md",
+        "sha256": "e8d9939d85341461327f14db5a11b9dd560e1dd9ca9263ae2c762a08483bfd24",
+        "bytes": 1294
       }
     },
     {
@@ -1033,7 +1033,7 @@
       ],
       "limitations": [],
       "preview": {
-        "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref1.png",
+        "path": "GordenImagePPTGen/参考图/leader_love/ref1.png",
         "sha256": "f7b54a38765fb2e84ee4c270fb8a9779d5414af0373d0faff26e5e245b45b335",
         "bytes": 236523,
         "width": 1600,
@@ -1041,56 +1041,56 @@
       },
       "samples": [
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref1.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref1.png",
           "sha256": "f7b54a38765fb2e84ee4c270fb8a9779d5414af0373d0faff26e5e245b45b335",
           "bytes": 236523,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref2.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref2.png",
           "sha256": "792c9ef86a90f7ac87c81a1b0bdb0644e068c99a920528a94bd6b228d158da48",
           "bytes": 255153,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref3.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref3.png",
           "sha256": "868b43f058e01b266ac0e581e83a791d146e6dd7728eda59a19f7f11f36a0f50",
           "bytes": 305545,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref4.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref4.png",
           "sha256": "332407d460d0220984db641581f036b0f1821e8f46c3e5c6555ec2ceb21dd364",
           "bytes": 336228,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref5.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref5.png",
           "sha256": "b62656ba9a4f1ba107715914eb985136adb2c1c1df38c72632f2a71fabb7b085",
           "bytes": 502961,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref6.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref6.png",
           "sha256": "02b67c07e42e14e35d85931c4933869948e596b7a0d6dd48cb74df5d1b210e9b",
           "bytes": 373063,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref7.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref7.png",
           "sha256": "6b7d4e5135ef81c30c9ab9553216a6d59af1fd8111a985bd104957807db10ad1",
           "bytes": 396537,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/leader_love/ref8.png",
+          "path": "GordenImagePPTGen/参考图/leader_love/ref8.png",
           "sha256": "24c3b13bf2db3470a2c11d367c5945fd4b68d0aa2d098e82e8be95687a9b1965",
           "bytes": 313472,
           "width": 1600,
@@ -1127,7 +1127,7 @@
       ],
       "limitations": [],
       "preview": {
-        "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref1.png",
+        "path": "GordenImagePPTGen/参考图/red_grey_project/ref1.png",
         "sha256": "4d877103a5ca735a41a3f5acc0e8f5810d416cb498c1cc2134d2ecb32a80d179",
         "bytes": 328416,
         "width": 1600,
@@ -1135,49 +1135,49 @@
       },
       "samples": [
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref1.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref1.png",
           "sha256": "4d877103a5ca735a41a3f5acc0e8f5810d416cb498c1cc2134d2ecb32a80d179",
           "bytes": 328416,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref2.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref2.png",
           "sha256": "babd57f5efb363f6563652baa341b2acaa41dc0b3962abbe68e70a1c222bad90",
           "bytes": 352464,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref3.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref3.png",
           "sha256": "e89ec8de2ef79b4de3e2970cf9d49000ed495a7e28585a03ea2dac9a910534ef",
           "bytes": 307024,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref4.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref4.png",
           "sha256": "b95ee8e39638b321d6ab01ce7b8ac393b4d36d24fbf3d88b90d94d58670f1ebd",
           "bytes": 318645,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref5.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref5.png",
           "sha256": "18f144507a4966a87137c7ec671d5f9533b19e7471d5248d5d60f9b69c2e7773",
           "bytes": 362282,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref6.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref6.png",
           "sha256": "b7ef8a90b570bbf91b31ff229e9ed62185836541f391c9699981fe1fec4b80c8",
           "bytes": 451042,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/red_grey_project/ref7.png",
+          "path": "GordenImagePPTGen/参考图/red_grey_project/ref7.png",
           "sha256": "6b68661b123e564b4d0c7e2979b1b1d833eaac054bf923b1d961a6e4df29fd3f",
           "bytes": 281219,
           "width": 1600,
@@ -1215,7 +1215,7 @@
       ],
       "limitations": [],
       "preview": {
-        "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref1.png",
+        "path": "GordenImagePPTGen/参考图/scholar_green/ref1.png",
         "sha256": "18ccd123da1a586066f79c0a7293453ee9a47be145e97f0cd1a9878e2bb9ecdf",
         "bytes": 290694,
         "width": 1600,
@@ -1223,49 +1223,49 @@
       },
       "samples": [
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref1.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref1.png",
           "sha256": "18ccd123da1a586066f79c0a7293453ee9a47be145e97f0cd1a9878e2bb9ecdf",
           "bytes": 290694,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref2.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref2.png",
           "sha256": "8d8da291ed53ee728e72f1985cb9fcf7c7300437fa5d19626c82479d21380a5a",
           "bytes": 221349,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref3.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref3.png",
           "sha256": "74338d9aad53bc2ff599b8a94dd8c0fc6e31556c070430c27aef515f412fc12e",
           "bytes": 194540,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref4.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref4.png",
           "sha256": "4776d6ba731f36bd21555ed3dc25bdb14540fa344e1bbbae0b4f6c0e22544083",
           "bytes": 232963,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref5.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref5.png",
           "sha256": "8a7dc0cba4f1ce5dc8e9c0b85496e487db3214953837115f9e0320552c7cd2c3",
           "bytes": 206275,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref6.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref6.png",
           "sha256": "b463dac8a117865a31f62660c37afcaf65e0a92a2d887c7cfd22394699bf77cc",
           "bytes": 245021,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/scholar_green/ref7.png",
+          "path": "GordenImagePPTGen/参考图/scholar_green/ref7.png",
           "sha256": "826897a353401c13cad32b49309beca366306702a7cc2263e1b906b5a560e68c",
           "bytes": 215318,
           "width": 1600,
@@ -1305,7 +1305,7 @@
         "legacy-low-resolution reference images"
       ],
       "preview": {
-        "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref1.png",
+        "path": "GordenImagePPTGen/参考图/tech_prize/ref1.png",
         "sha256": "bf0b600a181732f354b76bc69240172dccbbdce0550bc5b7397ec5f944219ecc",
         "bytes": 201426,
         "width": 1006,
@@ -1313,56 +1313,56 @@
       },
       "samples": [
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref1.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref1.png",
           "sha256": "bf0b600a181732f354b76bc69240172dccbbdce0550bc5b7397ec5f944219ecc",
           "bytes": 201426,
           "width": 1006,
           "height": 566
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref2.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref2.png",
           "sha256": "6ce30706275f54dd51aca0b35c2a826dc4dc2673ae63881b875bd02aa117e5e0",
           "bytes": 185487,
           "width": 1008,
           "height": 567
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref3.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref3.png",
           "sha256": "0fff2aeb0412d7bed08b0acdc543fbef4174e02f2fa79d2f3cb7b0429e9c14ad",
           "bytes": 183932,
           "width": 1007,
           "height": 566
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref4.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref4.png",
           "sha256": "f2cb1f2e2c4547a89035a2c6c37048174b422138a945ec680b223283e2f7ccbe",
           "bytes": 170408,
           "width": 1008,
           "height": 566
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref5.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref5.png",
           "sha256": "eed0db2e448cfcc19a3ad286b47b7d93f0cc20c740fdc4b9283dfe1e3e2dce0c",
           "bytes": 190514,
           "width": 1008,
           "height": 567
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref6.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref6.png",
           "sha256": "81af020516183bf509dcdcaab7d4656cca6ca49c7df349dff11356ec537bed45",
           "bytes": 187825,
           "width": 1008,
           "height": 567
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref7.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref7.png",
           "sha256": "f46206220e746faff69cb99eff184eb1c64e75c75fee18e91c9ca8da260ad7cc",
           "bytes": 210020,
           "width": 1009,
           "height": 567
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/tech_prize/ref8.png",
+          "path": "GordenImagePPTGen/参考图/tech_prize/ref8.png",
           "sha256": "e586be0a54c1c0f8248ec896fc5e76b1dab0ae7fd1c53537677f67a056efcb68",
           "bytes": 181340,
           "width": 1009,
@@ -1399,7 +1399,7 @@
       ],
       "limitations": [],
       "preview": {
-        "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref1.png",
+        "path": "GordenImagePPTGen/参考图/work_result/ref1.png",
         "sha256": "e13511081e1183309716fb6fd2584f65e7c716aa8117f07c202e35c257f0c763",
         "bytes": 327498,
         "width": 1600,
@@ -1407,56 +1407,56 @@
       },
       "samples": [
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref1.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref1.png",
           "sha256": "e13511081e1183309716fb6fd2584f65e7c716aa8117f07c202e35c257f0c763",
           "bytes": 327498,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref2.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref2.png",
           "sha256": "4e459d5611ba90619a9450cdcabd59e5cc844ebc2b94749fc7b75ca61763c81d",
           "bytes": 450883,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref3.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref3.png",
           "sha256": "bf5abc3f00c4b220b6e35332e9a623bc899b86ebdffc1a0f5efb268f903d4e9f",
           "bytes": 410983,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref4.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref4.png",
           "sha256": "96a63a7935740b2aa4e2e72745d7b5f41ba0714751fb9792980d9c2d3a8f58a5",
           "bytes": 416226,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref5.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref5.png",
           "sha256": "ddf50974438848a66bf7db26e57bc0a15678c0d826fcfa8f0d2949b4e87afb22",
           "bytes": 230594,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref6.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref6.png",
           "sha256": "b53959abe6525882d904205effe52a81ce1bac2793deda37c13d699ef8f62b12",
           "bytes": 303543,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref7.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref7.png",
           "sha256": "5236dab6736e1f44969e1433a98aca9ead8fc83a639257d2aab77d328066b462",
           "bytes": 339219,
           "width": 1600,
           "height": 900
         },
         {
-          "path": "components/gorden/GordenImagePPTGen/参考图/work_result/ref8.png",
+          "path": "GordenImagePPTGen/参考图/work_result/ref8.png",
           "sha256": "4e83f87e70487c1854bfa3b05fa9f175e89fa34d5197b0faa673f9094e6068eb",
           "bytes": 355295,
           "width": 1600,

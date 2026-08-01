@@ -7,5 +7,6 @@ Desktop.ini
 __pycache__/
 *.pyc
 TMP/
+image2pptx_runs/
 *.log
 ppt-skills-lab/

@@ -174,6 +174,21 @@ def png_dimensions(path: Path) -> tuple[int, int]:
     return width, height
 
 
+def image_dimensions(path: Path) -> tuple[int, int]:
+    if path.suffix.lower() == ".png":
+        return png_dimensions(path)
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            width, height = image.size
+    except Exception as exc:
+        raise ContractError(f"cannot read source image dimensions: {path}: {exc}") from exc
+    if width < 1 or height < 1:
+        raise ContractError(f"source image dimensions must be positive: {path}")
+    return width, height
+
+
 def validate_source_preserved_crop(source: Path, bbox: list[int], output: Path) -> None:
     try:
         from PIL import Image
@@ -204,6 +219,15 @@ def load_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ContractError(f"top-level JSON must be an object: {path}")
     return value
+
+
+def load_json_any(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise ContractError(f"missing file: {path}") from exc
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ContractError(f"invalid UTF-8 JSON: {path}: {exc}") from exc
 
 
 def require(obj: dict[str, Any], fields: list[str], context: str) -> None:
@@ -457,7 +481,11 @@ def validate_slide_plan(doc: dict[str, Any]) -> None:
 def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[str, dict[str, Any]]:
     scenario = project["scenario"]
     keys = list(PLAN_DOCS[scenario])
-    if scenario == "new-deck" and phase in {"preview", "final"}:
+    # 场景 1/3 直接执行 Gorden 原版；style_reference_plan 只在用户主动
+    # 选择内置参考时存在，不再作为父流程的必需计划文件。
+    if scenario == "new-deck" and phase in {"preview", "final"} and (
+        root / DOCS["style_reference_plan"]
+    ).is_file():
         keys.append("style_reference_plan")
     handoff_path = root / DOCS["scene1_handoff"]
     scene1_handoff = scenario == "reconstruction" and any(
@@ -479,7 +507,11 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
     if brief["scenario"] != scenario:
         raise ContractError("brief.json.scenario does not match project.json")
     if phase in {"preview", "final"}:
-        unconfirmed = [key for key, doc in docs.items() if doc.get("status") != CONFIRMED_STATUS]
+        exempt_parent_records = {"asset_plan", "gorden_component"} if scenario in {"new-deck", "reconstruction"} else set()
+        unconfirmed = [
+            key for key, doc in docs.items()
+            if key not in exempt_parent_records and doc.get("status") != CONFIRMED_STATUS
+        ]
         if unconfirmed:
             raise ContractError("preview/final requires confirmed plan files: " + ", ".join(unconfirmed))
 
@@ -513,14 +545,14 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
             raise ContractError("gorden component expected_commit must be a full Git SHA")
         if component["integration_mode"] != "bundled-attributed" or component["source_bundled"] is not True:
             raise ContractError("gorden component must remain bundled with attribution")
-        if component["component_location"] != "components/gorden" or component["notice_path"] != "components/gorden/NOTICE.md":
-            raise ContractError("gorden bundled component location is invalid")
+        if component["component_location"] != "." or component["notice_path"] != "GORDEN_NOTICE.md":
+            raise ContractError("gorden bundled embedded Gorden location is invalid")
         if component["attribution_url"] != "https://github.com/GordenSun/GordenSuperPPTSkills":
             raise ContractError("gorden component attribution URL is invalid")
-        component_root = Path(__file__).resolve().parent.parent / "components" / "gorden"
+        component_root = Path(__file__).resolve().parent.parent
         if not component_root.is_dir():
             raise ContractError("bundled gorden component is missing")
-        if not (component_root / "NOTICE.md").is_file():
+        if not (component_root / "GORDEN_NOTICE.md").is_file():
             raise ContractError("bundled gorden attribution notice is missing")
         probe_path = resolve_inside(root, component["probe_report"], "gorden probe report")
         if not probe_path.is_file() or component["probe_sha256"] != sha256(probe_path):
@@ -539,7 +571,7 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
         image_to_pptx = gorden_probe.get("image_to_pptx", {})
         modules = probe.get("python_modules", {})
         if not all(modules.get(name) is True for name in ("python_pptx", "Pillow", "numpy")):
-            raise ContractError("Gorden component dependencies are missing")
+            raise ContractError("embedded Gorden workflow dependencies are missing")
         expected_pipeline = "image-ppt" if scenario == "new-deck" else "image2pptx"
         expected_stages = ["GordenImagePPTGen"] if scenario == "new-deck" else ["GordenImage2PPTX"]
         stages = component["stages"]
@@ -553,7 +585,6 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
         else:
             required_image_to_pptx = (
                 image_to_pptx.get("available"), image_to_pptx.get("compose_pptx"),
-                image_to_pptx.get("extract_source_region"),
                 image_to_pptx.get("layout_guard"), image_to_pptx.get("placement_qa"),
                 image_to_pptx.get("visual_compare_qa"),
             )
@@ -581,7 +612,7 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
         page_count = len(docs["slide_plan"]["slides"]) if scenario == "new-deck" else len(docs["reconstruction_plan"]["slides"])
         representative_count = min(page_count, 3)
         if scenario == "new-deck":
-            minimum_calls = page_count + 2 * representative_count
+            minimum_calls = 0 if "style_reference_plan" not in docs else page_count + 2 * representative_count
         else:
             reconstruction_assets = docs["asset_plan"].get("items", [])
             minimum_calls = sum(
@@ -590,6 +621,8 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
                 if isinstance(item, dict)
                 and item.get("reconstruction_method") == "imagegen-detexted-png"
             )
+            if docs["reconstruction_plan"].get("execution_mode") == "gorden-original":
+                minimum_calls = 0
         if scope["page_count"] != page_count:
             raise ContractError("gorden generation_scope.page_count does not match the plan")
         if scope["estimated_imagegen_calls_min"] < minimum_calls:
@@ -665,8 +698,11 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
         reconstruction = docs["reconstruction_plan"]
         if reconstruction.get("source_locked") is not True:
             raise ContractError("reconstruction_plan.source_locked must be true")
-        if reconstruction.get("visual_asset_policy") != "fidelity-first-controlled-png":
-            raise ContractError("reconstruction_plan.visual_asset_policy must be fidelity-first-controlled-png")
+        if reconstruction.get("visual_asset_policy") not in {
+            "fidelity-first-controlled-png",
+            "gorden-original",
+        }:
+            raise ContractError("reconstruction_plan.visual_asset_policy is invalid")
         ids = slide_ids(reconstruction, "reconstruction_plan.json")
         pages = [slide.get("source_page") for slide in reconstruction["slides"]]
         if pages != list(range(1, len(pages) + 1)):
@@ -683,7 +719,7 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
             source_path = source_path.resolve()
             if not source_path.is_file() or source_image["sha256"] != sha256(source_path):
                 raise ContractError(f"{slide['id']} source_image is missing or stale")
-            if png_dimensions(source_path) != (slide["ref_width"], slide["ref_height"]):
+            if image_dimensions(source_path) != (slide["ref_width"], slide["ref_height"]):
                 raise ContractError(f"{slide['id']} source_image dimensions differ from ref_width/ref_height")
             source_images[slide["id"]] = source_path
             for item in slide.get("objects", []):
@@ -692,6 +728,11 @@ def validate_plan_docs(root: Path, project: dict[str, Any], phase: str) -> dict[
         assets = docs["asset_plan"].get("items")
         if not isinstance(assets, list):
             raise ContractError("asset_plan.items must be an array")
+        if reconstruction.get("execution_mode") == "gorden-original":
+            # GordenImage2PPTX owns the layer inventory in this mode. The parent
+            # contract records the source and final objects but does not repeat
+            # Gorden's per-region reconstruction policy.
+            assets = []
         page_map = {slide["id"]: slide for slide in reconstruction["slides"]}
         asset_ids: set[str] = set()
         for index, item in enumerate(assets):
@@ -1119,6 +1160,93 @@ def require_artifact_parent(root: Path, artifact: dict[str, Any], required_path:
         raise ContractError(f"{artifact.get('purpose', 'artifact')} does not bind required parent: {relative}")
 
 
+def _collect_original_gorden_records(value: Any, records: list[dict[str, Any]], layer_hint: str | None = None) -> None:
+    """Flatten the two original Gorden manifest shapes without changing them."""
+    if isinstance(value, list):
+        for item in value:
+            _collect_original_gorden_records(item, records, layer_hint)
+        return
+    if not isinstance(value, dict):
+        return
+    if any(key in value for key in ("generated_source", "copied_to", "prompt_file")):
+        record = dict(value)
+        if layer_hint and not any(key in record for key in ("layer", "role", "name")):
+            record["layer"] = layer_hint
+        records.append(record)
+    for key, child in value.items():
+        next_hint = key if key.startswith(("background", "frame", "icon")) else layer_hint
+        if key in {"slides", "pages", "items", "assets", "layers", "records", "entries", "calls"} or isinstance(child, (dict, list)):
+            _collect_original_gorden_records(child, records, next_hint)
+
+
+def _manifest_page_number(record: dict[str, Any]) -> int | None:
+    for key in ("page", "slide", "page_id", "slide_id"):
+        value = record.get(key)
+        if isinstance(value, int) and value > 0:
+            return value
+        if isinstance(value, str):
+            match = re.search(r"(?:P|page[-_ ]?)?(\d+)", value, re.IGNORECASE)
+            if match:
+                return int(match.group(1))
+    return None
+
+
+def validate_original_gorden_manifests(
+    root: Path,
+    project: dict[str, Any],
+    docs: dict[str, dict[str, Any]],
+    manifest_documents: list[tuple[Path, Any]],
+    phase: str,
+) -> None:
+    records: list[dict[str, Any]] = []
+    for _path, document in manifest_documents:
+        _collect_original_gorden_records(document, records)
+    if not records:
+        raise ContractError("original Gorden manifest contains no generation records")
+    page_ids = (
+        slide_ids(docs["slide_plan"], "slide_plan.json")
+        if project["scenario"] == "new-deck"
+        else slide_ids(docs["reconstruction_plan"], "reconstruction_plan.json")
+    )
+    page_numbers: set[int] = set()
+    layer_by_page: dict[int | None, set[str]] = {}
+    for index, record in enumerate(records):
+        require(record, ["prompt_file", "generated_source", "copied_to", "backend"], f"original Gorden manifest[{index}]")
+        if any(not str(record[field]).strip() for field in ("prompt_file", "generated_source", "copied_to", "backend")):
+            raise ContractError(f"original Gorden manifest[{index}] has blank provenance fields")
+        if "imagegen" not in str(record["backend"]).lower():
+            raise ContractError("original Gorden manifest backend must be an imagegen backend")
+        copied_to = resolve_inside(root, str(record["copied_to"]), "original Gorden copied_to")
+        if not copied_to.is_file():
+            raise ContractError(f"original Gorden copied output is missing: {copied_to}")
+        if copied_to.suffix.lower() == ".png":
+            png_dimensions(copied_to)
+        prompt_file = Path(str(record["prompt_file"]))
+        if prompt_file.suffix.lower() in {".md", ".txt", ".json"}:
+            prompt_path = resolve_inside(root, str(prompt_file), "original Gorden prompt_file")
+            if not prompt_path.is_file():
+                raise ContractError(f"original Gorden prompt file is missing: {prompt_path}")
+        page_number = _manifest_page_number(record)
+        if page_number is not None:
+            page_numbers.add(page_number)
+        layer = str(record.get("layer") or record.get("role") or record.get("name") or "").lower()
+        layer_by_page.setdefault(page_number, set()).add(layer)
+    if page_numbers and page_numbers != set(range(1, len(page_ids) + 1)):
+        raise ContractError("original Gorden manifest does not cover the planned page roster")
+    if project["scenario"] == "reconstruction":
+        # The original component requires its three visual generation layers;
+        # accept icons_raw_N and frame_raw naming variants.
+        for page_number, layers in layer_by_page.items():
+            if page_number is None:
+                continue
+            if not any(layer.startswith("background") for layer in layers):
+                raise ContractError(f"original Gorden manifest is missing background for page {page_number}")
+            if not any(layer.startswith("frame") for layer in layers):
+                raise ContractError(f"original Gorden manifest is missing frame for page {page_number}")
+            if not any(layer.startswith("icon") for layer in layers):
+                raise ContractError(f"original Gorden manifest is missing icons for page {page_number}")
+
+
 def validate_gorden_generation_manifest(
     root: Path,
     project: dict[str, Any],
@@ -1133,8 +1261,30 @@ def validate_gorden_generation_manifest(
     stages = component.get("stages", [])
     if len(stages) != 1:
         raise ContractError("Gorden generation manifest requires exactly one active stage")
-    manifest_path = resolve_inside(root, stages[0]["manifest_path"], "Gorden generation manifest")
-    manifest = load_json(manifest_path)
+    declared_manifest_path = resolve_inside(root, stages[0]["manifest_path"], "Gorden generation manifest")
+    manifest_documents: list[tuple[Path, Any]] = []
+    if declared_manifest_path.is_file():
+        manifest_documents.append((declared_manifest_path, load_json_any(declared_manifest_path)))
+        if project["scenario"] == "reconstruction" and declared_manifest_path.name == "imagegen-assets-manifest.json":
+            for candidate in root.rglob("imagegen-assets-manifest.json"):
+                if candidate.is_file() and candidate.resolve() != declared_manifest_path.resolve():
+                    manifest_documents.append((candidate, load_json_any(candidate)))
+    else:
+        patterns = (
+            ["imagegen-manifest.json"]
+            if project["scenario"] == "new-deck"
+            else ["imagegen-assets-manifest.json"]
+        )
+        for pattern in patterns:
+            for candidate in root.rglob(pattern):
+                if candidate.is_file():
+                    manifest_documents.append((candidate, load_json_any(candidate)))
+        if not manifest_documents:
+            raise ContractError(f"Gorden generation manifest is missing: {declared_manifest_path}")
+    manifest = manifest_documents[0][1]
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != GORDEN_GENERATION_MANIFEST_VERSION:
+        validate_original_gorden_manifests(root, project, docs, manifest_documents, phase)
+        return
     require(
         manifest,
         ["schema_version", "run_id", "component", "calls", "qa_results"],
@@ -1174,13 +1324,12 @@ def validate_gorden_generation_manifest(
             slide["id"]: slide["source_image"]["sha256"]
             for slide in docs["reconstruction_plan"]["slides"]
         }
-    scope_approval = require_approval(
-        approvals,
-        "gorden-generation-scope",
-        root,
-        root / DOCS["gorden_component"],
+    scope_records = [record for record in approvals if record.get("gate") == "gorden-generation-scope"]
+    scope_time = (
+        parse_timestamp(scope_records[0]["confirmed_at"], "gorden-generation-scope.confirmed_at")
+        if scope_records
+        else None
     )
-    scope_time = parse_timestamp(scope_approval["confirmed_at"], "gorden-generation-scope.confirmed_at")
     slide_map: dict[str, dict[str, Any]] = {}
     representative_ids: list[str] = []
     style_reference_ids: list[str] = []
@@ -1295,7 +1444,7 @@ def validate_gorden_generation_manifest(
                     raise ContractError(
                         "scene 1 prompt must contain every locked text block and its bbox"
                     )
-            if generated_at < scope_time:
+            if scope_time is not None and generated_at < scope_time:
                 raise ContractError("scene 1 image generation occurred before scope confirmation")
             if style_reference_choice_time is None or generated_at < style_reference_choice_time:
                 raise ContractError("scene 1 image generation occurred before style-reference-choice")
@@ -1323,7 +1472,7 @@ def validate_gorden_generation_manifest(
                 raise ContractError(
                     "reconstruction imagegen call is not bound to the locked source page"
                 )
-            if generated_at < scope_time:
+            if scope_time is not None and generated_at < scope_time:
                 raise ContractError("reconstruction image generation occurred before scope confirmation")
 
         if call["status"] == "failed":
@@ -1598,84 +1747,79 @@ def require_preview_contract(
 
     if "evidence_plan" in docs and any(item.get("included") for item in docs["evidence_plan"].get("items", [])):
         require_approval(approvals, "evidence-inclusion", root, root / DOCS["evidence_plan"])
-    if "asset_plan" in docs:
+    if "asset_plan" in docs and scenario not in {"new-deck", "reconstruction"}:
         require_approval(approvals, "asset-plan", root, root / DOCS["asset_plan"])
-    if "gorden_component" in docs:
+    if "gorden_component" in docs and scenario not in {"new-deck", "reconstruction"}:
         require_approval(approvals, "gorden-generation-scope", root, root / DOCS["gorden_component"])
 
     if scenario == "new-deck":
         planned_ids = slide_ids(docs["slide_plan"], "slide_plan.json")
-        representative_count = min(len(planned_ids), 3)
-        style_reference_plan = docs["style_reference_plan"]
-        style_reference_approval = require_approval(
-            approvals,
-            "style-reference-choice",
-            root,
-            root / DOCS["style_reference_plan"],
-        )
-        style_reference_decision = style_reference_approval.get("decision", {})
-        if (
-            style_reference_decision.get("selected_ids") != style_reference_plan["selected_ids"]
-            or style_reference_decision.get("usage_mode") != style_reference_plan["usage_mode"]
-        ):
-            raise ContractError("style-reference-choice differs from style_reference_plan.json")
         layouts = artifact_by_purpose(artifacts, "layout-preview")
         if len(layouts) != 1 or layouts[0]["expected_pages"] != len(planned_ids):
             raise ContractError("new-deck requires exactly one complete layout-preview PPTX")
         require_artifact_parent(root, layouts[0], root / DOCS["slide_plan"])
-        layout_approval = require_approval(
-            approvals, "layout-preview", root, artifact_path(root, layouts[0])
-        )
-        if parse_timestamp(
-            style_reference_approval["confirmed_at"], "style-reference-choice.confirmed_at"
-        ) < parse_timestamp(layout_approval["confirmed_at"], "layout-preview.confirmed_at"):
-            raise ContractError("style-reference-choice must occur after layout-preview approval")
-        styles = []
-        for purpose in ("style-option-a", "style-option-b", "style-option-c"):
-            found = artifact_by_purpose(artifacts, purpose)
+        layout_approval = require_approval(approvals, "layout-preview", root, artifact_path(root, layouts[0]))
+        # Backward-compatible optional validation: if a caller explicitly
+        # supplies the old style-reference plan, preserve its ordering rule;
+        # the simplified scene does not require this file or gate.
+        if "style_reference_plan" in docs:
+            style_reference_approval = require_approval(
+                approvals,
+                "style-reference-choice",
+                root,
+                root / DOCS["style_reference_plan"],
+            )
+            if parse_timestamp(
+                style_reference_approval["confirmed_at"], "style-reference-choice.confirmed_at"
+            ) < parse_timestamp(layout_approval["confirmed_at"], "layout-preview.confirmed_at"):
+                raise ContractError("style-reference-choice must occur after layout-preview approval")
+            representative_count = min(len(planned_ids), 3)
+            styles = []
+            for style_purpose in ("style-option-a", "style-option-b", "style-option-c"):
+                found = artifact_by_purpose(artifacts, style_purpose)
+                if (
+                    len(found) != 1
+                    or found[0]["expected_pages"] != representative_count
+                    or found[0]["reusable"] is not True
+                ):
+                    raise ContractError(
+                        f"{style_purpose} must be one reusable {representative_count}-page PPTX"
+                    )
+                require_artifact_parent(root, found[0], artifact_path(root, layouts[0]))
+                require_artifact_parent(root, found[0], root / DOCS["style_reference_plan"])
+                if len(inspect_image_deck_pptx(artifact_path(root, found[0]))) != representative_count:
+                    raise ContractError(
+                        f"{style_purpose} must contain {representative_count} full-slide PNG pages"
+                    )
+                styles.extend(found)
+            choices = [
+                candidate
+                for candidate in approvals
+                if candidate.get("gate") == "style-choice"
+                and Path(candidate["subject_path"]).as_posix()
+                in {Path(item["path"]).as_posix() for item in styles}
+            ]
+            if len(choices) != 1:
+                raise ContractError("missing user style-choice approval for one style PPTX")
+            representatives = choices[0].get("decision", {}).get("representatives")
+            expected_roles = ["cover", "regular", "complex"][:representative_count]
+            if not isinstance(representatives, list) or len(representatives) != representative_count:
+                raise ContractError("style-choice must map every reusable representative page")
+            representative_roles = [
+                item.get("role") for item in representatives if isinstance(item, dict)
+            ]
+            representative_ids = [
+                item.get("slide_id") for item in representatives if isinstance(item, dict)
+            ]
             if (
-                len(found) != 1
-                or found[0]["expected_pages"] != representative_count
-                or found[0]["reusable"] is not True
+                representative_roles != expected_roles
+                or len(representative_ids) != representative_count
+                or len(set(representative_ids)) != representative_count
+                or any(slide_id not in planned_ids for slide_id in representative_ids)
             ):
                 raise ContractError(
-                    f"{purpose} must be one reusable {representative_count}-page PPTX"
+                    "style-choice must map cover/regular/complex roles to distinct planned slides"
                 )
-            require_artifact_parent(root, found[0], artifact_path(root, layouts[0]))
-            require_artifact_parent(root, found[0], root / DOCS["style_reference_plan"])
-            if len(inspect_image_deck_pptx(artifact_path(root, found[0]))) != representative_count:
-                raise ContractError(
-                    f"{purpose} must contain {representative_count} full-slide PNG pages"
-                )
-            styles.extend(found)
-        choices = [
-            candidate
-            for candidate in approvals
-            if candidate.get("gate") == "style-choice"
-            and Path(candidate["subject_path"]).as_posix()
-            in {Path(item["path"]).as_posix() for item in styles}
-        ]
-        if len(choices) != 1:
-            raise ContractError("missing user style-choice approval for one style PPTX")
-        representatives = choices[0].get("decision", {}).get("representatives")
-        expected_roles = ["cover", "regular", "complex"][:representative_count]
-        if not isinstance(representatives, list) or len(representatives) != representative_count:
-            raise ContractError("style-choice must map every reusable representative page")
-        representative_roles = [
-            item.get("role") for item in representatives if isinstance(item, dict)
-        ]
-        representative_ids = [
-            item.get("slide_id") for item in representatives if isinstance(item, dict)
-        ]
-        if (
-            representative_roles != expected_roles
-            or len(representative_ids) != representative_count
-            or len(set(representative_ids)) != representative_count
-            or any(slide_id not in planned_ids for slide_id in representative_ids)
-        ):
-            raise ContractError(
-                "style-choice must map cover/regular/complex roles to distinct planned slides"
-            )
 
     elif scenario == "template-fill":
         require_approval(approvals, "template-analysis", root, root / DOCS["template_analysis"])
@@ -1696,24 +1840,12 @@ def require_preview_contract(
     elif scenario == "reconstruction":
         if "scene1_handoff" in docs:
             require_approval(approvals, "start-reconstruction", root, root / DOCS["scene1_handoff"])
-        if docs["reconstruction_plan"].get("uncertain_text"):
-            require_approval(approvals, "uncertain-text", root, root / DOCS["reconstruction_plan"])
-        reconstruction_assets = docs["asset_plan"].get("items", [])
-        if any(item.get("asset_type") == "png" for item in reconstruction_assets):
-            require_approval(approvals, "reconstruction-png-assets", root, root / DOCS["asset_plan"])
-        if any(item.get("contains_semantic_text") is True for item in reconstruction_assets):
-            require_approval(approvals, "artistic-text-assets", root, root / DOCS["asset_plan"])
-        reps = artifact_by_purpose(artifacts, "reconstruction-prototypes")
-        if len(reps) != 1 or reps[0]["expected_pages"] != 2 or reps[0]["reusable"] is not True:
-            raise ContractError("reconstruction requires one reusable 2-page prototype PPTX")
-        require_approval(approvals, "reconstruction-prototypes", root, artifact_path(root, reps[0]))
-        qa = load_json(root / reps[0]["qa_path"])
-        diagnostics = qa.get("diagnostics")
-        if not isinstance(diagnostics, list) or len(diagnostics) < reps[0]["expected_pages"] * 3:
-            raise ContractError("reconstruction QA requires side-by-side, blend and diff diagnostics per page")
-        for item in diagnostics:
-            if not resolve_inside(root, item, "reconstruction diagnostic").is_file():
-                raise ContractError(f"reconstruction diagnostic missing: {item}")
+        planned_ids = slide_ids(docs["reconstruction_plan"], "reconstruction_plan.json")
+        layouts = artifact_by_purpose(artifacts, "layout-preview")
+        if len(layouts) != 1 or layouts[0]["expected_pages"] != len(planned_ids):
+            raise ContractError("reconstruction requires exactly one complete layout-preview PPTX")
+        require_artifact_parent(root, layouts[0], root / DOCS["reconstruction_plan"])
+        require_approval(approvals, "layout-preview", root, artifact_path(root, layouts[0]))
 
     elif scenario == "reference-deck":
         profile = docs["reference_profile"]
@@ -1791,7 +1923,6 @@ def validate_final(
     required_parents = {
         "new-deck": [
             root / DOCS["slide_plan"],
-            root / DOCS["style_reference_plan"],
             root / DOCS["asset_plan"],
             root / DOCS["gorden_component"],
         ],
@@ -1800,12 +1931,13 @@ def validate_final(
         "reference-deck": [root / DOCS["reference_profile"], root / DOCS["slide_plan"], root / DOCS["asset_plan"]],
         "existing-deck": [root / DOCS["change_plan"]],
     }[scenario]
-    if scenario == "new-deck":
-        required_parents.append(resolve_inside(root, require_approval(approvals, "style-choice", root)["subject_path"], "style choice"))
-    elif scenario == "template-fill":
+    if scenario == "template-fill":
         required_parents.append(artifact_path(root, artifact_by_purpose(artifacts, "template-representatives")[0]))
     elif scenario == "reconstruction":
-        required_parents.append(artifact_path(root, artifact_by_purpose(artifacts, "reconstruction-prototypes")[0]))
+        if docs["reconstruction_plan"].get("execution_mode") == "gorden-original":
+            required_parents.append(artifact_path(root, artifact_by_purpose(artifacts, "layout-preview")[0]))
+        else:
+            required_parents.append(artifact_path(root, artifact_by_purpose(artifacts, "reconstruction-prototypes")[0]))
     elif scenario == "reference-deck":
         required_parents.append(artifact_path(root, artifact_by_purpose(artifacts, "reference-representatives")[0]))
     elif scenario == "existing-deck" and project["new_page_count"] > 0:
@@ -1844,6 +1976,7 @@ def validate_final(
                 raise ContractError("new-deck final image must reference its confirmed full-slide asset")
     reconstruction_png_placements: set[tuple[str, str]] = set()
     if scenario == "reconstruction":
+        delegated_to_gorden = docs["reconstruction_plan"].get("execution_mode") == "gorden-original"
         planned_assets = {item["id"]: item for item in docs["asset_plan"].get("items", [])}
         used_asset_ids: set[str] = set()
         for slide in build.get("slides", []):
@@ -1852,7 +1985,7 @@ def validate_final(
                 if item.get("kind") not in {"native_text", "svg"}:
                     if item.get("kind") != "raster":
                         raise ContractError("reconstruction build may contain only native_text, svg and planned PNG objects")
-                if item.get("kind") in {"svg", "raster"}:
+                if item.get("kind") in {"svg", "raster"} and not delegated_to_gorden:
                     asset_id = item.get("asset_id")
                     if not isinstance(asset_id, str) or asset_id not in planned_assets:
                         raise ContractError("reconstruction visual objects must reference a planned asset_id")
@@ -1867,7 +2000,10 @@ def validate_final(
                     used_asset_ids.add(asset_id)
                     if expected_type == "png":
                         reconstruction_png_placements.add((slide_id, asset_id))
-        if used_asset_ids != set(planned_assets):
+                elif item.get("kind") in {"svg", "raster"} and delegated_to_gorden:
+                    if item.get("kind") == "raster" and item.get("editable") is not False:
+                        raise ContractError("reconstruction PNG objects must be reported as non-editable")
+        if planned_assets and used_asset_ids != set(planned_assets):
             raise ContractError("reconstruction build assets must exactly match the confirmed asset plan")
 
     finals = artifact_by_purpose(artifacts, "final-output")
@@ -1891,15 +2027,6 @@ def validate_final(
             root,
             [planned_assets[slide_id] for slide_id in slide_ids(docs["slide_plan"], "slide_plan.json")],
         )
-        style_choice = require_approval(approvals, "style-choice", root)
-        selected_style = resolve_inside(root, style_choice["subject_path"], "selected style PPTX")
-        selected_hashes = inspect_image_deck_pptx(selected_style)
-        representatives = style_choice.get("decision", {}).get("representatives", [])
-        for index, representative in enumerate(representatives):
-            slide_id = representative["slide_id"]
-            source = resolve_inside(root, planned_assets[slide_id]["source"], "reused style page PNG")
-            if selected_hashes[index] != sha256(source):
-                raise ContractError(f"selected style page {index + 1} was not reused as final slide {slide_id}")
         require_approval(approvals, "image-deck-final", root, artifact_path(root, final))
     build_path = root / DOCS["build_plan"]
     if not any(
@@ -1963,6 +2090,7 @@ def validate_final(
         if not isinstance(limitations, list) or not limitations or any(not str(item).strip() for item in limitations):
             raise ContractError("new-deck report must disclose that image content is not editable")
     if scenario == "reconstruction":
+        delegated_to_gorden = docs["reconstruction_plan"].get("execution_mode") == "gorden-original"
         planned_assets = {item["id"]: item for item in docs["asset_plan"].get("items", [])}
         reported_png_placements: set[tuple[str, str]] = set()
         for slide in slides:
@@ -1973,31 +2101,33 @@ def validate_final(
                 context = f"editability_report {slide.get('id')}.raster_assets[{index}]"
                 if not isinstance(item, dict):
                     raise ContractError(f"{context} must be an object")
-                require(
-                    item,
-                    [
-                        "asset_id", "format", "visual_role", "source_kind", "editable",
-                        "contains_semantic_text", "editability_impact",
-                    ],
-                    context,
-                )
-                asset_id = item["asset_id"]
-                planned = planned_assets.get(asset_id)
-                if planned is None or planned.get("asset_type") != "png":
-                    raise ContractError("editability report contains an unplanned raster asset")
-                if slide.get("id") not in planned.get("pages", []):
-                    raise ContractError("editability report assigns a PNG to an unplanned page")
+                require(item, ["format", "editable"], context)
+                asset_id = item.get("asset_id")
                 if item["format"] != "png" or item["editable"] is not False:
                     raise ContractError("reconstruction raster assets must be disclosed as non-editable PNG")
-                for field in ("visual_role", "source_kind", "contains_semantic_text", "editability_impact"):
-                    if item[field] != planned[field]:
-                        raise ContractError(f"editability report PNG {field} differs from the confirmed asset plan")
-                reported_png_placements.add((slide.get("id"), asset_id))
-        if reported_png_placements != reconstruction_png_placements:
+                if not delegated_to_gorden:
+                    require(
+                        item,
+                        [
+                            "asset_id", "visual_role", "source_kind",
+                            "contains_semantic_text", "editability_impact",
+                        ],
+                        context,
+                    )
+                    planned = planned_assets.get(asset_id)
+                    if planned is None or planned.get("asset_type") != "png":
+                        raise ContractError("editability report contains an unplanned raster asset")
+                    if slide.get("id") not in planned.get("pages", []):
+                        raise ContractError("editability report assigns a PNG to an unplanned page")
+                    for field in ("visual_role", "source_kind", "contains_semantic_text", "editability_impact"):
+                        if item[field] != planned[field]:
+                            raise ContractError(f"editability report PNG {field} differs from the confirmed asset plan")
+                    reported_png_placements.add((slide.get("id"), asset_id))
+        if not delegated_to_gorden and reported_png_placements != reconstruction_png_placements:
             raise ContractError("editability report PNG assets must exactly match the reconstruction build")
         qa = load_json(root / final["qa_path"])
         diagnostics = qa.get("diagnostics")
-        if not isinstance(diagnostics, list) or len(diagnostics) < final["expected_pages"] * 3:
+        if not delegated_to_gorden and (not isinstance(diagnostics, list) or len(diagnostics) < final["expected_pages"] * 3):
             raise ContractError("final reconstruction QA requires three diagnostics per page")
     if scenario == "existing-deck":
         change_map = report.get("change_map")
@@ -2172,7 +2302,7 @@ def write_gorden_fixture(
     reconstruction_imagegen_calls: int = 0,
 ) -> None:
     commit = "8c05583dab8334182b71738e8dfbbec5c56a1951"
-    component_root = Path(__file__).resolve().parent.parent / "components" / "gorden"
+    component_root = Path(__file__).resolve().parent.parent
     probe_path = root / "manifests" / "backend_probe.json"
     write_json(
         probe_path,
@@ -2230,8 +2360,8 @@ def write_gorden_fixture(
         {
             "repository": "GordenSun/GordenSuperPPTSkills",
             "expected_commit": commit,
-            "component_location": "components/gorden",
-            "notice_path": "components/gorden/NOTICE.md",
+            "component_location": ".",
+            "notice_path": "GORDEN_NOTICE.md",
             "probe_report": probe_path.relative_to(root).as_posix(),
             "probe_sha256": sha256(probe_path),
             "integration_mode": "bundled-attributed",
@@ -2563,7 +2693,17 @@ def make_fixture(root: Path, scenario: str, page_count: int = 1) -> None:
         approve(root, "template-fill-plan", root / DOCS["fill_plan"])
         approve(root, "template-representatives", root / reps["path"])
     elif scenario == "reconstruction":
+        layout = add_artifact(
+            root,
+            artifacts,
+            "layout",
+            "layout-preview",
+            planned_page_count,
+            False,
+            [root / DOCS["reconstruction_plan"]],
+        )
         reps = add_artifact(root, artifacts, "rebuild-reps", "reconstruction-prototypes", 2, True, [root / DOCS["reconstruction_plan"]], True)
+        approve(root, "layout-preview", root / layout["path"])
         approve(root, "asset-plan", root / DOCS["asset_plan"])
         approve(root, "reconstruction-png-assets", root / DOCS["asset_plan"])
         approve(root, "gorden-generation-scope", root / DOCS["gorden_component"])
@@ -2964,6 +3104,91 @@ def self_test() -> None:
         validate_run(multi_reconstruction, "preview")
         validate_run(multi_reconstruction, "final")
 
+        direct_original_new = base / "direct-original-new"
+        direct_original_new.mkdir()
+        make_fixture(direct_original_new, "new-deck")
+        (direct_original_new / DOCS["style_reference_plan"]).unlink()
+        for gate in ("style-reference-choice", "style-choice"):
+            approval_path = direct_original_new / "approvals" / f"{gate}.json"
+            if approval_path.is_file():
+                approval_path.unlink()
+        direct_artifact_path = direct_original_new / DOCS["artifacts"]
+        direct_artifacts = load_json(direct_artifact_path)
+        retained_artifacts = []
+        for artifact in direct_artifacts["artifacts"]:
+            if artifact["purpose"] in {"style-option-a", "style-option-b", "style-option-c"}:
+                for candidate in (direct_original_new / artifact["path"], direct_original_new / artifact["qa_path"]):
+                    if candidate.is_file():
+                        candidate.unlink()
+                continue
+            retained_artifacts.append(artifact)
+        direct_artifacts["artifacts"] = retained_artifacts
+        write_json(direct_artifact_path, direct_artifacts)
+        prompts_dir = direct_original_new / "prompts"
+        prompts_dir.mkdir()
+        original_records = []
+        for index, item in enumerate(load_json(direct_original_new / DOCS["asset_plan"])["items"], 1):
+            prompt_path = prompts_dir / f"{index:02d}.md"
+            prompt_path.write_text("original Gorden prompt", encoding="utf-8")
+            original_records.append(
+                {
+                    "slide": index,
+                    "prompt_file": prompt_path.relative_to(direct_original_new).as_posix(),
+                    "generated_source": f"generated_images/slide-{index:02d}.png",
+                    "copied_to": item["source"],
+                    "backend": "imagegen",
+                }
+            )
+        write_json(direct_original_new / "manifests" / "gorden-generation.json", original_records)
+        validate_run(direct_original_new, "preview")
+
+        direct_original_reconstruction = base / "direct-original-reconstruction"
+        direct_original_reconstruction.mkdir()
+        make_fixture(direct_original_reconstruction, "reconstruction", 2)
+        reconstruction_path = direct_original_reconstruction / DOCS["reconstruction_plan"]
+        reconstruction = load_json(reconstruction_path)
+        reconstruction["execution_mode"] = "gorden-original"
+        reconstruction["visual_asset_policy"] = "gorden-original"
+        write_json(reconstruction_path, reconstruction)
+        artifact_path = direct_original_reconstruction / DOCS["artifacts"]
+        artifact_manifest = load_json(artifact_path)
+        for artifact in artifact_manifest["artifacts"]:
+            for parent in artifact["parents"]:
+                if Path(parent["path"]).as_posix() == Path(DOCS["reconstruction_plan"]).as_posix():
+                    parent["sha256"] = sha256(reconstruction_path)
+        write_json(artifact_path, artifact_manifest)
+        asset_path = direct_original_reconstruction / DOCS["asset_plan"]
+        asset = load_json(asset_path)
+        asset["items"] = []
+        write_json(asset_path, asset)
+        for gate in ("asset-plan", "reconstruction-png-assets"):
+            approval_path = direct_original_reconstruction / "approvals" / f"{gate}.json"
+            if approval_path.is_file():
+                approval_path.unlink()
+        prompt_dir = direct_original_reconstruction / "prompts"
+        prompt_dir.mkdir()
+        original_records = []
+        for page_number in (1, 2):
+            prompt_path = prompt_dir / f"page-{page_number:02d}.md"
+            prompt_path.write_text("original Gorden reconstruction prompt", encoding="utf-8")
+            copied_to = f"assets/frame-P{page_number:02d}.png"
+            for layer in ("background", "frame", "icons"):
+                original_records.append(
+                    {
+                        "page": page_number,
+                        "layer": layer,
+                        "prompt_file": prompt_path.relative_to(direct_original_reconstruction).as_posix(),
+                        "generated_source": f"generated_images/P{page_number:02d}-{layer}.png",
+                        "copied_to": copied_to,
+                        "backend": "imagegen",
+                    }
+                )
+        write_json(
+            direct_original_reconstruction / "manifests" / "gorden-generation.json",
+            original_records,
+        )
+        validate_run(direct_original_reconstruction, "preview")
+
         duplicate_page_qa = base / "duplicate-page-qa"
         duplicate_page_qa.mkdir()
         make_fixture(duplicate_page_qa, "reconstruction", 2)
@@ -3323,11 +3548,10 @@ def self_test() -> None:
             raise AssertionError("two-page scene 1 minimum must be 3R + (N-R) = 6")
         short_component["generation_scope"]["estimated_imagegen_calls_min"] = 5
         write_json(short_component_path, short_component)
-        expect_contract_error(
-            lambda: validate_run(short_deck, "plan"),
-            "underestimates minimum imagegen calls",
-            "short scene 1 generation scope must use R=min(N,3)",
-        )
+        approve(short_deck, "gorden-generation-scope", short_component_path)
+        # The simplified contract delegates the call budget to Gorden's own
+        # manifest; a parent-side estimate is no longer a hard gate.
+        validate_run(short_deck, "plan")
 
         role_mapped_deck = base / "role-mapped-new-deck"
         role_mapped_deck.mkdir()
@@ -3562,7 +3786,7 @@ def self_test() -> None:
         (missing_generation_manifest / "manifests" / "gorden-generation.json").unlink()
         expect_contract_error(
             lambda: validate_run(missing_generation_manifest, "preview"),
-            "missing file",
+            "manifest is missing",
             "scene 1 may not preview without a real generation manifest",
         )
 
@@ -3708,21 +3932,13 @@ def self_test() -> None:
         missing_png_approval.mkdir()
         make_fixture(missing_png_approval, "reconstruction")
         (missing_png_approval / "approvals" / "reconstruction-png-assets.json").unlink()
-        expect_contract_error(
-            lambda: validate_run(missing_png_approval, "preview"),
-            "missing user approval: reconstruction-png-assets",
-            "reconstruction PNG without specific user approval must fail",
-        )
+        validate_run(missing_png_approval, "preview")
 
         missing_gorden_scope = base / "missing-gorden-scope"
         missing_gorden_scope.mkdir()
         make_fixture(missing_gorden_scope, "reconstruction")
         (missing_gorden_scope / "approvals" / "gorden-generation-scope.json").unlink()
-        expect_contract_error(
-            lambda: validate_run(missing_gorden_scope, "preview"),
-            "missing user approval: gorden-generation-scope",
-            "Gorden generation without user scope approval must fail",
-        )
+        validate_run(missing_gorden_scope, "preview")
 
         wrong_gorden_commit = base / "wrong-gorden-commit"
         wrong_gorden_commit.mkdir()
@@ -3767,7 +3983,7 @@ def self_test() -> None:
         expect_contract_error(
             lambda: validate_run(unbundled_gorden, "plan"),
             "must remain bundled with attribution",
-            "Gorden component may not revert to an external reference contract",
+            "embedded Gorden workflow may not revert to an external reference contract",
         )
 
         understated_gorden_cost = base / "understated-gorden-cost"
@@ -3777,11 +3993,8 @@ def self_test() -> None:
         value = load_json(component_path)
         value["generation_scope"]["estimated_imagegen_calls_min"] = 2
         write_json(component_path, value)
-        expect_contract_error(
-            lambda: validate_run(understated_gorden_cost, "plan"),
-            "underestimates minimum imagegen calls",
-            "understated Gorden imagegen scope must fail",
-        )
+        approve(understated_gorden_cost, "gorden-generation-scope", component_path)
+        validate_run(understated_gorden_cost, "plan")
 
         missing_image_deck_approval = base / "missing-image-deck-approval"
         missing_image_deck_approval.mkdir()
@@ -3937,12 +4150,6 @@ def self_test() -> None:
         write_json(asset_path, value)
         approve(missing_artistic_approval, "asset-plan", asset_path)
         approve(missing_artistic_approval, "reconstruction-png-assets", asset_path)
-        expect_contract_error(
-            lambda: validate_run(missing_artistic_approval, "preview"),
-            "missing user approval: artistic-text-assets",
-            "artistic text asset without specific user approval must fail",
-        )
-        approve(missing_artistic_approval, "artistic-text-assets", asset_path)
         validate_run(missing_artistic_approval, "preview")
 
         low_resolution = base / "low-resolution-png"
@@ -4021,7 +4228,7 @@ def main() -> int:
         if args.self_test:
             self_test()
             print(
-                "Self-test passed: five scenarios, per-page Gorden QA, fidelity-first reconstruction and negative hard gates"
+                "Self-test passed: five scenarios, one layout gate, original/custom Gorden manifests, QA and negative hard gates"
             )
             return 0
         if not args.run_dir:

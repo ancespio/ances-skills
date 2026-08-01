@@ -8,9 +8,9 @@
 
 每个资产记录 ID、页面、用途、类型、来源/生成方式、裁切、可编辑性和审批状态。批量生成前确认完整计划；新增计划外资产时重新确认。
 
-场景 1 的最终页图必须以 `asset_type: png` 登记为覆盖全画布、包含语义文字且不可编辑的资产，并逐页绑定 `slide_plan.json`。A/B/C 中未入选的风格候选只保留在生成 manifest 与风格证据中，不进入最终资产计划。场景 3 的 `asset_type` 只能为 `svg` 或 `png`；PNG 必须逐项记录 bbox、视觉角色、来源类型、选择原因、编辑损失、像素尺寸、文字清理状态、`reconstruction_method` 和锁定的 `source_region`，并额外通过 `reconstruction-png-assets` 确认门。PNG 的目标 bbox 必须与源区位置和尺寸一致，只允许最多 1 个源像素的换算误差；`source-preserved-png` 必须与源区 RGBA 逐像素一致；`imagegen-detexted-png` 只用于无法原生复现且与普通文字纠缠的复杂视觉区。其他场景允许经确认的 `svg`、`raster` 或原生 PowerPoint 对象。
+场景 1 的最终页图必须以 `asset_type: png` 登记为覆盖全画布、包含语义文字且不可编辑的资产，并逐页绑定最终 PPTX。场景 3 的图片层由 Gorden 原版决定，父运行登记最终使用的 PNG/SVG、来源、页面和编辑性影响即可；不要求 `reconstruction_method` 或 `source_region`。其他场景允许经确认的 `svg`、`raster` 或原生 PowerPoint 对象。
 
-内置风格库的预览、参考图和 reference deck 是选择证据，不是默认最终资产。它们先进入 `style_reference_plan.json`；只有用户确认后实际复制、改编或生成进正式页面的图片、SVG、艺术字才进入 `asset_plan.json`。不得把参考稿中的照片、品牌、数据或正文因“已经打包在 Skill 中”而视为可直接使用。
+内置风格库完整保留在 `assets/style-library/`，是可选参考资料，不是默认最终资产。只有用户在 Gorden A1 或其他场景中明确选择后，实际使用的图片、SVG、艺术字才进入运行资产登记。不得把参考稿中的照片、品牌、数据或正文因“已经打包在 Skill 中”而视为默认可用。
 
 ## 字体
 

@@ -109,7 +109,7 @@ def source_reviews() -> list[dict[str, Any]]:
             "license": "custom README permission; attribution required",
             "status": "bundled-attributed",
             "notice_file": file_record(
-                SKILL_ROOT / "components" / "gorden" / "NOTICE.md"
+                SKILL_ROOT / "GORDEN_NOTICE.md"
             ),
         },
         {
@@ -216,7 +216,7 @@ GORDEN_STYLES = {
 
 
 def build_gorden_entries() -> list[dict[str, Any]]:
-    gallery = SKILL_ROOT / "components" / "gorden" / "GordenImagePPTGen" / "参考图"
+    gallery = SKILL_ROOT / "GordenImagePPTGen" / "参考图"
     actual_groups = {path.name for path in gallery.iterdir() if path.is_dir()}
     if actual_groups != set(GORDEN_STYLES):
         raise CatalogError("Gorden gallery groups differ from the approved catalog")
@@ -298,13 +298,7 @@ def build_catalog() -> dict[str, Any]:
         path.stat().st_size
         for path in list(LIBRARY_ROOT.rglob("*"))
         + list(
-            (
-                SKILL_ROOT
-                / "components"
-                / "gorden"
-                / "GordenImagePPTGen"
-                / "参考图"
-            ).rglob("*")
+            (SKILL_ROOT / "GordenImagePPTGen" / "参考图").rglob("*")
         )
         if path.is_file() and path != CATALOG_PATH
     )
@@ -372,9 +366,9 @@ def verify_catalog(catalog: dict[str, Any]) -> None:
         for path in LIBRARY_ROOT.rglob("*")
         if path.is_file() and path != CATALOG_PATH
     }
-    gallery = SKILL_ROOT / "components" / "gorden" / "GordenImagePPTGen" / "参考图"
+    gallery = SKILL_ROOT / "GordenImagePPTGen" / "参考图"
     actual_paths.update(relative(path) for path in gallery.rglob("*") if path.is_file())
-    actual_paths.add(relative(SKILL_ROOT / "components" / "gorden" / "NOTICE.md"))
+    actual_paths.add(relative(SKILL_ROOT / "GORDEN_NOTICE.md"))
     if actual_paths != declared_paths:
         missing = sorted(actual_paths - declared_paths)
         stale = sorted(declared_paths - actual_paths)

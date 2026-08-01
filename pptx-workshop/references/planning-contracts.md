@@ -13,17 +13,17 @@
 
 ## 场景合同
 
-| 场景 | 必需策划文件 |
+| 场景 | 必需机器记录 |
 |---|---|
-| 1 | plan 阶段：`brief.json`、`evidence_plan.json`、`outline.json`、`slide_plan.json`、`asset_plan.json`、`gorden_component.json`；版式确认后的 preview/final 阶段追加 `style_reference_plan.json` |
+| 1 | `brief.json`、`evidence_plan.json`、`outline.json`、`slide_plan.json`、`asset_plan.json`、`gorden_component.json` |
 | 2 | `brief.json`、`template_analysis.json`、`adaptation_report.json`、`fill_plan.json` |
 | 3 | `brief.json`、`reconstruction_plan.json`、`asset_plan.json`、`gorden_component.json`；输入来自场景 1 时追加 `scene1_handoff.json` |
 | 4 | `brief.json`、`reference_profile.json`、`evidence_plan.json`、`outline.json`、`slide_plan.json`、`asset_plan.json` |
 | 5 | `brief.json`、`change_plan.json`；存在新增页时追加 `outline.json`、`slide_plan.json` |
 
-`style_reference_plan.json` 绑定当前内置目录 SHA-256，记录实际展示给用户的 3–6 个候选和用户选中的 1–3 个参考。它只能在全量无风格版式确认后生效，并由 `style-reference-choice` 明确确认；A/B/C 代表稿均以它和版式预览为直接父合同。
+`style_reference_plan.json` 和 `style-reference-choice` 仍可用于需要显式参考选择的其他内部流程，但不再是场景 1 的必需文件。场景 1 的生成证据以 Gorden 原版 `imagegen-manifest.json` 为准；场景 3 以原版 `imagegen-assets-manifest.json` 为准。
 
-场景 1 的 `manifests/gorden-generation.json` 还必须逐次绑定对应 slide contract 的 SHA-256、已确认的 `style_reference_ids`，并区分 `style-selection` 与 `formal-generation`。A/B/C 代表图只能属于前者；选定代表页不得出现成功的 `final-page` 重生成记录。
+场景 1/3 的表内文件只用于追踪输入、版式预览父关系、资产来源和最终 QA；除 `layout-preview`（以及场景 1 图片成稿终验、场景 1→3 独立交接）外，父流程不把这些记录扩展成额外用户确认门。Gorden 原版 A1–A5/B0–B9 的询问、生成和内置 QA 仍按其随附 `SKILL.md` 执行。
 
 ## 父哈希
 

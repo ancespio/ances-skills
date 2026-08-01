@@ -19,17 +19,17 @@
 
 所有中间产物和相对引用必须留在本次运行目录内。场景 5 不复制或备份整本源 PPTX；只在 `project.json` 中记录源路径和 SHA-256，源文件保持只读。
 
-场景 1/3 使用 Skill 内置的 `components/gorden/`，运行目录只保存探针报告、合同、prompt、manifest、生成资产和输出。每个 Gorden 阶段使用本次运行目录下唯一的 output root，不读取其他任务的历史产物，也不修改内置组件文件。
+场景 1/3 使用直接嵌入 Skill 根目录的 `GordenImagePPTGen/` 或 `GordenImage2PPTX/`，运行目录只保存探针报告、合同、prompt、manifest、生成资产和输出。每个 Gorden 阶段使用本次运行目录下唯一的 output root，不读取其他任务的历史产物，也不修改 Skill 内嵌的 Gorden 原版文件。
 
-场景 1 运行只调用 `GordenImagePPTGen`，并在逐页 PNG 与图片型 PPTX 通过 QA、取得 `image-deck-final` 确认后结束。需要可编辑版时，新建场景 3 运行目录，用 `scene1_handoff.json` 和 `start-reconstruction` 绑定上游终验及逐页 PNG 哈希，再将这些 PNG 作为只读源重新走识别、计划、审批、原型和最终 QA；禁止在场景 1 目录内追加 `GordenImage2PPTX` 阶段。
+场景 1 运行只调用 `GordenImagePPTGen`，并在逐页 PNG 与图片型 PPTX 通过 QA、取得 `image-deck-final` 确认后结束。需要可编辑版时，新建场景 3 运行目录，用 `scene1_handoff.json` 和 `start-reconstruction` 绑定上游终验及逐页 PNG 哈希，再将这些 PNG 作为只读源，只增加一次版式预览确认后原样执行 `GordenImage2PPTX`；禁止在场景 1 目录内追加 `GordenImage2PPTX` 阶段。
 
 ## 阶段
 
 1. `intake`：读取源材料，记录事实边界、字体、画布和能力缺口。
-2. `plan`：生成当前场景要求的策划合同。
+2. `plan`：生成当前场景要求的机器可读追踪记录；场景 1/3 不因此增加父流程用户确认门。
 3. `awaiting_user`：输出需要确认的 PPTX/清单；停止批量构建。
-4. `preview`：先确认含完整文字和大致位置的全量无风格版式；场景 1 随后展示内置/用户风格参考，确认 `style_reference_plan.json`，再只为代表页生成 A/B/C 风格图片并完成视觉 QA，风格图属于本阶段。
-5. `build`：只按已确认合同批量构建；场景 1 复用选中代表页并只生成剩余页面，不再选择或探索风格。
+4. `preview`：场景 1/3 只确认一次覆盖全部页面的无风格版式；确认后直接进入对应 Gorden 原版。场景 2/4/5 保留各自的模板、参考稿和新增页确认。
+5. `build`：只按已确认合同批量构建；场景 1/3 的图片生成和重建细节由 Gorden 原版负责。
 6. `final`：渲染全量 PPTX、逐页检查、回读对象和文字，生成最终报告。
 
 ## 失效传播

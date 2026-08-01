@@ -44,8 +44,8 @@ def main() -> int:
         ),
         "svg_to_pptx": bool(scripts and (scripts / "svg_to_pptx.py").is_file()),
     }
-    gorden_root = Path(__file__).resolve().parent.parent / "components" / "gorden"
-    gorden_sha_file = gorden_root / "UPSTREAM_COMMIT"
+    gorden_root = Path(__file__).resolve().parent.parent
+    gorden_sha_file = gorden_root / "GORDEN_UPSTREAM_COMMIT"
     gorden_sha = (
         gorden_sha_file.read_text(encoding="utf-8").strip()
         if gorden_sha_file.is_file()
@@ -65,10 +65,6 @@ def main() -> int:
         "image_to_pptx": {
             "available": bool(image_to_pptx and (image_to_pptx / "SKILL.md").is_file()),
             "compose_pptx": bool(image_to_pptx and (image_to_pptx / "scripts" / "compose_pptx.py").is_file()),
-            "extract_source_region": bool(
-                image_to_pptx
-                and (image_to_pptx / "scripts" / "extract_source_region.py").is_file()
-            ),
             "layout_guard": bool(image_to_pptx and (image_to_pptx / "scripts" / "layout_guard.py").is_file()),
             "placement_qa": bool(image_to_pptx and (image_to_pptx / "scripts" / "placement_qa.py").is_file()),
             "visual_compare_qa": bool(
@@ -78,7 +74,7 @@ def main() -> int:
         "standard_license_file": bool(
             any((gorden_root / name).is_file() for name in ("LICENSE", "LICENSE.txt", "LICENSE.md"))
         ),
-        "attribution_notice": (gorden_root / "NOTICE.md").is_file(),
+        "attribution_notice": (gorden_root / "GORDEN_NOTICE.md").is_file(),
         "imagegen_required": True,
     }
     skill_root = Path(__file__).resolve().parent.parent
@@ -133,7 +129,7 @@ def main() -> int:
         "notes": [
             "Probe is read-only and does not install dependencies.",
             "A missing capability is blocking for routes that require it; do not silently flatten slides.",
-            "Gorden components are bundled with attribution and a pinned upstream commit marker.",
+            "Gorden workflows are embedded with attribution and a pinned upstream commit marker.",
             "Run manage_style_library.py --check before presenting bundled style choices.",
         ],
     }
