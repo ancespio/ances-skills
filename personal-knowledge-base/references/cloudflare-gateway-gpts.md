@@ -89,6 +89,8 @@ Worker 必须在同一个 synced commit 依次验证 source 页 raw SHA、manife
 
 在知识库仓库设置 Push webhook：目标为 `https://<worker-host>/github/webhook`，Content type 为 JSON，secret 与 `GITHUB_WEBHOOK_SECRET` 一致。首次同步传入 `main` 的完整 commit SHA；若任务未完成，只继续同一任务，不重新 start。`/health` 的非空 `syncedCommit` 才是可检索基线。
 
+全量任务 pending 期间，`syncedCommit` 会继续表示上一个完整、一致的索引基线，直到清理旧条目和全部批次完成后才原子切换到目标 commit。确认任务是否前进时查看 `pendingFullSync.commit`、`pendingFullSync.cursor`、`lastAttempt.status` 和 `lastAttempt.updatedAt`；不要仅因 `syncedCommit` 仍旧就重复启动全量同步。粗略剩余时间为 `ceil((可索引文件总数 - cursor) / batchSize) × Cron 间隔`。提高 Cron 频率或批量会缩短等待，但必须先评估 Worker CPU、KV PUT 和 AI Search 操作配额。
+
 ## 6. Workers Builds 与私人 GPTs
 
 连接 **Gateway 仓库**到 Workers Builds，生产分支的部署命令使用 `pnpm deploy` 或等价 `wrangler deploy`。需要不创建 commit 的代码重部署时，对 main 分支 Deploy Hook 发 POST；不得公开 URL。

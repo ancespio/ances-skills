@@ -246,7 +246,9 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 2. 使用 `ADMIN_TOKEN` 调用 `POST /admin/sync` 启动一次。
 3. 若 `complete: false`，只调用 `POST /admin/sync/continue`，直到 `complete: true`；不要重复 start，也不要在尚未完成时并发启动第二个任务。
 4. 每批处理数量以 Gateway 代码为准；当前 starter 默认每批 5 个可索引 Markdown 文件。
-5. 最终检查 `/health` 的 `syncedCommit` 等于目标 commit，且 `issues` 已审查。
+5. 全量任务仍为 pending 时，`/health.syncedCommit` 保留上一个完整基线是正常行为；用 `pendingFullSync.commit`、`pendingFullSync.cursor` 和 `lastAttempt` 判断目标与进度，不要把旧基线误判为 webhook 失效。
+6. 粗略等待时间可按 `ceil((可索引文件总数 - cursor) / batchSize) × Cron 间隔` 估算；为缩短等待而提高频率或批量前先评估 Worker CPU 与 KV/AI Search 配额。
+7. 最终检查 `/health` 的 `pendingFullSync` 已清空、`syncedCommit` 等于目标 commit，且 `issues` 已审查。
 
 #### H. 配置私人 GPT
 
