@@ -131,7 +131,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 5. persona 中的项目文件维护各项目的精简时间线。只有项目阶段、里程碑、关键决策、阻塞或下一步变化时，才追加简短的日期化摘要，并用相对 Markdown 链接指向对应日记；不要复制日记全文。
 6. 写入顺序为“完整事件写当日日记 -> 项目级阶段变化精炼到项目画像 -> 跨项目长期偏好或身份变化更新用户画像”。普通完成事项只写日记。
 7. Persona 和项目文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除旧状态。今日日记存在时追加，不存在时创建；日记与项目画像应双向链接，每次写入署名 `Codex Win端`。
-8. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。推荐远程分层为：`DIARY_GUIDE.md`、用户画像和项目画像使用 `always`，日记使用 `on-demand`；若项目选择支持 `local-only`，该类文件不得进入远程 Gateway 索引。
+8. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。Context 全量进入网页端只读索引：`DIARY_GUIDE.md`、用户画像和项目画像使用 `always`，作为类似 Wiki 的稳定层每次检索；日记使用 `on-demand`，作为类似 Raw 的历史层，仅在需要追溯时追加检索。`on-demand` 表示“已索引但不默认查询”，不得再用 `local-only` 排除 Context。
 9. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
 10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
 
@@ -178,14 +178,14 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 仅当用户明确需要在手机或网页版 ChatGPT 查询私人知识库时，才采用这一可选扩展。它不替代本地 qmd，也不把知识库仓库改造成网页工程。
 
 1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
-2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；推荐每次检索 persona/项目画像稳定层，只在需要追溯历史时追加 diary；不得向 GPT 暴露管理端点、webhook 或任何 secret。
-3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
+2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；`context/` 全量进入 `kb-context`，每次查询检索 persona、项目画像和 Context 指南，只有 `include_context=true` 时才追加 diary；不得向 GPT 暴露管理端点、webhook 或任何 secret。
+3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；force push、截断 payload 或一次变化较多时启动全量对账。Cron 只继续 KV 中已经存在的未完成全量任务，空闲时不主动启动每日全量同步，避免无意义的 KV 写入和 CPU 消耗。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
 4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
 5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
 6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
 7. 如需让云端 GPT 参考日记规则和模板，将脱敏的 `references/diary-template.md` 复制为知识库的 `context/DIARY_GUIDE.md`，保留 `remote_access: always`；Gateway 只索引该已存在的指南，不会自动生成或修改 Context。
 
-部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、三个 Action 的单独调用、derived 分页与篡改拒绝，以及一次知识库 `main` push 的 webhook 增量同步。
+部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、三个 Action 的单独调用、`include_context=false` 默认返回稳定 Context 且不返回 diary、`include_context=true` 可溯源 diary、derived 分页与篡改拒绝，以及一次知识库 `main` push 的 webhook 增量同步。
 
 实施前完整读取 [`references/cloudflare-gateway-gpts.md`](references/cloudflare-gateway-gpts.md)；不要用其中的占位符覆盖用户已有生产配置。
 
@@ -213,14 +213,14 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 1. 从 `assets/cloudflare-gateway-template/` 复制 starter；不要复制 `node_modules/`、`.wrangler/` 或真实配置。
 2. 运行 `pnpm install`、`pnpm exec wrangler types`、`pnpm test`、`pnpm exec wrangler deploy --dry-run`。
 3. 公开 OpenAPI 只允许 `POST /v1/query`、`GET /v1/sources/{slug}` 与 `GET /v1/sources/{slug}/text`；`/github/webhook`、`/admin/sync`、`/admin/sync/continue` 不得进入 GPT schema。
-4. Worker 的读写边界必须固定：`raw/` 不索引；`wiki/sources/` 是 evidence；`wiki/concepts/`、`entities/`、`synthesis/` 是 knowledge；`context/` 只有请求明确启用时检索。
+4. Worker 的读写边界必须固定：`raw/` 不索引；`wiki/sources/` 是 evidence；`wiki/concepts/`、`entities/`、`synthesis/` 是 knowledge；`context/` 全量索引，但查询时把 persona/项目画像/指南作为稳定层默认检索，把 diary 作为历史层按需追加。
 
 #### D. 配置 Cloudflare
 
 1. `wrangler.jsonc` 使用 `vars` 保存 owner/repository 等非敏感值，`secrets.required` 只列 secret 名称。
 2. 创建 `SYNC_STATE` KV，填入现有 namespace ID；不要在生产配置中省略 ID，也不要因部署提示自动创建第二个状态库。
 3. 绑定 `AI_SEARCH` 默认 namespace，并让 Worker 确保 `kb-evidence`、`kb-knowledge`、`kb-context` 实例存在。
-4. 配置 `triggers.crons`：`30 2 * * *` 每日 UTC 启动全量校准，`0 * * * *` 每小时继续未完成批次。Cron 使用 UTC，并由配置文件作为唯一来源。
+4. 配置 `triggers.crons`：使用 `*/5 * * * *` 或经配额评估后的其他间隔，只调用 `continue()` 续跑已有任务。Cron 空闲时只读取同步状态，不启动全量同步；配置文件是远端 Cron 的唯一来源。
 5. 连接 Gateway 仓库到 Workers Builds。生产 Deploy command 使用 `pnpm deploy` 或 `wrangler deploy`；`wrangler versions upload` 只作为非生产 preview 命令。
 
 #### E. 部署和 secrets（或引导用户手动在网页填写secrets）
@@ -252,7 +252,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 1. 创建 Only me 的私人 GPT；初始阶段不要上传与 Gateway 重复的 Knowledge 文件。
 2. Actions 导入 `<WORKER_URL>/openapi.json`，配置 Bearer/API Key，仅填 `GPT_ACTION_TOKEN`。
-3. Instructions 要求区分 evidence、knowledge、context 与综合推断；推荐 `include_context=false` 仍检索 persona/项目画像稳定层，`true` 时再追加 diary 和维护指南。项目状态与偏好通常由稳定层提供，需要历史过程、近期事件或决策演化时才启用 diary。
+3. Instructions 要求区分 evidence、knowledge、context 与综合推断；`include_context=false` 仍检索 persona、项目画像和 Context 指南，`true` 时只额外追加 diary。项目状态与偏好通常由稳定层提供，需要历史过程、近期事件或决策演化时才启用 diary。
 4. 对只读查询 POST 明确设置 `x-openai-isConsequential: false`，并为每个响应定义具体 schema，不使用空 object schema。
 5. 在 Preview 同时测试单独 Action 和自然语言提问；单独成功不代表自然语言路由已成功。
 
@@ -267,7 +267,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 [ ] 非 main Push 被忽略，错误签名返回 401
 [ ] raw 不进入 evidence/knowledge index
 [ ] source 只有 raw_sha256 验证通过才返回 verified
-[ ] 每日 full sync 与每小时 continue 均能工作
+[ ] Cron 只续跑已有 full sync；无 pending task 时不会主动启动全量同步
 [ ] Gateway main Push 触发新的生产 Worker 部署
 [ ] GPT Preview 能自动调用 Action，失败时明确降级
 ```

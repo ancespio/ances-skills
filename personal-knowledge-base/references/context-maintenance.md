@@ -52,14 +52,14 @@ Context 中不记录护照号、注册号、密钥、token、联系方式等真�
 type: context-diary | context-persona | context-project | context-guide
 date: YYYY-MM-DD
 updated: YYYY-MM-DD
-remote_access: always | on-demand | local-only
+remote_access: always | on-demand
 ---
 ```
 
-推荐分层为：`context/DIARY_GUIDE.md`、用户画像和项目画像使用 `remote_access: always`，用于每次查询读取稳定上下文；日记使用 `remote_access: on-demand`，只在需要追溯近期事件、历史过程或决策演化时读取。若项目明确支持 `local-only`，该类文件不得进入远程 Gateway 索引。
+Context 全量进入网页端只读索引，但检索策略分层：`context/DIARY_GUIDE.md`、用户画像和项目画像使用 `remote_access: always`，类比 Wiki 稳定层，每次查询都可检索；日记使用 `remote_access: on-demand`，类比 Raw 历史层，只在需要追溯近期事件、历史过程或决策演化时追加检索。`on-demand` 不代表排除索引，只代表默认查询不返回 diary；不得再用 `local-only` 隐式制造远端缺页。
 
 ## 网页端检索
 
-Gateway 的定时任务只负责已有文件的索引校准和续跑，不生成或修改 Context。推荐每次查询检索 persona/项目画像稳定层；只有涉及近期事件、历史过程、决策演化、日记撰写规则或 Context 维护方式时，才追加 diary 和 `DIARY_GUIDE.md`。Context 只能提供个人化上下文，不能替代外部来源证据。
+Gateway 的定时任务只续跑已经存在的索引任务，不生成或修改 Context，也不在空闲时自动启动每日全量同步。每次查询检索 persona、项目画像和 `DIARY_GUIDE.md`；只有涉及近期事件、历史过程或决策演化时，才通过 `include_context=true` 追加 diary。Context 只能提供个人化上下文，不能替代外部来源证据。
 
 脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。使用时复制到项目的 `context/diary/YYYY-MM-DD_Diary.md`；如需让网页端 GPT 参考规则和模板，可复制为 `context/DIARY_GUIDE.md`，并保留 `remote_access: always`。Gateway 只索引该已存在的指南，不生成或修改 Context。

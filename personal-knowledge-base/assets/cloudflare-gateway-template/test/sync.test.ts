@@ -226,7 +226,7 @@ describe("syncChangedPaths", () => {
     expect(state.sourceToRaw.size).toBe(0);
   });
 
-  it("does not remotely index Context marked local-only", async () => {
+  it("remotely indexes all Context and normalizes legacy local-only to on-demand", async () => {
     const repository = new FakeRepository({
       "context/diary/private.md": "---\ntype: context-diary\nremote_access: local-only\n---\n# private",
     });
@@ -238,8 +238,14 @@ describe("syncChangedPaths", () => {
       { commit: "abc123", upsert: ["context/diary/private.md"], remove: [] },
     );
 
-    expect(index.uploads).toEqual([]);
-    expect(index.removals).toEqual([{ scope: "context", path: "context/diary/private.md" }]);
-    expect(result).toMatchObject({ uploaded: 0, removed: 1, issues: [] });
+    expect(index.uploads).toEqual([
+      expect.objectContaining({
+        scope: "context",
+        path: "context/diary/private.md",
+        metadata: expect.objectContaining({ remote_access: "on-demand" }),
+      }),
+    ]);
+    expect(index.removals).toEqual([]);
+    expect(result).toMatchObject({ uploaded: 1, removed: 0, issues: [] });
   });
 });

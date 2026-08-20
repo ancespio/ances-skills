@@ -81,17 +81,6 @@ function isTreeResponse(value: unknown): value is {
   );
 }
 
-function isRefResponse(value: unknown): value is { object: { sha: string } } {
-  if (!value || typeof value !== "object") return false;
-  const object = (value as Record<string, unknown>).object;
-  return (
-    object !== null &&
-    typeof object === "object" &&
-    typeof (object as Record<string, unknown>).sha === "string" &&
-    /^[a-f0-9]{40,64}$/i.test((object as Record<string, unknown>).sha as string)
-  );
-}
-
 export class GithubRepositoryClient implements RepositoryPort {
   constructor(
     private readonly config: GithubConfig,
@@ -142,18 +131,5 @@ export class GithubRepositoryClient implements RepositoryPort {
     if (!isTreeResponse(parsed)) throw new Error("Git tree response is invalid");
     if (parsed.truncated) throw new Error("Git tree response was truncated");
     return parsed.tree.filter((entry) => entry.type === "blob").map((entry) => entry.path);
-  }
-
-  async getBranchHead(branch: string): Promise<string> {
-    const endpoint = `/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(
-      this.config.repository,
-    )}/git/ref/heads/${encodeURIComponent(branch)}`;
-    const response = await this.request(endpoint);
-    if (response.status === 404) throw new Error("Git branch was not found");
-    const parsed: unknown = JSON.parse(
-      new TextDecoder().decode(await readBounded(response, 64 * 1024)),
-    );
-    if (!isRefResponse(parsed)) throw new Error("Git ref response is invalid");
-    return parsed.object.sha;
   }
 }

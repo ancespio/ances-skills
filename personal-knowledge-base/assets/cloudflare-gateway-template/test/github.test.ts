@@ -92,14 +92,6 @@ describe("GithubRepositoryClient", () => {
     await expect(client.listFiles("abc123")).rejects.toThrow("Git tree response was truncated");
   });
 
-  it("reads the current main branch commit for scheduled reconciliation", async () => {
-    const client = new GithubRepositoryClient(
-      { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },
-      async () => Response.json({ object: { sha: "d".repeat(40) } }),
-    );
-    await expect(client.getBranchHead("main")).resolves.toBe("d".repeat(40));
-  });
-
   it("throws a bounded GitHub error without including response content", async () => {
     const client = new GithubRepositoryClient(
       { owner: "example-owner", repository: "example-knowledgebase", token: "github-token" },

@@ -1,4 +1,4 @@
-import type { SearchClient, SearchChunk } from "./query";
+import type { SearchClient, SearchChunk, SearchFilters } from "./query";
 
 type CloudflareSearchRequest = {
   query: string;
@@ -7,6 +7,7 @@ type CloudflareSearchRequest = {
       retrieval_type: "hybrid";
       max_num_results: number;
       return_on_failure: false;
+      filters?: SearchFilters;
     };
     query_rewrite: { enabled: false };
     reranking: { enabled: false };
@@ -36,7 +37,12 @@ export interface AiSearchNamespacePort {
 
 export function createCloudflareSearchClient(namespace: AiSearchNamespacePort): SearchClient {
   return {
-    async search(instance: string, query: string, maxResults: number): Promise<SearchChunk[]> {
+    async search(
+      instance: string,
+      query: string,
+      maxResults: number,
+      filters?: SearchFilters,
+    ): Promise<SearchChunk[]> {
       const result = await namespace.get(instance).search({
         query,
         ai_search_options: {
@@ -44,6 +50,7 @@ export function createCloudflareSearchClient(namespace: AiSearchNamespacePort): 
             retrieval_type: "hybrid",
             max_num_results: maxResults,
             return_on_failure: false,
+            ...(filters ? { filters } : {}),
           },
           query_rewrite: { enabled: false },
           reranking: { enabled: false },

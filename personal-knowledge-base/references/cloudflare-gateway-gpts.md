@@ -5,8 +5,8 @@
 这是知识库的可选只读入口，不替代本地 qmd。知识库与 Gateway 分两个私有仓库维护：前者只保存知识库，后者保存 Worker 代码、配置与 Action schema。不得把 `raw/`、默认排除的 `wiki/derived/`、管理端点、webhook secret、Deploy Hook URL 或 token 暴露给 GPT。derived 只允许通过校验后的分页接口按需读取。
 
 ```text
-KnowledgeBase main push -> GitHub Push webhook -> Worker incremental sync -> AI Search
-                       -> daily reconciliation + hourly continuation
+KnowledgeBase main push -> GitHub Push webhook -> Worker incremental/full sync -> AI Search
+                       -> scheduled continuation only while a full sync is pending
 
 Gateway main push -> Cloudflare Workers Builds -> Worker code deployment
 ```
@@ -34,12 +34,12 @@ Git Builds/Deploy Hook 只部署 Gateway 代码，绝不替代知识库 webhook�
   "secrets": { "required": ["GITHUB_TOKEN", "GITHUB_WEBHOOK_SECRET", "GPT_ACTION_TOKEN", "ADMIN_TOKEN"] },
   "kv_namespaces": [{ "binding": "SYNC_STATE", "id": "<kv-namespace-id>" }],
   "ai_search_namespaces": [{ "binding": "AI_SEARCH", "namespace": "default" }],
-  "triggers": { "crons": ["0 * * * *", "30 2 * * *"] },
+  "triggers": { "crons": ["*/5 * * * *"] },
   "observability": { "enabled": true, "head_sampling_rate": 0.1 }
 }
 ```
 
-`30 2 * * *` 每日（UTC）启动全量校准；`0 * * * *` 每小时继续未完成任务。由 Wrangler 管理时，Cron 只在配置文件中维护；下一次部署会以它替换远端 Cron。
+`*/5 * * * *` 每 5 分钟检查一次 KV：存在 pending full sync 时调用 `continue()`，不存在时直接结束。它不会在空闲时启动每日全量同步，避免重复扫描导致 KV PUT 和 Worker CPU 用量异常。由 Wrangler 管理时，Cron 只在配置文件中维护；下一次部署会以它替换远端 Cron。
 
 ## 3. 部署与密钥
 
@@ -62,11 +62,10 @@ GPT 只能使用 `GPT_ACTION_TOKEN`；`ADMIN_TOKEN` 和 GitHub token 仅限管�
 ```ts
 const fullSync = new FullSyncCoordinator({ repository, index, state }, 5);
 
-async scheduled(controller, env, ctx) {
+async scheduled(_controller, env, ctx) {
   ctx.waitUntil((async () => {
-    if (controller.cron === "30 2 * * *") {
-      await fullSync.start(await repository.getBranchHead("main"));
-    } else {
+    const pending = await state.getPendingFullSync();
+    if (pending) {
       await fullSync.continue();
     }
   })());
@@ -94,9 +93,11 @@ Worker 必须在同一个 synced commit 依次验证 source 页 raw SHA、manife
 
 连接 **Gateway 仓库**到 Workers Builds，生产分支的部署命令使用 `pnpm deploy` 或等价 `wrangler deploy`。需要不创建 commit 的代码重部署时，对 main 分支 Deploy Hook 发 POST；不得公开 URL。
 
-在仅自己可见的 GPT 中导入 `https://<worker-host>/openapi.json`，认证选择 Bearer/API Key，并仅填 `GPT_ACTION_TOKEN`。Instructions 要求：事实优先用完整性验证过的 evidence；knowledge/context 仅辅助理解；按需启用 context；调用失败明确降级。
+在仅自己可见的 GPT 中导入 `https://<worker-host>/openapi.json`，认证选择 Bearer/API Key，并仅填 `GPT_ACTION_TOKEN`。Instructions 要求：事实优先用完整性验证过的 evidence；knowledge/context 仅辅助理解；调用失败明确降级。`include_context=false` 仍检索 persona、项目画像和 Context 指南；只有需要近期事件、历史过程或决策演化时才设为 `true`，追加 diary。
 
-日记规则与模板的云端参考：将脱敏的 [`diary-template.md`](diary-template.md) 复制到 KnowledgeBase 的 `context/DIARY_GUIDE.md`，保留 `type: context-guide`、`remote_access: always` 等 frontmatter。这样 Gateway 在已有文件同步后，私人 GPT 可在涉及日记撰写或 Context 维护的问题中按需检索该指南。该复制动作由用户或本地 Agent 执行；Cloudflare 定时任务只索引已有文件，不自动创建或修改 Context。
+Context 全量进入 `kb-context`：persona、项目画像和 `DIARY_GUIDE.md` 类比 Wiki 稳定层，使用 metadata `kind` 过滤后每次检索；diary 类比 Raw 历史层，已索引但仅在 `include_context=true` 时追加检索。将脱敏的 [`diary-template.md`](diary-template.md) 复制到 KnowledgeBase 的 `context/DIARY_GUIDE.md`，保留 `type: context-guide`、`remote_access: always` 等 frontmatter。该复制动作由用户或本地 Agent 执行；Cloudflare 定时任务不会创建或修改 Context。
+
+OpenAPI `0.2.1` 的 `include_context` 描述应明确上述语义。AI Search Workers binding 的过滤条件放在 `ai_search_options.retrieval.filters`；稳定层使用 `kind $in [context-persona, context-project, context-guide, persona]`，历史层使用 `kind $in [context-diary, diary]`。每个 `$in` 值数量保持在平台限制内。
 
 ## 7. 验收与排查
 
@@ -106,7 +107,9 @@ Worker 必须在同一个 synced commit 依次验证 source 页 raw SHA、manife
 | Action | OpenAPI 只暴露三个只读 operation，三者单独调用成功 |
 | Derived | 原文与摘要译文可分页读取；缺失全文译文、篡改 raw、manifest 或 derived 文件时拒绝返回 |
 | 增量 | 一次知识库 `main` Push 触发 webhook 后索引 commit 更新 |
-| 补偿 | 每日任务启动全量校准；每小时任务继续未完成批次 |
+| Context 默认层 | `include_context=false` 能返回 persona/项目画像/指南，且不返回 diary |
+| Context 历史层 | `include_context=true` 能在稳定层之外返回相关 diary |
+| 补偿 | Cron 只继续 pending full sync；空闲时不启动新任务 |
 | 代码部署 | Gateway 推送或 Deploy Hook 后出现新的生产部署 |
 
 Worker 已部署但无内容时先查 `/health`、首次同步与 webhook；Build 成功但索引未更新时查 webhook/定时同步，而不是 Build 配置。
@@ -114,6 +117,7 @@ Worker 已部署但无内容时先查 `/health`、首次同步与 webhook；Buil
 ## 官方参考
 
 - [Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/)
+- [AI Search metadata filtering](https://developers.cloudflare.com/ai-search/configuration/retrieval/filtering/)
 - [Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/)
 - [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)
 - [Deploy Hooks](https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/)

@@ -195,11 +195,6 @@ export async function syncChangedPaths(
       continue;
     }
     const metadata = ordinaryMetadata(path, content, scope);
-    if (scope === "context" && metadata.remote_access === "local-only") {
-      await dependencies.index.remove("context", path);
-      removed += 1;
-      continue;
-    }
     await dependencies.index.upload(scope, path, content, metadata);
     uploaded += 1;
   }

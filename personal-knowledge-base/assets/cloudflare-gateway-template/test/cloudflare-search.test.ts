@@ -36,7 +36,8 @@ describe("createCloudflareSearchClient", () => {
     };
 
     const client = createCloudflareSearchClient(namespace);
-    await expect(client.search("kb-evidence", "LLM Wiki", 5)).resolves.toEqual([
+    const filters = { kind: { $in: ["context-persona", "context-project"] } };
+    await expect(client.search("kb-evidence", "LLM Wiki", 5, filters)).resolves.toEqual([
       {
         path: "wiki/sources/llm-wiki.md",
         text: "Raw 不可变。",
@@ -56,6 +57,7 @@ describe("createCloudflareSearchClient", () => {
             retrieval_type: "hybrid",
             max_num_results: 5,
             return_on_failure: false,
+            filters,
           },
           query_rewrite: { enabled: false },
           reranking: { enabled: false },

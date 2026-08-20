@@ -11,7 +11,7 @@ export function openApiDocument(origin: string): Record<string, unknown> {
     openapi: "3.1.0",
     info: {
       title: "KnowledgeBase Gateway",
-      version: "0.2.0",
+      version: "0.2.1",
       description: "Read-only access to the owner's private, source-traceable knowledge base.",
     },
     servers: [{ url: origin }],
@@ -37,7 +37,8 @@ export function openApiDocument(origin: string): Record<string, unknown> {
                     include_context: {
                       type: "boolean",
                       default: false,
-                      description: "Include private persona and project context when relevant.",
+                      description:
+                        "Persona, project context, and the Context guide are always searched. Set true to additionally trace diary history.",
                     },
                   },
                 },

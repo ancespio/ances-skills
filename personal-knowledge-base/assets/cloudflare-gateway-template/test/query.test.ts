@@ -1,15 +1,33 @@
 import { describe, expect, it } from "vitest";
 
-import { queryKnowledgeBase, type SearchClient, type SearchChunk } from "../src/query";
+import {
+  queryKnowledgeBase,
+  type SearchClient,
+  type SearchChunk,
+  type SearchFilters,
+} from "../src/query";
 
 class FakeSearchClient implements SearchClient {
-  readonly calls: Array<{ instance: string; query: string; maxResults: number }> = [];
+  readonly calls: Array<{
+    instance: string;
+    query: string;
+    maxResults: number;
+    filters?: SearchFilters;
+  }> = [];
 
   constructor(private readonly results: Record<string, SearchChunk[]>) {}
 
-  async search(instance: string, query: string, maxResults: number): Promise<SearchChunk[]> {
-    this.calls.push({ instance, query, maxResults });
-    return this.results[instance] ?? [];
+  async search(
+    instance: string,
+    query: string,
+    maxResults: number,
+    filters?: SearchFilters,
+  ): Promise<SearchChunk[]> {
+    this.calls.push({ instance, query, maxResults, ...(filters ? { filters } : {}) });
+    const chunks = this.results[instance] ?? [];
+    const kinds = filters?.kind;
+    if (!kinds || typeof kinds === "string") return chunks;
+    return chunks.filter((chunk) => kinds.$in.includes(String(chunk.metadata.kind ?? "")));
   }
 }
 
@@ -40,15 +58,22 @@ const contextChunk: SearchChunk = {
   path: "context/persona/User_Persona.md",
   text: "用户偏好 execution-first。",
   score: 0.8,
-  metadata: { title: "用户画像", kind: "persona", commit: "abc123" },
+  metadata: { title: "用户画像", kind: "context-persona", commit: "abc123" },
+};
+
+const diaryChunk: SearchChunk = {
+  path: "context/diary/2026-08-20_Diary.md",
+  text: "用户确认了 Context 网页端读取分层。",
+  score: 0.79,
+  metadata: { title: "2026-08-20 日记", kind: "context-diary", commit: "abc123" },
 };
 
 describe("queryKnowledgeBase", () => {
-  it("searches knowledge and verified evidence without context by default", async () => {
+  it("always searches persona but not diary by default", async () => {
     const client = new FakeSearchClient({
       "kb-knowledge": [knowledgeChunk],
       "kb-evidence": [evidenceChunk],
-      "kb-context": [contextChunk],
+      "kb-context": [contextChunk, diaryChunk],
     });
 
     const result = await queryKnowledgeBase(client, {
@@ -60,6 +85,16 @@ describe("queryKnowledgeBase", () => {
     expect(client.calls).toEqual([
       { instance: "kb-knowledge", query: "什么是 LLM Wiki？", maxResults: 5 },
       { instance: "kb-evidence", query: "什么是 LLM Wiki？", maxResults: 5 },
+      {
+        instance: "kb-context",
+        query: "什么是 LLM Wiki？",
+        maxResults: 5,
+        filters: {
+          kind: {
+            $in: ["context-persona", "context-project", "context-guide", "persona"],
+          },
+        },
+      },
     ]);
     expect(result.knowledge).toHaveLength(1);
     expect(result.evidence).toEqual([
@@ -70,16 +105,18 @@ describe("queryKnowledgeBase", () => {
         rawFile: "raw/articles/LLM Wiki 搭建教程.md",
       }),
     ]);
-    expect(result.context).toEqual([]);
+    expect(result.context).toEqual([
+      expect.objectContaining({ path: "context/persona/User_Persona.md" }),
+    ]);
     expect(result.warnings).toEqual([]);
     expect(result.syncedCommit).toBe("abc123");
   });
 
-  it("searches context only when requested", async () => {
+  it("adds diary context only when requested", async () => {
     const client = new FakeSearchClient({
       "kb-knowledge": [knowledgeChunk],
       "kb-evidence": [evidenceChunk],
-      "kb-context": [contextChunk],
+      "kb-context": [contextChunk, diaryChunk],
     });
 
     const result = await queryKnowledgeBase(client, {
@@ -92,9 +129,11 @@ describe("queryKnowledgeBase", () => {
       "kb-knowledge",
       "kb-evidence",
       "kb-context",
+      "kb-context",
     ]);
     expect(result.context).toEqual([
       expect.objectContaining({ path: "context/persona/User_Persona.md" }),
+      expect.objectContaining({ path: "context/diary/2026-08-20_Diary.md" }),
     ]);
   });
 

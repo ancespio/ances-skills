@@ -2,7 +2,7 @@
 
 本文件是可复制的脱敏日记模板，不包含任何用户真实信息、私人路径、凭据或具体项目内容。日记是用户个人跨项目的全局时间线，应忠实记录当天实际完成的工作，而不是只记录“重大事件”。
 
-使用时，将模板复制到知识库的 `context/diary/YYYY-MM-DD_Diary.md`；若作为网页端规则与模板入口，可复制为 `context/DIARY_GUIDE.md`，并设置 `remote_access: always`。
+使用时，将模板复制到知识库的 `context/diary/YYYY-MM-DD_Diary.md`；若作为网页端规则与模板入口，可复制为 `context/DIARY_GUIDE.md`，并设置 `remote_access: always`。日记本身的 `remote_access: on-demand` 表示文件仍会进入远程只读索引，但只有需要历史溯源时才查询。
 
 ## 模板
 

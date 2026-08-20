@@ -1,5 +1,5 @@
 export type ContentScope = "evidence" | "knowledge" | "context";
-export type RemoteAccess = "always" | "on-demand" | "local-only";
+export type RemoteAccess = "always" | "on-demand";
 
 export type SourceFrontmatter = {
   title: string;
@@ -67,7 +67,7 @@ function parseFlatFrontmatter(markdown: string): Map<string, string> {
 export function parseRemoteAccess(markdown: string): RemoteAccess {
   try {
     const value = parseFlatFrontmatter(markdown).get("remote_access");
-    return value === "always" || value === "local-only" ? value : "on-demand";
+    return value === "always" ? value : "on-demand";
   } catch {
     return "on-demand";
   }

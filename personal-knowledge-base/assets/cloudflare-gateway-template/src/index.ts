@@ -46,7 +46,7 @@ function buildRuntime(env: Env) {
     getSourceText: (slug, commit, request) =>
       getVerifiedSourceText(repository, slug, commit, request),
   });
-  return { app, fullSync, repository, state, ensureInstances };
+  return { app, fullSync, state, ensureInstances };
 }
 
 export default {
@@ -55,18 +55,11 @@ export default {
     return app.fetch(request, ctx);
   },
 
-  async scheduled(controller, env, ctx): Promise<void> {
+  async scheduled(_controller, env, ctx): Promise<void> {
     const runtime = buildRuntime(env);
     ctx.waitUntil(
       (async () => {
         await runtime.ensureInstances();
-        if (controller.cron === "30 2 * * *") {
-          const commit = await runtime.repository.getBranchHead("main");
-          await runTrackedSync(runtime.state, "full-sync", commit, () =>
-            runtime.fullSync.start(commit),
-          );
-          return;
-        }
         const pending = await runtime.state.getPendingFullSync();
         if (pending) {
           await runTrackedSync(runtime.state, "full-sync", pending.commit, () =>

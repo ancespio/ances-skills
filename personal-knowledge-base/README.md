@@ -398,7 +398,7 @@ Context 记录的是“关于你和当前工作的长期上下文”，不是外
 
 你通常不需要手动说“更新日记”：只要本次对话实际完成了可确认的工作，Codex 应在收尾时追加当日日记。例行摄入、检查和维护可以合并成简短记录；普通闲聊、未执行设想、无结果的重复操作和逐句对话不写。项目文件只在项目阶段发生变化时更新，避免变成日记副本。
 
-Codex 会先读取现有 Context，只追加或谨慎修订，并在日记与项目画像之间建立相对链接。推荐远程检索时始终读取 persona/项目画像稳定层，只在需要追溯近期事件、历史过程或决策演化时读取 diary。Context 不参与外部来源计数；只有你明确要求“把这段上下文沉淀为知识页”时，才会转入 Wiki。
+Codex 会先读取现有 Context，只追加或谨慎修订，并在日记与项目画像之间建立相对链接。Context 会全量进入网页端只读索引，但查询时分层：persona/项目画像和 Context 指南类比 Wiki 稳定层，每次检索；diary 类比 Raw 历史层，只有需要追溯近期事件、历史过程或决策演化时才追加。`remote_access: on-demand` 表示已索引但不默认查询，不等于远程排除。Context 不参与外部来源计数；只有你明确要求“把这段上下文沉淀为知识页”时，才会转入 Wiki。
 
 ### 8. 健康检查
 
@@ -426,12 +426,12 @@ Codex 必须先展示主 slug、aliases、来源并集和 redirect 方案，得�
 
 ## 可选：在手机或网页版 ChatGPT 查询知识库
 
-如果你明确希望在手机或网页版 ChatGPT 中查询知识库，可在本地知识库之外部署一个独立的 Cloudflare Gateway，并接入仅自己可见的私人 GPTs。它是可选只读入口，不会随着知识库更新，不替代本地 qmd，也不会把知识库仓库改造成网页工程。
+如果你明确希望在手机或网页版 ChatGPT 中查询知识库，可在本地知识库之外部署一个独立的 Cloudflare Gateway，并接入仅自己可见的私人 GPTs。它是可选只读入口，可通过知识库 webhook 跟随 `main` 更新；它不替代本地 qmd，也不会把知识库仓库改造成网页工程。
 
 1. 知识库与 Gateway 分别维护：前者只保存知识库，后者保存 Worker、部署配置和 Action schema。
-2. 由知识库 `main` 的 GitHub Push webhook 触发增量索引；每日全量校准和定时续跑用于补偿漏事件或长任务。
+2. 由知识库 `main` 的 GitHub Push webhook 触发增量索引；force push、截断 payload 或较大变更启动全量对账。Cron 只续跑已有未完成任务，不在空闲时启动每日全量扫描。
 3. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码，不负责索引知识库。
-4. Gateway 只读；默认不索引 `raw/` 或 `wiki/derived/`，只在明确需要时检索 `context/`，并且不把管理端点或密钥暴露给 GPT。
+4. Gateway 只读；默认不索引 `raw/` 或 `wiki/derived/`，但全量索引 `context/`。persona、项目画像和 Context 指南每次检索，diary 只在 `include_context=true` 时追加；管理端点和密钥不暴露给 GPT。
 5. 在 `/health` 返回非空 `syncedCommit` 后，再把 `/openapi.json` 导入私人 GPT 的 Actions，并只配置 Action 专用 Bearer token。
 6. `getVerifiedSource` 会列出可用文本变体；需要全文时，GPT 再调用 `getVerifiedSourceText` 分页读取 `original`、`zh-abstract` 或 `zh-full`。每次返回前都会复核 raw、manifest 和 derived artifact 哈希。
 

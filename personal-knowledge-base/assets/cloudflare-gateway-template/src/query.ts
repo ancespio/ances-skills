@@ -5,8 +5,15 @@ export type SearchChunk = {
   metadata: Record<string, unknown>;
 };
 
+export type SearchFilters = Record<string, string | { $in: string[] }>;
+
 export interface SearchClient {
-  search(instance: string, query: string, maxResults: number): Promise<SearchChunk[]>;
+  search(
+    instance: string,
+    query: string,
+    maxResults: number,
+    filters?: SearchFilters,
+  ): Promise<SearchChunk[]>;
 }
 
 export type QueryInput = {
@@ -46,6 +53,14 @@ const INSTANCES = {
   evidence: "kb-evidence",
   context: "kb-context",
 } as const;
+
+const ALWAYS_CONTEXT_FILTERS: SearchFilters = {
+  kind: { $in: ["context-persona", "context-project", "context-guide", "persona"] },
+};
+
+const DIARY_CONTEXT_FILTERS: SearchFilters = {
+  kind: { $in: ["context-diary", "diary"] },
+};
 
 function textMetadata(metadata: Record<string, unknown>, key: string): string | null {
   const value = metadata[key];
@@ -99,13 +114,20 @@ export async function queryKnowledgeBase(
   const query = validateQuery(input.query);
   const knowledgePromise = client.search(INSTANCES.knowledge, query, 5);
   const evidencePromise = client.search(INSTANCES.evidence, query, 5);
-  const contextPromise = input.includeContext
-    ? client.search(INSTANCES.context, query, 5)
+  const personaPromise = client.search(
+    INSTANCES.context,
+    query,
+    5,
+    ALWAYS_CONTEXT_FILTERS,
+  );
+  const diaryPromise = input.includeContext
+    ? client.search(INSTANCES.context, query, 5, DIARY_CONTEXT_FILTERS)
     : Promise.resolve([]);
-  const [knowledgeChunks, evidenceChunks, contextChunks] = await Promise.all([
+  const [knowledgeChunks, evidenceChunks, personaChunks, diaryChunks] = await Promise.all([
     knowledgePromise,
     evidencePromise,
-    contextPromise,
+    personaPromise,
+    diaryPromise,
   ]);
   const evidence = evidenceChunks
     .map(evidenceResult)
@@ -114,7 +136,7 @@ export async function queryKnowledgeBase(
   return {
     knowledge: knowledgeChunks.map(baseResult),
     evidence,
-    context: contextChunks.map(baseResult),
+    context: [...personaChunks, ...diaryChunks].map(baseResult),
     warnings:
       evidence.length === 0 ? ["当前知识库没有找到经过完整性验证的来源证据。"] : [],
     syncedCommit: input.syncedCommit,

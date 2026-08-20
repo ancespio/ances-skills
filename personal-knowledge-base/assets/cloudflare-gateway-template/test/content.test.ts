@@ -9,9 +9,10 @@ import {
 } from "../src/content";
 
 describe("parseRemoteAccess", () => {
-  it("defaults to on-demand and accepts local-only", () => {
+  it("defaults unsupported values to remotely indexed on-demand access", () => {
     expect(parseRemoteAccess("# no frontmatter")).toBe("on-demand");
-    expect(parseRemoteAccess("---\nremote_access: local-only\n---\n# private")).toBe("local-only");
+    expect(parseRemoteAccess("---\nremote_access: local-only\n---\n# private")).toBe("on-demand");
+    expect(parseRemoteAccess("---\nremote_access: always\n---\n# persona")).toBe("always");
   });
 });
 

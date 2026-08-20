@@ -196,10 +196,10 @@ context/
 5. 写入顺序为“完整事件写当日日记 -> 项目级阶段变化精炼到项目画像 -> 跨项目长期偏好或身份变化更新用户画像”。普通完成事项只写日记。
 6. Persona、preferences 和 project 文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除历史。
 7. 今日日记存在时追加，不存在时创建；日记与项目画像双向链接，每次写入署名 `Codex Win端`。
-8. 新建或触碰的 Context Markdown 应包含 `type`、`date`、`updated`、`remote_access` frontmatter；推荐指南、用户画像和项目画像为 `always`，日记为 `on-demand`。若项目支持 `local-only`，该类文件不进入远程 Gateway 索引。
+8. 新建或触碰的 Context Markdown 应包含 `type`、`date`、`updated`、`remote_access` frontmatter。Context 全量进入远程只读索引：指南、用户画像和项目画像为 `always`，类比 Wiki 稳定层，每次网页查询都可检索；日记为 `on-demand`，类比 Raw 历史层，只在需要溯源时追加检索。`on-demand` 不等于排除索引，不再使用 `local-only`。
 9. 不在 Context 中记录护照号、注册号、密钥、token、联系方式等真实敏感值，也不写部分掩码或占位符。
 10. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity；只有用户明确要求时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`。
-11. Gateway 定时任务只索引和校准已有文件，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行 `qmd update`。
+11. Gateway 定时任务只续跑已有索引任务，不生成或修改 Context，也不在空闲时启动每日全量同步。若 qmd 已索引 `context/`，写入后按项目规则决定是否执行 `qmd update`。
 12. 具体规则见 `references/context-maintenance.md`；可复制的脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。项目需要让网页端 GPT 参考规则和模板时，将该模板复制为 `context/DIARY_GUIDE.md` 并保留 `remote_access: always`。
 
 示例：
