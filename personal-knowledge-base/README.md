@@ -430,10 +430,11 @@ Codex 必须先展示主 slug、aliases、来源并集和 redirect 方案，得�
 
 1. 知识库与 Gateway 分别维护：前者只保存知识库，后者保存 Worker、部署配置和 Action schema。
 2. 由知识库 `main` 的 GitHub Push webhook 触发增量索引；force push、截断 payload 或较大变更启动全量对账。Cron 只续跑已有未完成任务，不在空闲时启动每日全量扫描。
-3. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码，不负责索引知识库。
-4. Gateway 只读；默认不索引 `raw/` 或 `wiki/derived/`，但全量索引 `context/`。persona、项目画像和 Context 指南每次检索，diary 只在 `include_context=true` 时追加；管理端点和密钥不暴露给 GPT。
-5. 在 `/health` 返回非空 `syncedCommit` 后，再把 `/openapi.json` 导入私人 GPT 的 Actions，并只配置 Action 专用 Bearer token。
-6. `getVerifiedSource` 会列出可用文本变体；需要全文时，GPT 再调用 `getVerifiedSourceText` 分页读取 `original`、`zh-abstract` 或 `zh-full`。每次返回前都会复核 raw、manifest 和 derived artifact 哈希。
+3. 全量任务 pending 期间，`syncedCommit` 保留上一个完整索引基线；应查看 `pendingFullSync.commit`、`pendingFullSync.cursor` 和 `lastAttempt` 判断目标与进度，不要因旧基线仍在就重复启动同步。
+4. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码，不负责索引知识库。
+5. Gateway 只读；默认不索引 `raw/` 或 `wiki/derived/`，但全量索引 `context/`。persona、项目画像和 Context 指南每次检索，diary 只在 `include_context=true` 时追加；管理端点和密钥不暴露给 GPT。
+6. 在 `/health` 返回非空 `syncedCommit` 后，再把 `/openapi.json` 导入私人 GPT 的 Actions，并只配置 Action 专用 Bearer token。
+7. `getVerifiedSource` 会列出可用文本变体；需要全文时，GPT 再调用 `getVerifiedSourceText` 分页读取 `original`、`zh-abstract` 或 `zh-full`。每次返回前都会复核 raw、manifest 和 derived artifact 哈希。
 
 部署时不要把 token、webhook URL、KV 标识、私人路径或知识库内容写入公开 skill、Git 提交或 GPT Instructions。验收时至少检查：健康接口、三个 Action 的独立调用、derived 分页与篡改拒绝，以及一次知识库 `main` push 是否触发增量同步。
 

@@ -101,7 +101,7 @@
 - 使用 qmd 搜索，并在不可用时降级到 `rg` 和索引文件。
 - 隔离普通知识检索与 derived 全文读取，支持 hybrid -> BM25 -> `rg` 的安全降级。
 - 管理 source integrity、矛盾记录和 confidence。
-- （可选）指导用户将知识库挂载到Cloudflare，并创建专属GPTs实现在线访问
+- （可选）通过 Cloudflare 只读 Gateway 和私人 GPTs 实现网页与手机端访问。
 - （可选）通过只读 Gateway 按需分页读取经过 raw、manifest 和 artifact 哈希校验的 PDF 转录与译文。
 
 常见触发方式：
