@@ -1,4 +1,4 @@
 interface:
   display_name: "个人知识库"
-  short_description: "创建、摄入 PDF、检索和维护可追溯的 Markdown 个人知识库"
-  default_prompt: "使用 $personal-knowledge-base 创建并维护可追溯的个人知识库；PDF 先转录、质检，再摄入。"
+  short_description: "创建并维护含全局日记与项目时间线的可追溯知识库"
+  default_prompt: "使用 $personal-knowledge-base 创建并维护可追溯的个人知识库；PDF 先转录和质检再摄入，完成工作后维护全局日记与精简项目时间线。"

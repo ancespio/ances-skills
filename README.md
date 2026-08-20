@@ -12,7 +12,7 @@
 
 | Skill                                              | 一句话说明                                               | 文档                                         |
 | -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
-| [personal-knowledge-base](./personal-knowledge-base/) | 创建、摄入、检索、检查和维护可追溯的 Markdown 个人知识库 | [使用说明](./personal-knowledge-base/README.md) |
+| [personal-knowledge-base](./personal-knowledge-base/) | 创建并维护含全局日记与项目时间线的可追溯 Markdown 知识库 | [使用说明](./personal-knowledge-base/README.md) |
 | [multimodal-evidence](./multimodal-evidence/) | 统一多模态证据提取与独立外部核验协议 | [SKILL.md](./multimodal-evidence/SKILL.md) |
 | [pptx-workshop](./pptx-workshop/) | 策划并制作图片版 PPT，以及模板填充、严格重建和续写修改可编辑 PowerPoint | [SKILL.md](./pptx-workshop/SKILL.md) |
 
@@ -85,7 +85,7 @@
 
 > 依照Karpathy的[LLM wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)思想，把散落的原始材料变成可追溯、可链接、可持续维护的个人 Wiki。
 
-这个 skill 把个人知识库视为长期积累的持久化产物：人负责收集来源和提出问题，Agent 负责维护结构化 Wiki、来源账本、概念链接、综合分析和健康检查。
+这个 skill 把个人知识库视为长期积累的持久化产物：人负责收集来源和提出问题，Agent 负责维护结构化 Wiki、来源账本、概念链接、综合分析和健康检查；同时用日记维护个人跨项目的全局时间线，用项目画像维护链接到日记的精简项目时间线。
 
 希望将LLM作为编译器而非仅仅作为查询器来构建知识库，而不是直接切分向量化（甚至不需要向量化），模型越智能，Prompt越合理，编译出来的wiki就越有用。
 

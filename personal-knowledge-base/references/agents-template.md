@@ -170,7 +170,9 @@ counts_as_external_source: false
 
 触发词：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`
 
-Context 用于理解用户、项目状态、偏好和近期事实，但不为知识性结论提供外部证据。Context 写入只发生在实际对话中：不创建每日自动化任务，不因日期变化自动生成日记，仅在出现重大节点、状态变化或任务结束时判断是否记录。
+Context 用于理解用户、项目状态、偏好和近期事实，但不为知识性结论提供外部证据。Context 写入只发生在实际对话中，不创建每日自动化任务，也不因日期变化自动生成空日记。
+
+Context 维护两条时间线：`context/diary/` 是用户个人跨项目的全局时间线，忠实记录每天实际完成的工作；persona 中的 project 文件是各项目的精简时间线，只保留阶段、里程碑、关键决策、阻塞和下一步，并指向对应日记。
 
 建议文件划分：
 
@@ -188,16 +190,17 @@ context/
 执行步骤：
 
 1. 先完整读取相关 Context 文件；不存在时再创建。
-2. 只记录用户明确陈述的事实、用户明确决定或当前交互中明确表达/确认的决策倾向。
-3. 日记不得包含 Agent 推断、观察、心理分析或猜测；没有事实或状态变化时不创建空日记。
-4. Persona、preferences 和 project 文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除历史。
-5. 今日日记存在时追加，不存在时创建；每次写入署名 `Codex Win端`。
-6. 跨日期事件链使用相对 Markdown 链接指向相关日记或项目文件，不强制使用 Wiki 层英文 slug 规则。
-7. 新建或触碰的 Context Markdown 应包含 `type`、`date`、`updated`、`remote_access` frontmatter；指南为 `always`，画像/项目/日记默认为 `on-demand`，`local-only` 不进入远程 Gateway 索引。
-8. 不在 Context 中记录护照号、注册号、密钥、token、联系方式等真实敏感值，也不写部分掩码或占位符。
-9. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity；只有用户明确要求时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`。
-10. Gateway 定时任务只索引和校准已有文件，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行 `qmd update`。
-11. 具体规则见 `references/context-maintenance.md`；可复制的脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。项目需要让网页端 GPT 参考规则和模板时，将该模板复制为 `context/DIARY_GUIDE.md` 并保留 `remote_access: always`。
+2. 只要本次对话实际完成了可确认的工作，任务结束时就追加当日日记，记录做了什么、结果、验证、失败/阻塞和下一步；例行工作可按任务合并简记。
+3. 普通闲聊、纯讨论、未执行设想、无结果的重复操作和逐句对话不写。不得包含 Agent 推断、观察、心理分析或猜测，不得把计划写成已完成。
+4. 只有项目阶段、里程碑、关键决策、阻塞或下一步变化时，才把项目级摘要追加到对应 project 文件，并用相对 Markdown 链接指向当日日记；不要复制日记全文。
+5. 写入顺序为“完整事件写当日日记 -> 项目级阶段变化精炼到项目画像 -> 跨项目长期偏好或身份变化更新用户画像”。普通完成事项只写日记。
+6. Persona、preferences 和 project 文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除历史。
+7. 今日日记存在时追加，不存在时创建；日记与项目画像双向链接，每次写入署名 `Codex Win端`。
+8. 新建或触碰的 Context Markdown 应包含 `type`、`date`、`updated`、`remote_access` frontmatter；推荐指南、用户画像和项目画像为 `always`，日记为 `on-demand`。若项目支持 `local-only`，该类文件不进入远程 Gateway 索引。
+9. 不在 Context 中记录护照号、注册号、密钥、token、联系方式等真实敏感值，也不写部分掩码或占位符。
+10. `context/` 不参与 `source_count`、confidence、`raw_sha256` 或 source integrity；只有用户明确要求时，才转入 `wiki/concepts/` 或 `wiki/synthesis/`。
+11. Gateway 定时任务只索引和校准已有文件，不生成或修改 Context。若 qmd 已索引 `context/`，写入后执行 `qmd update`。
+12. 具体规则见 `references/context-maintenance.md`；可复制的脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。项目需要让网页端 GPT 参考规则和模板时，将该模板复制为 `context/DIARY_GUIDE.md` 并保留 `remote_access: always`。
 
 示例：
 

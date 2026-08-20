@@ -1,6 +1,6 @@
 ---
 name: personal-knowledge-base
-description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前准备、搭建知识库、设计 AGENTS.md/CLAUDE.md、配置 Obsidian Web Clipper、标定和摄入来源、把论文 PDF 转录/OCR/翻译为可校验的 wiki/derived 阅读层、查询本地 wiki、更新用户画像/项目状态/偏好/日记、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、Cloudflare 只读 Gateway、来源可追溯性和 confidence 时。
+description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前准备、搭建知识库、设计 AGENTS.md/CLAUDE.md、配置 Obsidian Web Clipper、标定和摄入来源、把论文 PDF 转录/OCR/翻译为可校验的 wiki/derived 阅读层、查询本地 wiki、维护个人全局日记与项目时间线、更新用户画像和偏好、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、Cloudflare 只读 Gateway、来源可追溯性和 confidence 时。
 ---
 # 个人知识库
 
@@ -23,7 +23,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 - `raw/`：人类拥有的原始来源，例如剪藏、文章、PDF、截图、临时笔记和个人写作。默认只追加，不修改。
 - `wiki/`：LLM 维护的 Markdown 页面，例如 `sources/`、`concepts/`、`entities/`、`synthesis/`、`outputs/`、`templates/`，以及 `index.md`、`log.md`、`overview.md`、`QUESTIONS.md`。
 - `wiki/derived/`：由 raw PDF 等原始材料生成的转录、OCR、摘要译文、全文译文和解析产物。它是可校验的辅助阅读层，不是新来源，默认不进入图谱或语义检索。
-- `context/`：可选的长期个人/项目上下文、偏好和日记。除非本地 schema 明确允许，否则不要把它当作外部证据计入 confidence。
+- `context/`：可选的长期上下文层。`diary/` 是个人跨项目的全局时间线，persona 中的项目文件是指向日记的精简项目时间线；用户画像保存跨项目长期状态和偏好。它不是外部证据，不计入 confidence。
 - Schema 文件：`AGENTS.md` 或 `CLAUDE.md` 是操作契约，用来定义目录规则、工作流、模板、confidence 和验证方式。
 
 ## 创建前先向用户说明准备事项
@@ -103,7 +103,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 - 可直接复制的日常指令：`摄入 <路径>`、`根据我的知识库回答 <问题>`、`我想搞清楚 <问题>`、`更新日记 <内容>`、`记录偏好 <内容>`、`lint`、`reflect`。
 - 用户主要浏览 `wiki/`，不要手动改写由 LLM 维护的页面；发现问题时要求 Agent 修正规则和重新处理。
 - 哪些动作需要用户确认：批量摄入、high confidence、合并、删除、大范围重写和依赖安装。
-- 推荐节奏：随时收集，逐篇摄入；每两周 LINT；每月或每新增约 10 篇来源 REFLECT；项目状态和日记按事件更新。
+- 推荐节奏：随时收集，逐篇摄入；实际完成的工作在任务结束时写入当日日记；项目阶段变化再更新项目画像；每两周 LINT；每月或每新增约 10 篇来源 REFLECT。
 
 ## 日常操作
 
@@ -125,14 +125,15 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 执行 `CONTEXT` 时：
 
 1. 触发词包括：`更新画像`、`更新日记`、`记录偏好`、`记录项目进展`、`同步上下文`、`context`；触发词本身不等于授权写入。
-2. Context 写入只发生在实际对话过程中。不要创建每日自动化任务，也不要因为日期变化自动生成日记；仅在对话出现重大节点、状态变化或任务结束时判断是否写入。
-3. 先完整读取相关 Context 文件，再按语义路由：个人背景/长期状态写入 `context/persona/`，项目决策和进展写入对应项目文件，按日期事件写入 `context/diary/`。
-4. 日记只记录用户明确陈述的事实、用户明确决定和当前交互中明确表达或确认的决策倾向。不得写入 Agent 推断、观察、心理分析或猜测；没有事实或状态变化时不创建空日记。
-5. Persona 和项目文件使用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除旧状态。今日日记存在时追加，不存在时创建；每次写入署名 `Codex Win端`。
-6. 跨日期或跨项目追踪使用项目本地允许的相对 Markdown 链接；Context 不强制使用 Wiki 层英文 slug 规则。
-7. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。`DIARY_GUIDE.md` 使用 `always`；用户画像、项目画像和日记默认使用 `on-demand`；`local-only` 不进入远程 Gateway 索引。
-8. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
-9. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
+2. Context 写入只发生在实际对话过程中。不要创建每日自动化任务，也不要因为日期变化自动生成空日记。
+3. `context/diary/` 是用户个人跨项目的全局时间线。只要当天通过实际对话完成了可确认的工作，任务结束时就应追加做了什么、结果、验证、失败/阻塞和下一步；同一任务的例行步骤可合并简记。
+4. 普通闲聊、纯讨论、未执行设想、无结果的重复操作和逐句对话不写入日记。日记不得包含 Agent 推断、观察、心理分析或猜测，也不得把计划写成已完成。
+5. persona 中的项目文件维护各项目的精简时间线。只有项目阶段、里程碑、关键决策、阻塞或下一步变化时，才追加简短的日期化摘要，并用相对 Markdown 链接指向对应日记；不要复制日记全文。
+6. 写入顺序为“完整事件写当日日记 -> 项目级阶段变化精炼到项目画像 -> 跨项目长期偏好或身份变化更新用户画像”。普通完成事项只写日记。
+7. Persona 和项目文件采用“当前状态 + 日期化演化记录”，只追加或谨慎修订，不静默删除旧状态。今日日记存在时追加，不存在时创建；日记与项目画像应双向链接，每次写入署名 `Codex Win端`。
+8. 新建或触碰的 Context Markdown 应有 `type`、`date`、`updated` 和 `remote_access` frontmatter。推荐远程分层为：`DIARY_GUIDE.md`、用户画像和项目画像使用 `always`，日记使用 `on-demand`；若项目选择支持 `local-only`，该类文件不得进入远程 Gateway 索引。
+9. `context/` 不参与外部 `source_count`、confidence、`raw_sha256` 或 source integrity；除非用户明确要求，不把 Context 转成 wiki 知识页。
+10. 涉及 Context 维护规则时读取 `references/context-maintenance.md`；需要创建或撰写日记时读取 `references/diary-template.md`；完成后报告修改了哪些文件和记录了哪些已确认内容。
 
 执行 `QUERY` 时：
 
@@ -177,7 +178,7 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 仅当用户明确需要在手机或网页版 ChatGPT 查询私人知识库时，才采用这一可选扩展。它不替代本地 qmd，也不把知识库仓库改造成网页工程。
 
 1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
-2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；`context/` 只在请求明确需要个人化上下文时检索；不得向 GPT 暴露管理端点、webhook 或任何 secret。
+2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；推荐每次检索 persona/项目画像稳定层，只在需要追溯历史时追加 diary；不得向 GPT 暴露管理端点、webhook 或任何 secret。
 3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；同时可配置每日全量校准和定时续跑，处理漏事件或超出单次执行上限的任务。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
 4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
 5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
@@ -251,7 +252,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 1. 创建 Only me 的私人 GPT；初始阶段不要上传与 Gateway 重复的 Knowledge 文件。
 2. Actions 导入 `<WORKER_URL>/openapi.json`，配置 Bearer/API Key，仅填 `GPT_ACTION_TOKEN`。
-3. Instructions 要求区分 evidence、knowledge、context 与综合推断；默认 `include_context=false`，涉及项目状态/偏好/历史决策或日记撰写规则时才为 true，并明确说明 Context 写入只发生在实际对话节点。
+3. Instructions 要求区分 evidence、knowledge、context 与综合推断；推荐 `include_context=false` 仍检索 persona/项目画像稳定层，`true` 时再追加 diary 和维护指南。项目状态与偏好通常由稳定层提供，需要历史过程、近期事件或决策演化时才启用 diary。
 4. 对只读查询 POST 明确设置 `x-openai-isConsequential: false`，并为每个响应定义具体 schema，不使用空 object schema。
 5. 在 Preview 同时测试单独 Action 和自然语言提问；单独成功不代表自然语言路由已成功。
 
@@ -283,7 +284,7 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 ## 推荐使用节奏
 
-- 每天或随时：把材料放入对应 `raw/` 子目录，记录日记、偏好和项目进展。
+- 每天或随时：把材料放入对应 `raw/` 子目录；实际完成工作后更新全局日记，项目阶段变化时再更新项目画像。
 - 每获得一篇重要材料：执行一次 INGEST；前 5 篇尽量逐篇确认质量。
 - 提问时：直接说“根据我的知识库”；需要个人化答案时允许 QUERY 同时读取 Context。回答默认先进入 outputs 候选区，确认值得复用后再提升。
 - 每两周：执行 LINT，先看报告再决定是否修复。

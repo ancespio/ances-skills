@@ -34,7 +34,7 @@
 
 - `raw/` 是我拥有的原始来源层，只读、只追加，未经我明确确认不得修改、移动、覆盖或删除。
 - `wiki/` 是你维护的知识层，可以创建和更新，但所有重要结论必须能追溯到 source 页。
-- `context/` 是长期上下文层，用于用户画像、项目画像、偏好和日记；它不是外部证据，不参与 `source_count` 和 confidence 计数。Context 只在实际对话出现重大节点、状态变化或任务结束时写入，不创建每日自动化任务。
+- `context/` 是长期上下文层，不是外部证据，不参与 `source_count` 和 confidence。`context/diary/` 是个人跨项目的全局时间线，实际完成工作后忠实记录当天做了什么；persona 中的项目文件是精简项目时间线，只在阶段变化时记录摘要并链接日记。Context 不创建每日自动化任务，也不因日期变化创建空日记。
 - 所有文件写入使用 UTF-8 无 BOM。
 - 如果目录是 Git 仓库，写入前先执行 `git status --short`，不得覆盖我的已有改动。
 - 删除任何文件前，先备份到就近 `TMP/` 目录，并等待我确认。
@@ -92,7 +92,7 @@ wiki/templates/output-template.md
 - PDF 默认 MinerU 主用、Docling 回退；非中文默认生成中文摘要，全文译文必须再次询问；翻译前读取 concept/entity aliases 建立术语表。
 - derived 目录为 `wiki/derived/pdfs/<source-slug>/`，包含 transcript、manifest、适用译文、assets 和完整 intermediate；所有 derived Markdown 都 `graph-excluded: true`。
 - 外部来源与个人写作的不同处理方式。
-- Context 更新规则：个人画像、项目状态、偏好、日记分别存放；只追加或谨慎修订；日记只记录确认事实、用户决策和明确确认的决策倾向，不写 Agent 推断；不作为外部证据；只有我明确要求时才沉淀为知识页；无状态变化时不创建空日记。
+- Context 更新规则：实际完成工作后先写个人全局日记，记录操作、结果、验证、失败/阻塞和下一步；项目阶段、里程碑、关键决策、阻塞或下一步变化时，再把精简摘要写入项目画像并链接日记；跨项目长期变化才更新用户画像。普通闲聊和未执行设想不写，不写 Agent 推断，不作为外部证据，只有我明确要求时才沉淀为知识页。
 - 可复制的脱敏日记模板见 `references/diary-template.md`；若网页端 GPT 需要读取规则和模板，可将其复制为知识库的 `context/DIARY_GUIDE.md` 并设置 `remote_access: always`。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
@@ -159,7 +159,7 @@ qmd status
 - 创建前要准备什么，以及最低可从一篇材料开始。
 - 每种材料放到哪个 `raw/` 子目录。
 - 如何执行摄入、查询、记录问题、更新 Context、LINT、REFLECT 和 MERGE。
-- Context 与 Wiki 的区别，以及如何更新画像、偏好、项目进展和日记。
+- Context 与 Wiki 的区别，以及如何维护个人全局日记、项目精简时间线、画像和偏好。
 - 哪些操作需要我确认。
 - 推荐使用节奏和第一次标定方法。
 
