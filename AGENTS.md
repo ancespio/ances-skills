@@ -4,7 +4,7 @@
 
 - 根目录 `README.md` 只登记可发布 Skill；每个 Skill 的 `SKILL.md` 是用户入口。
 - `pptx-workshop/` 是当前 PPT 工作流的唯一权威实现。`craft-editable-pptx` 仅是历史名称，不得重新创建同名重复 Skill。
-- `ppt-skills-lab/` 保存第三方源码快照、隔离环境、基准测试和历史证据；除非任务明确要求实验或复核，不修改其中的 `sources/`、`envs/`、`runs/` 和既有报告。
+- PPT 相关的现役 Skill 只保留 `pptx-workshop/`；历史实验库、外部 Skill 快照与运行产物只允许放在仓库外的可恢复备份中，不作为 Skill 入口或交付来源。
 - `TMP/` 只放可恢复的临时备份与测试缓存，不作为交付来源。
 
 ## PPTX Workshop 不变量
