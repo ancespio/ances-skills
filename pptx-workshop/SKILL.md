@@ -5,6 +5,8 @@ description: 策划并生成图片型演示文稿，以及模板填充、图片�
 
 # PPTX Workshop
 
+本目录唯一的用户入口是本文件。`GordenImagePPTGen/WORKFLOW.md` 与 `GordenImage2PPTX/WORKFLOW.md` 是内部执行说明，不是独立 Skill 入口；必须先由本 Skill 选择场景、完成该场景的策划与用户确认，再读取对应 Gorden 流程。
+
 把用户请求路由到五个场景之一。用户只需说明想得到什么；不要要求用户理解 route、JSON、SVG、OOXML 或 PowerPoint 对象模型。
 
 ## 先选择场景

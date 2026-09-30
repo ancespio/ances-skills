@@ -10,7 +10,7 @@
 
 ## Gorden 原版：B0–B9 原样执行
 
-确认版式后，读取 [gorden-integration.md](gorden-integration.md) 和 [GordenImage2PPTX/SKILL.md](../GordenImage2PPTX/SKILL.md)，按上游原版执行：
+确认版式后，读取 [gorden-integration.md](gorden-integration.md) 和 [GordenImage2PPTX/WORKFLOW.md](../GordenImage2PPTX/WORKFLOW.md)，按上游原版执行：
 
 ```text
 B0 唯一 RUN_ROOT / 源图隔离

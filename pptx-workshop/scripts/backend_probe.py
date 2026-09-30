@@ -59,11 +59,11 @@ def main() -> int:
         "available": gorden_root.is_dir(),
         "source_sha": gorden_sha,
         "image_ppt_gen": {
-            "available": bool(image_ppt and (image_ppt / "SKILL.md").is_file()),
+            "available": bool(image_ppt and (image_ppt / "WORKFLOW.md").is_file()),
             "compose_pptx": bool(image_ppt and (image_ppt / "scripts" / "compose_pptx.py").is_file()),
         },
         "image_to_pptx": {
-            "available": bool(image_to_pptx and (image_to_pptx / "SKILL.md").is_file()),
+            "available": bool(image_to_pptx and (image_to_pptx / "WORKFLOW.md").is_file()),
             "compose_pptx": bool(image_to_pptx and (image_to_pptx / "scripts" / "compose_pptx.py").is_file()),
             "layout_guard": bool(image_to_pptx and (image_to_pptx / "scripts" / "layout_guard.py").is_file()),
             "placement_qa": bool(image_to_pptx and (image_to_pptx / "scripts" / "placement_qa.py").is_file()),

@@ -17,7 +17,7 @@
 
 ## Gorden 原版：A1–A5 原样执行
 
-确认版式后，读取 [gorden-integration.md](gorden-integration.md) 和 [GordenImagePPTGen/SKILL.md](../GordenImagePPTGen/SKILL.md)，按上游原版执行：
+确认版式后，读取 [gorden-integration.md](gorden-integration.md) 和 [GordenImagePPTGen/WORKFLOW.md](../GordenImagePPTGen/WORKFLOW.md)，按上游原版执行：
 
 ```text
 A1 确认风格 / 受众 / 页数 / 语言

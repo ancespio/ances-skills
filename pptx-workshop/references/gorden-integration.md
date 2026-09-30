@@ -2,14 +2,16 @@
 
 ## 直接嵌入位置与来源
 
-两个 Gorden 原版入口已经直接嵌入 `pptx-workshop`，不需要另外克隆仓库或配置外部路径：
+两个 Gorden 原版流程已经直接嵌入 `pptx-workshop`，不需要另外克隆仓库或配置外部路径。它们作为内部工作流读取，不是可独立触发的 Skill；唯一用户入口是根目录 `SKILL.md`：
 
 ```text
 pptx-workshop/
 ├── GORDEN_NOTICE.md
 ├── GORDEN_UPSTREAM_COMMIT
 ├── GordenImagePPTGen/
+│   └── WORKFLOW.md
 └── GordenImage2PPTX/
+    └── WORKFLOW.md
 ```
 
 来源为 `GordenSun/GordenSuperPPTSkills`，固定提交 `8c05583dab8334182b71738e8dfbbec5c56a1951`。使用与再发布时保留 [GORDEN_NOTICE.md](../GORDEN_NOTICE.md) 的出处、作者和授权说明。
@@ -34,7 +36,7 @@ PPTX Workshop 在两个 Gorden 原版入口之前只插入一次无风格 `layou
 
 ## 场景 1：GordenImagePPTGen 原版
 
-确认版式后，完整读取 [GordenImagePPTGen/SKILL.md](../GordenImagePPTGen/SKILL.md)，原样执行 A1–A5：
+确认版式后，完整读取 [GordenImagePPTGen/WORKFLOW.md](../GordenImagePPTGen/WORKFLOW.md)，原样执行 A1–A5：
 
 ```text
 A1 确认风格 / 受众 / 页数 / 语言
@@ -49,7 +51,7 @@ A1 确认风格 / 受众 / 页数 / 语言
 
 ## 场景 3：GordenImage2PPTX 原版
 
-确认版式后，完整读取 [GordenImage2PPTX/SKILL.md](../GordenImage2PPTX/SKILL.md)，原样执行 B0–B9：
+确认版式后，完整读取 [GordenImage2PPTX/WORKFLOW.md](../GordenImage2PPTX/WORKFLOW.md)，原样执行 B0–B9：
 
 ```text
 B0 唯一 RUN_ROOT
