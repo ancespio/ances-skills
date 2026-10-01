@@ -1,6 +1,6 @@
 ---
 name: personal-knowledge-base
-description: 创建、使用和维护由 LLM 负责整理的个人知识库或 LLM Wiki，适用于 Markdown/Obsidian 知识库。用于用户要求了解创建前准备、搭建知识库、设计 AGENTS.md/CLAUDE.md、配置 Obsidian Web Clipper、标定和摄入来源、把论文 PDF 转录/OCR/翻译为可校验的 wiki/derived 阅读层、查询本地 wiki、维护个人全局日记与项目时间线、更新用户画像和偏好、执行健康检查、跨笔记综合反思、记录开放问题、合并重复页面、配置 qmd/rg 搜索、Cloudflare 只读 Gateway、来源可追溯性和 confidence 时。
+description: 创建、使用和维护 Markdown/Obsidian 个人知识库。用于来源与 PDF 摄入、文献整理、可追溯查询、用户与项目时间线、知识库检查，以及配置本地 qmd 或可选的 GitHub 只读 MCP、Cloudflare AI Search 远程入口。
 ---
 # 个人知识库
 
@@ -18,12 +18,13 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 ## 架构
 
-除非现有项目另有规定，默认使用简单三层模型：
+按内容归属分层，保持原件、派生产物和用户整理内容之间的链接：
 
 - `raw/`：人类拥有的原始来源，例如剪藏、文章、PDF、截图、临时笔记和个人写作。默认只追加，不修改。
 - `wiki/`：LLM 维护的 Markdown 页面，例如 `sources/`、`concepts/`、`entities/`、`synthesis/`、`outputs/`、`templates/`，以及 `index.md`、`log.md`、`overview.md`、`QUESTIONS.md`。
 - `wiki/derived/`：由 raw PDF 等原始材料生成的转录、OCR、摘要译文、全文译文和解析产物。它是可校验的辅助阅读层，不是新来源，默认不进入图谱或语义检索。
 - `context/`：可选的长期上下文层。`diary/` 是个人跨项目的全局时间线，persona 中的项目文件是指向日记的精简项目时间线；用户画像保存跨项目长期状态和偏好。它不是外部证据，不计入 confidence。
+- `literature/`：用户主导的自由 Markdown 文献整理层，按领域、项目或问题组织。默认可读可检索，Agent 编辑须获得该层或文件的明确授权；不作为新的独立来源。
 - Schema 文件：`AGENTS.md` 或 `CLAUDE.md` 是操作契约，用来定义目录规则、工作流、模板、confidence 和验证方式。
 
 ## 创建前先向用户说明准备事项
@@ -51,10 +52,10 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 1. 先执行准备问答：确认根目录、材料类型、Context 范围、隐私边界、Wiki 语言和可选工具。用户只提供最低准备时也可以继续。
 2. 检查根目录现状、Git 状态和已有 `AGENTS.md`/`CLAUDE.md`/`README.md`。已有规则只合并，不覆盖。
-3. 创建最小可用结构：`raw/`、`wiki/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`wiki/derived/pdfs/`、`wiki/outputs/`、`wiki/templates/`、`context/persona/`、`context/diary/`、`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/QUESTIONS.md`。
+3. 创建最小可用结构：`raw/`、`wiki/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`wiki/derived/pdfs/`、`wiki/outputs/`、`wiki/templates/`、`context/persona/`、`context/diary/`、`literature/`、`literature/templates/`、`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/QUESTIONS.md`。
 4. 在批量写内容前先写 schema 文件。至少包含来源不可变、Context 更新、wikilink 格式、页面模板、操作流程、confidence 规则、日志和验证方式。
 5. 只添加确实会用到的模板和脚本。如果 schema 包含 frontmatter、哈希、图谱排除或 wikilink 规则，创建可运行的 lint 脚本。
-6. 检测 Obsidian、qmd、Python 和 Git，不要假设它们存在。qmd 不可用时降级为 `rg` 和 `wiki/index.md`；未经授权不要安装依赖。
+6. 将 `assets/literature/` 复制为知识库的 `literature/` 使用说明与四份可选模板；已有内容只做最小合并。检测 Obsidian、qmd、Python 和 Git，不要假设它们存在。qmd 不可用时降级为 `rg` 和 `wiki/index.md`；未经授权不要安装依赖。
 7. 初始化后执行系统核查：目录、系统文件、模板、schema 关键规则、lint 和搜索索引逐项报告通过或缺失。
 8. 正式批量处理前，用 2-3 篇代表性来源标定。逐篇让用户审查摘要、概念提取、aliases、wikilink、个人立场分离和输出风格；把修正写回 schema。
 9. 标定完成后再询问是否批量迁移剩余材料，避免大量页面风格不一致。
@@ -101,16 +102,20 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 - 文章和网页剪藏放 `raw/articles/` 或 `raw/clippings/`，PDF 放 `raw/pdfs/`，截图放 `raw/images/`，随手想法放 `raw/notes/`，个人文章与分析放 `raw/personal/`。
 - 第一次先摄入 2-3 篇代表性来源并审查结果，不要立刻全量导入。
 - 可直接复制的日常指令：`摄入 <路径>`、`根据我的知识库回答 <问题>`、`我想搞清楚 <问题>`、`更新日记 <内容>`、`记录偏好 <内容>`、`lint`、`reflect`。
-- 用户主要浏览 `wiki/`，不要手动改写由 LLM 维护的页面；发现问题时要求 Agent 修正规则和重新处理。
+- 用户在 `literature/` 自由整理、在 `wiki/` 阅读结构化知识；原文与译文通过相对链接打开。解释授权整理页编辑与授权 Wiki 摄入的区别。
 - 哪些动作需要用户确认：批量摄入、high confidence、合并、删除、大范围重写和依赖安装。
 - 推荐节奏：随时收集，逐篇摄入；实际完成的工作在任务结束时写入当日日记；项目阶段变化再更新项目画像；每两周 LINT；每月或每新增约 10 篇来源 REFLECT。
 
 ## 日常操作
 
-执行 `INGEST` 时：
+执行文献整理任务前读取 [文献整理规范](references/literature-management.md)。默认本地检索范围为 wiki、context、literature；只查整理层使用 `scripts/qmd-query.ps1 -Collection literature`。配置或排查搜索时先读 [qmd 运行规范](references/qmd-runtime.md)：附带脚本实际依次尝试 hybrid、hybrid-no-rerank、BM25、rg，90 秒为单次 hybrid 上限，不是总时限。查询、保存整理页和更新索引不自动触发 Wiki 摄入。
+
+`literature/` 无 frontmatter 也合法；用户明确要求把指定内容摄入 Wiki 时，只读整理页，追溯已有 source 或原件并执行原有确认/QC，更新适用的 synthesis/concept/entity。编辑整理页须有独立授权。原件、转录、译文与整理次数均不得制造新 source identity。
+
+执行 `INGEST` 时先按路径分流：literature 使用上面的显式整理层流程；context 不作为外部来源摄入。以下步骤仅适用于外部 raw 来源，个人写作使用其专门规则：
 
 1. 除非用户要求批处理，否则一次只处理一个 raw 来源。PDF 必须先完成 `PREPARE -> DERIVE -> QC`，通过后再进入知识提取。
-2. 在需要追溯时，提取标题、来源元数据、日期和 raw SHA-256。
+2. 读取 [来源 metadata 规范](references/source-metadata.md)，在本次授权摄入范围内根据原件及权威网络资料获取题录、标识符、版本、摘要和资源，记录字段依据与冲突。缺失不猜测；不顺带批量更新旧来源。raw SHA-256、metadata_status 与 confidence 分开维护。
 3. 创建或更新 `wiki/sources/<slug>.md`。
 4. 更新匹配的 concept/entity 页面，不要制造重复页面。先检查 slug 和 aliases。
 5. 显式记录矛盾，不要静默覆盖旧说法。
@@ -137,9 +142,9 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 
 执行 `QUERY` 时：
 
-1. 根据本地配置，用 `qmd query`、`rg` 或 `index.md` 搜索 wiki。
+1. 根据本地配置，用安全 qmd 入口或 `rg` 检索 wiki、context 和 literature。derived 仍只在显式指定时读取；整理层模板与根 README 不参与检索。
 2. 综合前完整读取相关页面，不只依赖片段。
-3. 知识性结论引用 source 页面。不要只依赖 concept 页面或 context 文件作为证据。
+3. 知识性结论引用 source 页面。不要只依赖 concept、整理页或 context 文件作为证据。整理页中的个人判断、Agent 分析和待核验线索要与已核验外部证据区分。
 4. 把回答视为基于既有证据的二阶产物，不是新 source。回答、output、synthesis 和回答触发的 concept/entity 更新都不得增加 `source_count` 或提高 confidence。
 5. 完成回答后判断是否值得复用。只有多个来源形成了可复用的综合结论、比较、框架或稳定决策，且核心结论能逐条追溯到 source 页、未来可能再次用于查询或项目决策时，才提示用户：「这个回答适合沉淀，是否写入 output 并执行 Review？」单一事实、临时状态、格式转换、无来源推断和普通闲聊不提示保存。
 6. 用户确认前不要创建 output、修改 index 或追加 `query` 日志；用户拒绝或未确认时不落盘。用户也可以在原始请求中明确要求保存，以直接完成确认。
@@ -173,122 +178,22 @@ description: 创建、使用和维护由 LLM 负责整理的个人知识库或 L
 - 不要自动合并。先展示拟保留 slug、aliases、来源并集和 redirect 方案。
 - 如果 schema 使用 redirect，用 redirect 保留旧链接。
 
-## 可选：Cloudflare 只读检索与私人 GPTs
+## 可选远程入口：由用户选择路线
 
-仅当用户明确需要在手机或网页版 ChatGPT 查询私人知识库时，才采用这一可选扩展。它不替代本地 qmd，也不把知识库仓库改造成网页工程。
+先读取 [远程路线选择与共同准备](references/remote-access.md)，说明成本、召回、权限和客户端要求，由用户选择；纯本地也是完整可用方案。已有路线不得自动迁移、停用或删除。
 
-1. 保持知识库与 Gateway 为两个仓库：知识库仓库只保存知识库；Gateway 仓库存放 Worker、部署配置和 GPT Action schema。
-2. Gateway 只暴露只读检索、已验证来源页和按需 derived 文本分页读取接口。`raw/` 与 `wiki/derived/` 不进入默认搜索索引；`context/` 全量进入 `kb-context`，每次查询检索 persona、项目画像和 Context 指南，只有 `include_context=true` 时才追加 diary；不得向 GPT 暴露管理端点、webhook 或任何 secret。
-3. 将知识库仓库 `main` 的 GitHub Push webhook 指向 Gateway。普通 push 触发增量索引；force push、截断 payload 或一次变化较多时启动全量对账。Cron 只继续 KV 中已经存在的未完成全量任务，空闲时不主动启动每日全量同步，避免无意义的 KV 写入和 CPU 消耗。这里的定时任务只维护远程索引，不创建或修改 `context/` 日记、画像或项目状态。
-4. 初次索引完成后，以 `GET /health` 返回非空 `syncedCommit` 作为可查询基线；不要把 Worker 已部署或 OpenAPI 可访问误判为知识库已同步。
-5. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码；知识库索引仍由 GitHub webhook 和定时校准负责。不要混淆两条链路。
-6. 在私人 GPT 中导入 Gateway 的 `/openapi.json`，仅配置 Action 专用 Bearer token，并使用指令要求：事实优先引用已完整性验证的 evidence；knowledge 和 context 只能辅助理解；失败时明确降级，不假称已检索。
-7. 如需让云端 GPT 参考日记规则和模板，将脱敏的 `references/diary-template.md` 复制为知识库的 `context/DIARY_GUIDE.md`，保留 `remote_access: always`；Gateway 只索引该已存在的指南，不会自动生成或修改 Context。
-
-部署前先让用户确认 Cloudflare、GitHub 与私人 GPT 的使用范围。所有 token、webhook URL、KV 标识和私人路径只在对应平台的 secret/config 中保存，绝不写入知识库、公开 skill 或提交记录。部署后至少验证：`/health` 的 `syncedCommit`、三个 Action 的单独调用、`include_context=false` 默认返回稳定 Context 且不返回 diary、`include_context=true` 可溯源 diary、derived 分页与篡改拒绝，以及一次知识库 `main` push 的 webhook 增量同步。
-
-实施前完整读取 [`references/cloudflare-gateway-gpts.md`](references/cloudflare-gateway-gpts.md)；不要用其中的占位符覆盖用户已有生产配置。
-
-需要新建 Gateway 时，从 `assets/cloudflare-gateway-template/` 复制 starter；该目录包含脱敏后的完整 Worker 源码与回归测试。部署后运行 `scripts/verify-gateway.ps1 -WorkerUrl <worker-url>` 验证健康状态和只读 Action schema。
-
-### 完整实施 SOP
-
-当用户明确选择 Cloudflare + 私人 GPTs 时，按以下顺序执行；每一步先验证上一层，不要把“代码已部署”当作“知识库已同步”。
-
-#### A. 先做范围和凭据隔离
-
-1. 确认两个私有仓库：KnowledgeBase 只放 `raw/`、`wiki/`、`context/`；Gateway 只放 Worker、测试、配置和 OpenAPI。
-2. 确认 KnowledgeBase 只维护 `main`，Gateway 的生产分支也明确为 `main`。
-3. 生成并分别保存 `GITHUB_WEBHOOK_SECRET`、`GPT_ACTION_TOKEN`、`ADMIN_TOKEN`；`GITHUB_TOKEN` 使用 GitHub fine-grained token，仅授予 KnowledgeBase 的 Contents/Metadata 只读权限。
-4. 禁止把 secret、Deploy Hook URL、KV ID、真实仓库路径写入 GPT Instructions、公开 skill 或 KnowledgeBase。
-
-#### B. 先准备 KnowledgeBase
-
-1. 建立 `raw/articles/`、`raw/pdfs/`、`raw/notes/`、`wiki/sources/`、`wiki/concepts/`、`wiki/entities/`、`wiki/synthesis/`、`context/`。
-2. 来源页必须保存 `raw_file`、`raw_sha256`；用同一 Git commit 读取 source 与 raw，哈希一致才进入 evidence index。
-3. 提交首批内容并记录完整 `main` commit SHA。Gateway 只读取 GitHub，不修改 KnowledgeBase。
-
-#### C. 准备 Gateway
-
-1. 从 `assets/cloudflare-gateway-template/` 复制 starter；不要复制 `node_modules/`、`.wrangler/` 或真实配置。
-2. 运行 `pnpm install`、`pnpm exec wrangler types`、`pnpm test`、`pnpm exec wrangler deploy --dry-run`。
-3. 公开 OpenAPI 只允许 `POST /v1/query`、`GET /v1/sources/{slug}` 与 `GET /v1/sources/{slug}/text`；`/github/webhook`、`/admin/sync`、`/admin/sync/continue` 不得进入 GPT schema。
-4. Worker 的读写边界必须固定：`raw/` 不索引；`wiki/sources/` 是 evidence；`wiki/concepts/`、`entities/`、`synthesis/` 是 knowledge；`context/` 全量索引，但查询时把 persona/项目画像/指南作为稳定层默认检索，把 diary 作为历史层按需追加。
-
-#### D. 配置 Cloudflare
-
-1. `wrangler.jsonc` 使用 `vars` 保存 owner/repository 等非敏感值，`secrets.required` 只列 secret 名称。
-2. 创建 `SYNC_STATE` KV，填入现有 namespace ID；不要在生产配置中省略 ID，也不要因部署提示自动创建第二个状态库。
-3. 绑定 `AI_SEARCH` 默认 namespace，并让 Worker 确保 `kb-evidence`、`kb-knowledge`、`kb-context` 实例存在。
-4. 配置 `triggers.crons`：使用 `*/5 * * * *` 或经配额评估后的其他间隔，只调用 `continue()` 续跑已有任务。Cron 空闲时只读取同步状态，不启动全量同步；配置文件是远端 Cron 的唯一来源。
-5. 连接 Gateway 仓库到 Workers Builds。生产 Deploy command 使用 `pnpm deploy` 或 `wrangler deploy`；`wrangler versions upload` 只作为非生产 preview 命令。
-
-#### E. 部署和 secrets（或引导用户手动在网页填写secrets）
-
-```powershell
-pnpm exec wrangler login
-pnpm exec wrangler deploy
-pnpm exec wrangler secret put GITHUB_TOKEN
-pnpm exec wrangler secret put GITHUB_WEBHOOK_SECRET
-pnpm exec wrangler secret put GPT_ACTION_TOKEN
-pnpm exec wrangler secret put ADMIN_TOKEN
-```
-
-部署后先访问 `/health` 和 `/openapi.json`。`syncedCommit: null` 是正常的“尚未首次同步”，不是 Worker 部署失败。
-
-#### F. 接入 KnowledgeBase webhook
-
-在 KnowledgeBase 仓库添加 Push webhook：目标 `<WORKER_URL>/github/webhook`、JSON 内容、同一 `GITHUB_WEBHOOK_SECRET`、仅 Push event。Worker 必须验证 HMAC，只处理 `refs/heads/main`；普通 Push 做增量，force push 或 GitHub 截断 payload 做全量对账。
-
-#### G. 首次全量同步
-
-1. 取得 `main` 完整 SHA，不接受短 SHA。
-2. 使用 `ADMIN_TOKEN` 调用 `POST /admin/sync` 启动一次。
-3. 若 `complete: false`，只调用 `POST /admin/sync/continue`，直到 `complete: true`；不要重复 start，也不要在尚未完成时并发启动第二个任务。
-4. 每批处理数量以 Gateway 代码为准；当前 starter 默认每批 5 个可索引 Markdown 文件。
-5. 全量任务仍为 pending 时，`/health.syncedCommit` 保留上一个完整基线是正常行为；用 `pendingFullSync.commit`、`pendingFullSync.cursor` 和 `lastAttempt` 判断目标与进度，不要把旧基线误判为 webhook 失效。
-6. 粗略等待时间可按 `ceil((可索引文件总数 - cursor) / batchSize) × Cron 间隔` 估算；为缩短等待而提高频率或批量前先评估 Worker CPU 与 KV/AI Search 配额。
-7. 最终检查 `/health` 的 `pendingFullSync` 已清空、`syncedCommit` 等于目标 commit，且 `issues` 已审查。
-
-#### H. 配置私人 GPT
-
-1. 创建 Only me 的私人 GPT；初始阶段不要上传与 Gateway 重复的 Knowledge 文件。
-2. Actions 导入 `<WORKER_URL>/openapi.json`，配置 Bearer/API Key，仅填 `GPT_ACTION_TOKEN`。
-3. Instructions 要求区分 evidence、knowledge、context 与综合推断；`include_context=false` 仍检索 persona、项目画像和 Context 指南，`true` 时只额外追加 diary。项目状态与偏好通常由稳定层提供，需要历史过程、近期事件或决策演化时才启用 diary。
-4. 对只读查询 POST 明确设置 `x-openai-isConsequential: false`，并为每个响应定义具体 schema，不使用空 object schema。
-5. 在 Preview 同时测试单独 Action 和自然语言提问；单独成功不代表自然语言路由已成功。
-
-#### I. 验收矩阵
-
-```text
-[ ] /health = 200，首次同步后 syncedCommit 非空
-[ ] /openapi.json 只含三个只读 operation
-[ ] 无 token 查询返回 401，正确 Action token 返回 200
-[ ] Admin token 不能用于 GPT Action
-[ ] main Push 返回 webhook accepted，并推进 syncedCommit
-[ ] 非 main Push 被忽略，错误签名返回 401
-[ ] raw 不进入 evidence/knowledge index
-[ ] source 只有 raw_sha256 验证通过才返回 verified
-[ ] Cron 只续跑已有 full sync；无 pending task 时不会主动启动全量同步
-[ ] Gateway main Push 触发新的生产 Worker 部署
-[ ] GPT Preview 能自动调用 Action，失败时明确降级
-```
-
-#### J. 故障定位顺序
-
-- `/health` 正常但内容为空：查首次全量同步、KV 游标和 AI Search 实例，不先重导 GPT schema。
-- Build 成功但索引不变：查 KnowledgeBase webhook 和定时同步，不查 Git Builds。
-- Action 单测成功但自然语言失败：查 OpenAPI 具体响应 schema、`x-openai-isConsequential`、Instructions 是否保存。
-- `/health` 的 commit 不推进：查 webhook branch、签名、增量 payload 是否被截断，以及 full sync 是否卡在 cursor。
-- AI Search `items.list` 出现 metadata filter 超长：不得将完整知识库路径传给 `search`；使用每页最多 10 项的无 search 分页扫描，并按 `item.key === path` 精确匹配。
-
-详细配置字段、脱敏源代码和验证脚本直接读取 `references/cloudflare-gateway-gpts.md`、`assets/cloudflare-gateway-template/` 与 `scripts/verify-gateway.ps1`。
+- GitHub 只读 MCP：读取 [完整配置流程](references/github-readonly-mcp.md)。Worker 提供 OAuth、关键词检索和按 commit 缓存，无需 AI Search；四个只读工具按统一版本分页和校验。适合希望控制语义索引成本、接受关键词召回的用户。
+- GPT Actions + Cloudflare AI Search：读取 [完整配置流程](references/cloudflare-gateway-gpts.md)。保留语义检索、签名 webhook、分批同步、三种只读 Action；使用前核验用户账户是否提供 Actions 和 AI Search。不能因另一路线存在而替用户放弃此路线。
+- 两条路线共用 `assets/cloudflare-gateway-template/` 的来源校验模块，但使用不同入口、配置和独立 Worker 名称。可并行评估；不可把 MCP 的 `include_diary/commit` 与 Actions 的 `include_context/syncedCommit` 混用。
+- 新用户 Agent 按所选指南完成资源探测、配置、凭据接线、测试、部署、客户端连接和真实读取验收。必要的登录、凭据生成或同意页面交由用户在平台完成，不要求用户把秘密贴到聊天。
+- 云端插件只读；Context 双时间线的实际写入由获授权的本地 Agent 执行。可复用的客户端指令见 [只读客户端指令模板](references/readonly-client-instructions.md)。
+- 配置完成不等于读取验收，缓存完成不等于最新 main；必须报告真实工具返回的版本、检索模式、缺失内容和未验证项。公开包不包含账号、服务地址、App ID、凭据或私人笔记。
 
 ## 推荐使用节奏
 
 - 每天或随时：把材料放入对应 `raw/` 子目录；实际完成工作后更新全局日记，项目阶段变化时再更新项目画像。
 - 每获得一篇重要材料：执行一次 INGEST；前 5 篇尽量逐篇确认质量。
-- 提问时：直接说“根据我的知识库”；需要个人化答案时允许 QUERY 同时读取 Context。回答默认先进入 outputs 候选区，确认值得复用后再提升。
+- 提问时：直接说“根据我的知识库”；需要个人化答案时允许 QUERY 同时读取 Context。值得复用的回答先询问是否写入 outputs，确认保存后 Review，另获提升授权后才 Promote。
 - 每两周：执行 LINT，先看报告再决定是否修复。
 - 每月或每新增约 10 篇来源：执行 REFLECT，检查反证、矛盾和知识空白。
 - 发现概念重复时：执行 MERGE，但必须先确认方案。
@@ -312,6 +217,9 @@ pnpm exec wrangler secret put ADMIN_TOKEN
 
 ## 参考模板
 
+- `references/remote-access.md`：远程路线选择及共同准备，选择远程入口时读取。
+- `references/literature-management.md`：整理层读写与显式摄入边界。
+- `references/source-metadata.md`：授权摄入时的详细题录核验。
 - `references/bootstrap-prompt.md`：创建个人知识库时可直接给 Codex/Claude Code 的完整 prompt。
 - `references/agents-template.md`：可复制到项目根目录的 `AGENTS.md` 行为契约模板，包含 Context 更新规则。
 - `references/page-templates.md`：source、concept、entity、synthesis、output 等 wiki 页面模板。

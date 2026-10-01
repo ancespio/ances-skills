@@ -11,6 +11,7 @@ param(
 
 $base = $WorkerUrl.TrimEnd('/')
 $health = Invoke-RestMethod -Uri "$base/health" -Method Get
+if ($health.mode -eq 'keyword') { throw 'This is the MCP route. Use verify-mcp.ps1 instead.' }
 $schema = Invoke-RestMethod -Uri "$base/openapi.json" -Method Get
 $operations = @($schema.paths.PSObject.Properties.Value | ForEach-Object { $_.post.operationId; $_.get.operationId } | Where-Object { $_ })
 $requiredOperations = @('queryKnowledgeBase', 'getVerifiedSource', 'getVerifiedSourceText')

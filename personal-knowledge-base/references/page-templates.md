@@ -2,6 +2,8 @@
 
 将这些模板放入 `wiki/templates/`，或由 agent 按需生成对应文件。字段可按本地 schema 微调，但不要删除 provenance、confidence 和 contradiction 相关字段。
 
+详细题录字段可省略未知项；核验方法与结构化示例见 [来源 metadata](source-metadata.md)。
+
 ## `source-template.md`
 
 ```markdown
@@ -24,6 +26,38 @@ derived_full_translation: "wiki/derived/pdfs/source-slug/translation.zh-CN.md" #
 derived_status: pass # needs-review | pass | failed
 derived_last_verified: YYYY-MM-DD
 possibly_outdated: false
+language: ""
+authors: []
+publication_type: ""
+publication_year: ""
+publication_date: ""
+venue: ""
+publisher: ""
+volume: ""
+issue: ""
+pages: ""
+article_number: ""
+doi: ""
+arxiv_id: ""
+pmid: ""
+pmcid: ""
+isbn: ""
+issn: ""
+version: ""
+related_versions: []
+citation_key: ""
+abstract: ""
+keywords: []
+funding: []
+license: ""
+resource_links: []
+correction_links: []
+retraction_status: ""
+citation_metrics: []
+metadata_checked_at: ""
+metadata_status: partial
+metadata_evidence: []
+metadata_conflicts: []
 ---
 
 # {{title}}

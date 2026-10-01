@@ -50,6 +50,9 @@
     persona/
     diary/
   outputs/
+  literature/
+    README.md
+    templates/
   scripts/
     lint.py
     qmd-query.ps1
@@ -61,17 +64,20 @@
 
 优先使用本地搜索，不依赖外部服务。
 
+附带的 PowerShell wrapper 要求项目内 `.local/qmd/node_modules/@tobilu/qmd/` 已安装；
+系统 PATH 中有 qmd 不代表这个前提已满足。先读取版本与配置；已有项目不重复安装，
+未安装时先征得授权，或者继续用 rg。不要把全局 qmd 的索引与 wrapper 项目索引混用。
+配置脚本会写入本项目的完整 collection 配置，已有自定义 collection 先比对、备份并合并。
+
 推荐 qmd：
 
 ```powershell
-qmd init
-qmd collection add wiki/
-qmd collection add context/
-qmd update
-qmd status
+.\scripts\qmd-config.ps1 -Update
+.\scripts\qmd.ps1 embed
+.\scripts\qmd.ps1 status
 ```
 
-启用 PDF derived 时，普通 wiki collection 必须忽略 `derived/**`；独立 `derived` collection 设置 `includeByDefault: false` 并忽略 `**/intermediate/**`。维护一个安全查询 wrapper：hybrid 超时或失败后依次降级 BM25 与 `rg`，返回实际模式和原因；默认 `rg` 同样排除 derived。
+启用 PDF derived 时，普通 wiki collection 必须忽略 `derived/**`；独立 `derived` collection 设置 `includeByDefault: false` 并忽略 `**/intermediate/**`。安全 wrapper 依次尝试 hybrid、hybrid-no-rerank、BM25、rg，两次 hybrid 各受 TimeoutSeconds 限制；返回实际模式和原因，所有分支保持 collection 范围，默认排除 derived。
 
 Windows 下 PATH 找不到 qmd 时，先尝试：
 
@@ -212,16 +218,35 @@ context/
 同步上下文：把本次任务中对未来有用的项目状态和偏好写入 context。
 ```
 
+## 文献整理层
+
+`literature/` 与 raw、wiki、context 并列，用户按领域、项目或问题自由组织 Markdown。Agent 默认可以读取、检索和讨论，只有用户明确授权此层或具体文件时才能编辑；Wiki 摄入授权不等于整理页编辑授权。
+
+- 整理页无需 frontmatter、固定章节、英文文件名或 graph-excluded。四份正文模板仅供选择。
+- 摘要和片段可复制并在附近注明来源和页码；个人判断与 Agent 分析区别于原文。原件链接 raw，完整转录/译文链接 derived，全文只保留一份权威文件。
+- 本地默认检索 literature，排除根 README 和 templates/**。远程范围取决于所选路线；MCP 模板支持 literature，AI Search 原模板未包含此层。
+- 查询、保存、索引和 Context 维护不触发 Wiki 更新。只有明确要求摄入指定内容时，才只读整理页、追溯实际来源并按原有确认/QC 更新 synthesis/concept/entity。
+- 复用 source identity。整理页不创建 source/raw SHA，也不增加 source_count/confidence；仅新增或重新核验独立外部来源时按原规则更新。
+- 使用相对链接记录组织依据；Wiki log 记录实际更新路径。不要用整理页替代外部证据。
+- 使用说明维护于 literature/README.md；除非用户要求，不新建重复的 USER_GUIDE.md。
+
+## 来源 metadata
+
+在授权摄入或更新来源时，按 PDF 首页/版权页、DOI 出版商页面、arXiv/Crossref/PubMed 对应记录获取详细 metadata；先匹配作品和版本，不按相似题名合并。字段见来源模板，流程见 skill 的 references/source-metadata.md。
+
+保留 author 与有序 authors 的兼容，原始 abstract 与中文 Summary 分开。未知项留空，不制造日期；metadata_evidence 记录字段、依据和定位，metadata_checked_at 记录题录核对时间，metadata_status 使用 partial/verified/needs-review，metadata_conflicts 保留分歧。题录 verified 只表示已填字段经过核对，与 raw 完整性和 confidence 无关。无后台抓取，不因普通查询批量更新旧页。
+
 ## INGEST
 
 触发词：`ingest`、`摄入`、`处理这个`
 
-1. 读取目标 raw 来源，只读。PDF 先执行下述 `PREPARE -> DERIVE -> QC`，通过后才进入知识提取。
-2. 计算 raw 文件 SHA-256。
-3. 判断来源类型：
-   - `context/`：默认不摄入，除非用户要求沉淀为知识页。
+1. 先判断来源类型，完成分流后才处理 raw：
+   - `literature/`：仅显式请求摄入指定整理内容时走整理层到 Wiki 流程，不继续下列 raw 流程；不修改整理页、不把整理页建为 source。
+   - `context/`：默认不摄入；明确要求沉淀时标明个人上下文或追溯独立来源，不为 Context 计算 raw SHA 或创建外部 source。
    - frontmatter `type: personal-writing` 或路径 `raw/personal/`：走个人写作流程。
    - 其他：走外部来源流程。
+2. 对外部 raw 来源只读；PDF 先执行下述 `PREPARE -> DERIVE -> QC`，通过后才进入知识提取。
+3. 计算外部 raw 文件 SHA-256。
 4. 若缺少 frontmatter，从第一个 `#` 标题或文件名推断 title；在 `log.md` 记录警告。
 5. 生成英文小写连字符 slug。
 6. 创建或更新 `wiki/sources/<slug>.md`。
@@ -340,8 +365,18 @@ redirect: [[main-slug]]
 - PDF derived 必须验证 raw SHA、manifest raw identity 和每个 artifact SHA；source 页与 manifest 状态不一致时拒绝读取。
 - PDF 是原始证据；transcript 与译文共享同一 source identity，只是辅助阅读层。
 
+## 远程只读访问（可选）
+
+- 初始化时先向用户说明 MCP 与 GPT Actions + AI Search 的差异并等待选择，不强制迁移或关闭旧路线。
+- 使用 skill 中对应配置指南，Gateway 代码与知识库分仓；两条路线的 Worker、域名、KV 和客户端凭据独立。
+- MCP 支持 knowledge/evidence/literature/context，返回 keyword 模式及完整 commit；日记只在 include_diary=true 时检索。
+- 原 Actions 模板保留 AI Search、三个只读 Action、签名 webhook 与续跑 Cron；当前未接入 literature。include_context=true 追加历史日记，false 仍检索稳定 Context。
+- source、raw、manifest 和 artifact 在同一 commit 核验。derived 不进入默认检索，只从核验接口分页读取；任一级失败拒绝返回。
+- 远程助手只读，不写日记、画像或 Wiki；请求更新时生成草稿交给本地 Agent。管理凭据和管理端点不暴露给客户端。
+- 部署成功、缓存完成、匿名 401 不等于授权客户端可读；必须完成真实查询、原文/摘要分页、范围和版本验收，缺少权限则标未验证。
+
 ## 文档维护
 
-- 当知识库操作规则变化时，同步更新项目的用户指南或 `README.md`。
-- 当 Context 目录、分类或更新规则变化时，同步更新本节和用户指南中的 Context 说明。
+- 当知识库操作规则变化时，同步更新已有 README；literature 说明维护在 literature/README.md，不新建重复 USER_GUIDE。
+- 当 Context 目录、分类或更新规则变化时，同步更新本节和已有 Context 说明。
 ````

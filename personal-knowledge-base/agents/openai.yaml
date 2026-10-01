@@ -1,4 +1,4 @@
 interface:
   display_name: "个人知识库"
-  short_description: "创建并维护含全局日记与项目时间线的可追溯知识库"
-  default_prompt: "使用 $personal-knowledge-base 创建并维护可追溯的个人知识库；PDF 先转录和质检再摄入，完成工作后维护全局日记与精简项目时间线。"
+  short_description: "创建可追溯知识库，管理文献笔记、个人时间线并自主选择远程只读接入"
+  default_prompt: "使用 $personal-knowledge-base 创建或维护个人知识库；保留文献整理的用户编辑权，核验来源 metadata，按需选择 MCP 或 GPT Actions 远程接入，实际完成工作后维护全局日记和项目时间线。"

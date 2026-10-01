@@ -64,6 +64,9 @@ wiki/
 context/
   persona/
   diary/
+literature/
+  README.md
+  templates/
 scripts/
 outputs/
 ```
@@ -86,7 +89,7 @@ wiki/templates/output-template.md
 
 4. 在 `AGENTS.md` 中写入完整操作契约，至少包含：
 
-- Raw/Wiki/Context 三层职责。
+- Raw/Wiki/Context/文献整理层的职责与独立写入授权；不迁移已有原件。
 - INGEST、QUERY -> REVIEW -> PROMOTE、CONTEXT、LINT、REFLECT、ADD-QUESTION、MERGE 工作流。
 - PDF `PREPARE -> DERIVE -> QC -> INGEST`：raw PDF 是证据，`transcript.md` 是主要 LLM 阅读层，译文是辅助层，三者共享 source identity；derived 不增加 `source_count` 或 confidence。
 - PDF 默认 MinerU 主用、Docling 回退；非中文默认生成中文摘要，全文译文必须再次询问；翻译前读取 concept/entity aliases 建立术语表。
@@ -94,6 +97,9 @@ wiki/templates/output-template.md
 - 外部来源与个人写作的不同处理方式。
 - Context 更新规则：实际完成工作后先写个人全局日记，记录操作、结果、验证、失败/阻塞和下一步；项目阶段、里程碑、关键决策、阻塞或下一步变化时，再把精简摘要写入项目画像并链接日记；跨项目长期变化才更新用户画像。普通闲聊和未执行设想不写，不写 Agent 推断，不作为外部证据，只有我明确要求时才沉淀为知识页。
 - 可复制的脱敏日记模板见 `references/diary-template.md`；若网页端 GPT 需要读取规则和模板，可将其复制为知识库的 `context/DIARY_GUIDE.md` 并设置 `remote_access: always`。
+- literature 默认检索，根 README 和模板除外；自由 Markdown 无必填 frontmatter，用户主导，Agent 编辑须明确授权；显式请求才摄入 Wiki。复制 skill 的 assets/literature/ 作为说明与四份可选模板，不新建重复 USER_GUIDE。
+- 来源 metadata 根据 PDF 与权威网络获取，保留字段依据、版本和冲突，缺失不猜测；metadata_status、raw integrity 和 confidence 分开，不批量补写旧来源。
+- 远程入口可选：先说明 GitHub 只读 MCP 和 GPT Actions/AI Search 两条路线，按用户选择读取 skill 对应完整配置指南并实施，不强制选择或停用另一条。未选择则保持本地可用。
 - source integrity：`raw_file`、`raw_sha256`、`last_verified`、`possibly_outdated`。
 - concept/entity 去重：先检查英文 slug，再检查 aliases。
 - wikilink 规则：目标统一用英文小写连字符。
@@ -123,20 +129,18 @@ wiki/templates/output-template.md
 
 7. 搜索工具处理：
 
-- 先检测 `qmd` 是否可用；Windows 下若 PATH 找不到，使用 `Get-Command qmd` 和 `npm prefix -g` 定位全局 npm shim，仍找不到时让我提供路径。
+- 先检查项目内 .local/qmd/package.json 和 node_modules，再检查系统 PATH；全局 qmd 可用不代表附带 wrapper 的局部依赖已安装。已有依赖不重复安装，已有 collection 配置先比对、备份并合并。
 - 如果 qmd 不可用，不要安装依赖，先降级使用 `rg` 和 `wiki/index.md`。
-- 如果 qmd 可用，初始化命令优先使用：
+- 复制附带 qmd 脚本到项目 scripts；仅在项目局部 qmd 已安装时使用：
 
 ```powershell
-qmd init
-qmd collection add wiki/
-qmd collection add context/
-qmd update
-qmd status
+.\scripts\qmd-config.ps1 -Update
+.\scripts\qmd.ps1 embed
+.\scripts\qmd.ps1 status
 ```
 
 - 如果存在 `wiki/derived/`：普通 wiki collection 忽略 `derived/**`；独立 `derived` collection 设置 `includeByDefault: false` 并忽略 `**/intermediate/**`。
-- 创建安全查询入口：hybrid 最多等待 90 秒，失败或超时后依次降级 BM25 和 `rg`，输出实际模式和原因；默认 `rg` 也必须排除 derived。
+- 按 references/qmd-runtime.md 配置安全查询入口：hybrid → hybrid-no-rerank → BM25 → rg；两次 hybrid 各受 90 秒上限约束，BM25 另有 30 秒上限，输出实际模式和原因。每个分支保持 collection 范围，默认排除 derived。
 
 8. 初始化完成后，执行一次全系统 Audit：
 

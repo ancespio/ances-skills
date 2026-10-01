@@ -69,6 +69,35 @@ function Convert-QmdJson {
     return @($Text | ConvertFrom-Json)
 }
 
+function Invoke-RgFallback {
+    param([string]$Query, [int]$Limit, [string]$Collection)
+
+    $scopes = if ($Collection) { @($Collection) } else { @('wiki', 'context', 'literature') }
+    $matches = @(foreach ($scope in $scopes) {
+        $globs = @('--glob', '*.md')
+        switch ($scope) {
+            'wiki' {
+                $root = Join-Path $repoRoot 'wiki'
+                $globs += @('--glob', '!**/derived/**', '--glob', '!**/outputs/lint-*.md')
+            }
+            'context' { $root = Join-Path $repoRoot 'context' }
+            'literature' {
+                $root = Join-Path $repoRoot 'literature'
+                $globs += @('--glob', '!**/literature/README.md', '--glob', '!**/literature/templates/**')
+            }
+            'derived' {
+                $root = Join-Path $repoRoot 'wiki\derived'
+                $globs += @('--glob', '!**/intermediate/**')
+            }
+            default { return }
+        }
+        if (Test-Path -LiteralPath $root) {
+            & rg -n -i -F @globs -- $Query $root 2>$null | Select-Object -First $Limit
+        }
+    })
+    $matches | Select-Object -First $Limit
+}
+
 $collectionArgs = @()
 if ($Collection) {
     $collectionArgs = @('-c', $Collection)
@@ -179,16 +208,7 @@ else {
     $fallbackReason = "$fallbackReason; BM25 failed or timed out"
 }
 
-$rgResults = @(if ($Collection -eq 'derived') {
-    & rg -n -i -F --glob '*.md' --glob '!**/intermediate/**' -- $Query `
-        (Join-Path $repoRoot 'wiki\derived') 2>$null |
-        Select-Object -First $Limit
-}
-else {
-    & rg -n -i -F --glob '*.md' --glob '!**/derived/**' -- $Query `
-        (Join-Path $repoRoot 'wiki') (Join-Path $repoRoot 'context') 2>$null |
-        Select-Object -First $Limit
-})
+$rgResults = @(Invoke-RgFallback -Query $Query -Limit $Limit -Collection $Collection)
 [pscustomobject]@{
     mode = 'rg'
     query_strategy = $queryStrategy

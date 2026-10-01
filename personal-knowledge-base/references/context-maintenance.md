@@ -60,6 +60,6 @@ Context 全量进入网页端只读索引，但检索策略分层：`context/DIA
 
 ## 网页端检索
 
-Gateway 的定时任务只续跑已经存在的索引任务，不生成或修改 Context，也不在空闲时自动启动每日全量同步。每次查询检索 persona、项目画像和 `DIARY_GUIDE.md`；只有涉及近期事件、历史过程或决策演化时，才通过 `include_context=true` 追加 diary。Context 只能提供个人化上下文，不能替代外部来源证据。
+两种远程路线都只读，不生成或修改 Context。GPT Actions + AI Search 的 Cron 只续跑已有索引任务，日记通过 `include_context=true` 追加；GitHub MCP 的 Cron 检查 main 并分批建立完整快照，日记通过 `include_diary=true` 追加。两者默认检索稳定 persona、项目画像和 `DIARY_GUIDE.md`，但参数不能混用。Context 只能提供个人化上下文，不能替代外部来源证据。详见 [远程路线选择](remote-access.md)。
 
 脱敏日记模板见 [`references/diary-template.md`](diary-template.md)。使用时复制到项目的 `context/diary/YYYY-MM-DD_Diary.md`；如需让网页端 GPT 参考规则和模板，可复制为 `context/DIARY_GUIDE.md`，并保留 `remote_access: always`。Gateway 只索引该已存在的指南，不生成或修改 Context。

@@ -82,13 +82,18 @@ function isTreeResponse(value: unknown): value is {
 }
 
 export class GithubRepositoryClient implements RepositoryPort {
+  get repositoryName(): string {
+    return `${this.config.owner}/${this.config.repository}`;
+  }
   constructor(
     private readonly config: GithubConfig,
     private readonly fetcher: FetchPort = (input, init) => fetch(input, init),
   ) {}
 
   private async request(path: string, accept = "application/vnd.github+json"): Promise<Response> {
+    // Workers 不支持 redirect=error；manual 加非成功状态检查同样拒绝重定向。
     const response = await this.fetcher(`https://api.github.com${path}`, {
+      redirect: "manual",
       headers: {
         accept,
         authorization: `Bearer ${this.config.token}`,
@@ -103,6 +108,7 @@ export class GithubRepositoryClient implements RepositoryPort {
   }
 
   async readFile(path: string, commit: string): Promise<Uint8Array<ArrayBuffer> | null> {
+    validateFileRequest(path, commit);
     const endpoint = `/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(
       this.config.repository,
     )}/contents/${encodePath(path)}?ref=${encodeURIComponent(commit)}`;
@@ -112,6 +118,7 @@ export class GithubRepositoryClient implements RepositoryPort {
   }
 
   async sha256File(path: string, commit: string): Promise<string | null> {
+    validateFileRequest(path, commit);
     const endpoint = `/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(
       this.config.repository,
     )}/contents/${encodePath(path)}?ref=${encodeURIComponent(commit)}`;
@@ -132,4 +139,26 @@ export class GithubRepositoryClient implements RepositoryPort {
     if (parsed.truncated) throw new Error("Git tree response was truncated");
     return parsed.tree.filter((entry) => entry.type === "blob").map((entry) => entry.path);
   }
+
+  async resolveMain(): Promise<string> {
+    const response = await this.request(`/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(this.config.repository)}/git/ref/heads/main`);
+    const value = await response.json() as { object?: { sha?: string } };
+    if (!value.object?.sha || !/^[a-f0-9]{40}$/i.test(value.object.sha)) throw new Error("Invalid main commit");
+    return value.object.sha;
+  }
+
+  async listBlobs(commit: string): Promise<Array<{ path: string; sha: string }>> {
+    const response = await this.request(`/repos/${encodeURIComponent(this.config.owner)}/${encodeURIComponent(this.config.repository)}/git/trees/${encodeURIComponent(commit)}?recursive=1`);
+    const bytes = await readBounded(response, MAX_TREE_BYTES);
+    const value = JSON.parse(new TextDecoder().decode(bytes)) as { truncated?: boolean; tree?: Array<{ path: string; type: string; mode: string; sha: string }> };
+    if (value.truncated || !Array.isArray(value.tree)) throw new Error("Incomplete Git tree");
+    return value.tree.filter(x => x.type === "blob" && x.mode !== "120000").map(x => ({ path: x.path, sha: x.sha }));
+  }
+}
+
+function validateFileRequest(path: string, commit: string): void {
+  if (!path || path.startsWith("/") || /[\\\u0000-\u001f]/.test(path) || path.split("/").some(p => !p || p === "." || p === "..")) {
+    throw new Error("Invalid repository path");
+  }
+  if (!commit || /[?&#/\\]/.test(commit)) throw new Error("Invalid commit");
 }

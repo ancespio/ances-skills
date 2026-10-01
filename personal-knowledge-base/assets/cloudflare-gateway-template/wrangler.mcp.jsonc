@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "private-kb-mcp",
+  "main": "src/mcp-index.ts",
+  "compatibility_date": "2026-09-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "GITHUB_OWNER": "<owner>",
+    "GITHUB_REPOSITORY": "<repository>",
+    "MCP_ALLOWED_LOGIN": "<github-login>",
+    "MCP_ORIGIN": "https://<worker-host>"
+  },
+  "secrets": {
+    "required": ["GITHUB_MCP_TOKEN", "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_CLIENT_SECRET", "ADMIN_TOKEN"]
+  },
+  "kv_namespaces": [
+    { "binding": "SYNC_STATE", "id": "<cache-kv-id>" },
+    { "binding": "OAUTH_KV", "id": "<oauth-kv-id>" }
+  ],
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 }
+}

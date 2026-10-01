@@ -12,7 +12,7 @@
 
 | Skill                                              | 一句话说明                                               | 文档                                         |
 | -------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
-| [personal-knowledge-base](./personal-knowledge-base/) | 创建并维护含全局日记与项目时间线的可追溯 Markdown 知识库 | [使用说明](./personal-knowledge-base/README.md) |
+| [personal-knowledge-base](./personal-knowledge-base/) | 可追溯知识库、文献整理和个人时间线；可选 MCP 或 GPT Actions 远程只读接入 | [使用说明](./personal-knowledge-base/README.md) |
 | [multimodal-evidence](./multimodal-evidence/) | 统一多模态证据提取与独立外部核验协议 | [SKILL.md](./multimodal-evidence/SKILL.md) |
 | [pptx-workshop](./pptx-workshop/) | 策划并制作图片版 PPT，以及模板填充、严格重建和续写修改可编辑 PowerPoint | [SKILL.md](./pptx-workshop/SKILL.md) |
 
@@ -91,7 +91,7 @@
 
 它支持：
 
-- 从零建立 `raw/`、`wiki/`、`context/` 三层知识库。
+- 从零建立 raw、wiki、context 与用户主导的 literature 整理层。
 - 设计项目级 `AGENTS.md` 或 `CLAUDE.md` 操作契约。
 - 摄入文章、剪藏、PDF 摘要和个人写作，同时保留来源哈希。
 - 将单栏、双栏、扫描版和复杂版式 PDF 转录为可校验的 `wiki/derived/` Markdown，MinerU 主用、Docling 回退。
@@ -101,7 +101,9 @@
 - 使用 qmd 搜索，并在不可用时降级到 `rg` 和索引文件。
 - 隔离普通知识检索与 derived 全文读取，支持 hybrid -> BM25 -> `rg` 的安全降级。
 - 管理 source integrity、矛盾记录和 confidence。
-- （可选）通过 Cloudflare 只读 Gateway 和私人 GPTs 实现网页与手机端访问。
+- 在 literature 中自由整理多篇文献；Agent 编辑须明确授权，只有指定摄入才更新 Wiki。
+- 核验来源的作者、版本、摘要与详细 metadata，保留依据和冲突，不凭空补全。
+- （可选）自主选择 GitHub 单仓只读 MCP 或原有 GPT Actions + Cloudflare AI Search，两条路线均附逐步部署与验收指南。
 - （可选）通过只读 Gateway 按需分页读取经过 raw、manifest 和 artifact 哈希校验的 PDF 转录与译文。
 
 常见触发方式：

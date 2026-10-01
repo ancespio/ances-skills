@@ -424,19 +424,66 @@ Codex 会先寻找反证，再生成跨来源 synthesis 和 gap report。
 
 Codex 必须先展示主 slug、aliases、来源并集和 redirect 方案，得到确认后才能合并。
 
-## 可选：在手机或网页版 ChatGPT 查询知识库
+## 文献整理：先自由阅读，再决定是否沉淀
 
-如果你明确希望在手机或网页版 ChatGPT 中查询知识库，可在本地知识库之外部署一个独立的 Cloudflare Gateway，并接入仅自己可见的私人 GPTs。它是可选只读入口，可通过知识库 webhook 跟随 `main` 更新；它不替代本地 qmd，也不会把知识库仓库改造成网页工程。
+`literature/` 是你主导的笔记空间，适合一页比较多篇论文、记录方向理解和阶段总结。
+文件名、章节、中文目录都可以自由安排，不必逐篇建页或填 frontmatter。
+新建库会提供[四份可选模板](assets/literature/templates/)；不用模板也可以。
 
-1. 知识库与 Gateway 分别维护：前者只保存知识库，后者保存 Worker、部署配置和 Action schema。
-2. 由知识库 `main` 的 GitHub Push webhook 触发增量索引；force push、截断 payload 或较大变更启动全量对账。Cron 只续跑已有未完成任务，不在空闲时启动每日全量扫描。
-3. 全量任务 pending 期间，`syncedCommit` 保留上一个完整索引基线；应查看 `pendingFullSync.commit`、`pendingFullSync.cursor` 和 `lastAttempt` 判断目标与进度，不要因旧基线仍在就重复启动同步。
-4. Cloudflare Git Builds 或 Deploy Hook 只部署 Gateway 代码，不负责索引知识库。
-5. Gateway 只读；默认不索引 `raw/` 或 `wiki/derived/`，但全量索引 `context/`。persona、项目画像和 Context 指南每次检索，diary 只在 `include_context=true` 时追加；管理端点和密钥不暴露给 GPT。
-6. 在 `/health` 返回非空 `syncedCommit` 后，再把 `/openapi.json` 导入私人 GPT 的 Actions，并只配置 Action 专用 Bearer token。
-7. `getVerifiedSource` 会列出可用文本变体；需要全文时，GPT 再调用 `getVerifiedSourceText` 分页读取 `original`、`zh-abstract` 或 `zh-full`。每次返回前都会复核 raw、manifest 和 derived artifact 哈希。
+| 你想做什么 | 可以怎么说 |
+| --- | --- |
+| 讨论已有阅读笔记 | “根据 literature/某方向/总览.md 比较这两个方向，只读，不修改” |
+| 让 Agent 帮忙整理 | “允许修改 literature/某方向/文献比较.md，补充我指定的三篇论文” |
+| 将结论纳入 Wiki | “把这份整理页中的这个结论摄入 Wiki，不修改整理页” |
+| 完善论文题录 | “核验这篇来源的作者、年份、DOI、版本和摘要，并记录获取依据” |
 
-部署时不要把 token、webhook URL、KV 标识、私人路径或知识库内容写入公开 skill、Git 提交或 GPT Instructions。验收时至少检查：健康接口、三个 Action 的独立调用、derived 分页与篡改拒绝，以及一次知识库 `main` push 是否触发增量同步。
+保存笔记、刷新索引和日记维护都不会自动摄入 Wiki。Agent 修改整理页需单独授权；
+笔记里的摘要、译文、个人理解不算新外部证据。全文链接到已有 raw/derived，避免多份副本漂移。
+题录补充会核对实际 PDF 和权威页面，未知信息留空，冲突标明；作者顺序、版本、
+原始摘要和依据都放在 source 页，而非强迫你在阅读笔记里维护一套数据库。
+
+详见[整理层规则](references/literature-management.md)与[题录核验](references/source-metadata.md)。
+
+## 可选：手机、网页或 MCP 客户端查询
+
+本地知识库不必部署云服务。需要远程访问时，你可以自主选择，也可以保留已有路线：
+
+| 路线 | 适合谁 | 能做什么与限制 |
+| --- | --- | --- |
+| GitHub 单仓只读 MCP | 想在支持 MCP 的客户端或 Plugin/App 中查库 | 关键词检索 Wiki、Literature、Context；读取文档并核验 PDF。无需 AI Search，不是向量检索 |
+| GPT Actions + Cloudflare AI Search | 已使用私人 GPT Actions，或需要 AI Search 检索 | 保留原有三种 Action、webhook 同步、稳定 Context 与按需日记；当前模板未接入 Literature |
+
+两条路线均可读取经过 raw/source/manifest/artifact 校验的 PDF 原文、中文摘要和可用译文，
+按页读取，不把 derived 混入默认搜索。远程是只读入口，不能写日记、改画像或自动摄入。
+用户要保存内容时，由远程助手提供草稿，再交给本地 Agent。
+
+### 新用户具体怎么配置
+
+1. 准备私有 GitHub 知识库、可部署 Worker 的 Cloudflare 账户、可用客户端。
+   先检查上传范围，尤其是 Context；只想本地使用则不做这一步。
+2. 告诉 Agent 你选哪条路线、知识库路径及 owner/repository、独立 Gateway 目录。
+   不知道选哪条时，让它说明差异再决定。安装依赖、资源费用和部署先确认。
+3. Agent 从附带模板配置独立工程、绑定资源、运行测试并部署。GitHub 登录、付款
+   与密钥输入由你在平台或安全终端完成，不用把 token 发给 Agent。
+4. 等待索引/快照完成，连接真实客户端，再做查询、原文和中文摘要的两页读取验收。
+   服务已部署、连接已创建，都不等于全文已经可读。
+
+直接使用这段指令：
+
+```text
+使用 personal-knowledge-base 为我配置远程只读查询。
+先解释 GitHub MCP 与 GPT Actions + AI Search 的区别，让我选。
+按相应完整指南，在独立 Gateway 工程中完成配置、测试、部署和同步。
+仅在需要我登录、授权、付款或输入密钥时给出明确步骤；不要让我在聊天里贴密钥。
+保留已有服务，不擅自迁移或停用。最后用真实客户端读取 original 和 zh-abstract，
+验证版本、哈希与分页；没有实际执行的项目明确标为未验证。
+```
+
+完整流程包括资源创建命令、配置字段、凭据职责、首次同步、客户端设置、真实读取验收和排错：
+[先选路线](references/remote-access.md) /
+[MCP 逐步配置](references/github-readonly-mcp.md) /
+[原 GPT Actions 逐步配置](references/cloudflare-gateway-gpts.md) /
+[网页端 Instructions 与验收 Prompt](references/readonly-client-instructions.md)。
 
 ## 推荐节奏
 
@@ -462,6 +509,11 @@ Codex 必须先展示主 slug、aliases、来源并集和 redirect 方案，得�
 
 Agents会优先检测 qmd 是否存在；Windows 下 PATH 找不到时，可使用以下命令定位全局 npm 安装：
 
+附带的 PowerShell wrapper 使用项目内 `.local/qmd/`，先检查该处的 package.json 和
+node_modules；PATH 中有全局 qmd 不代表 wrapper 能运行。已有安装应复用，不重复安装；
+新项目安装须先确认，不能把不同运行目录的索引混在一起。配置脚本管理 wiki、
+context、literature 和独立 derived；运行前先保留并合并已有自定义 collection。
+
 ```powershell
 Get-Command qmd -ErrorAction SilentlyContinue
 npm prefix -g
@@ -470,6 +522,9 @@ npm prefix -g
 如果 qmd 不可用，不会擅自安装依赖，降级使用 `rg` 和 `wiki/index.md`。启用 PDF derived 后，普通 collection 与默认 `rg` 必须排除 `wiki/derived/`；需要逐行查转录时显式使用独立 derived collection。安全查询应在 hybrid 失败或超时后依次降级到 BM25 和 `rg`，并告诉你实际使用了哪种模式。
 
 ## 附带脚本
+
+本地搜索的依赖路径、collection 和实际超时/降级顺序见 [qmd 运行说明](references/qmd-runtime.md)。
+远程检查脚本按路线分开：verify-mcp.ps1 与 verify-gateway.ps1 不混用。
 
 `scripts/` 提供可复制到知识库项目的 PDF 派生、摘要/翻译、图片链接修复、lint，以及 qmd 运行、配置、安全查询和回归检查脚本。它们不包含模型缓存、索引、原始材料或本机路径；安装依赖前仍须由你确认。
 
@@ -489,9 +544,23 @@ personal-knowledge-base/
 ├── README.md
 ├── agents/
 │   └── openai.yaml
+├── assets/
+│   ├── literature/
+│   └── cloudflare-gateway-template/
+├── scripts/
+│   ├── qmd-query.ps1
+│   ├── verify-mcp.ps1
+│   └── verify-gateway.ps1
 └── references/
     ├── agents-template.md
     ├── bootstrap-prompt.md
+    ├── literature-management.md
+    ├── source-metadata.md
+    ├── remote-access.md
+    ├── github-readonly-mcp.md
+    ├── cloudflare-gateway-gpts.md
+    ├── readonly-client-instructions.md
+    ├── qmd-runtime.md
     ├── pdf-derived-ingest.md
     └── page-templates.md
 ```

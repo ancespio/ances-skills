@@ -172,7 +172,10 @@ graph-excluded: true
 - 默认 Query 只检索 source/concept/entity/synthesis/context；需要逐行核对 PDF 时显式选择 `derived`。
 - 安全查询入口在 hybrid 超时或失败后降级到 BM25，再降级到 `rg`；每次返回实际模式和原因。默认 `rg` 同样排除 derived。
 
-远程 Gateway 不把 derived 放进默认语义索引。先调用 `getVerifiedSource` 查看 `availableTextVariants`，再调用只读接口：
+两条远程路线都不把 derived 放进默认检索。先调用 `getVerifiedSource` 查看 `availableTextVariants`。
+GitHub MCP 使用 `getVerifiedSourceText` 工具，传 slug、variant、from_line、max_lines
+及查询返回的完整 commit；原 GPT Actions 使用下面 HTTP 接口。MCP 返回 keyword
+检索模式，不是语义索引。完整配置流程见 [远程路线选择](remote-access.md)。
 
 ```http
 GET /v1/sources/{slug}/text

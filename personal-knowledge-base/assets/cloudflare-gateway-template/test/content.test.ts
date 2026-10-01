@@ -42,6 +42,14 @@ describe("classifyRepositoryPath", () => {
 });
 
 describe("parseSourceFrontmatter", () => {
+  it("keeps top-level raw identity when detailed metadata has nested fields", () => {
+    const hash = "a".repeat(64);
+    const source = parseSourceFrontmatter(`---\ntitle: Actual title\nraw_file: raw/pdfs/paper.pdf\nraw_sha256: "${hash}"\nmetadata_evidence:\n  - fields: [title]\n    raw_file: raw/pdfs/other.pdf\nmetadata_conflicts:\n  - title: Another title\n---\n`);
+    expect(source).toMatchObject({ title: "Actual title", rawFile: "raw/pdfs/paper.pdf", rawSha256: hash });
+  });
+  it("rejects duplicate top-level identity instead of silently choosing one", () => {
+    expect(() => parseSourceFrontmatter(`---\ntitle: First\ntitle: Second\nraw_file: raw/pdfs/paper.pdf\nraw_sha256: "${"a".repeat(64)}"\n---\n`)).toThrow();
+  });
   it("extracts the raw path, hash, confidence and review date", () => {
     const markdown = `---
 title: 示例来源

@@ -1,3 +1,5 @@
+import { parse } from "yaml";
+
 export type ContentScope = "evidence" | "knowledge" | "context";
 export type RemoteAccess = "always" | "on-demand";
 
@@ -37,18 +39,6 @@ export function classifyRepositoryPath(path: string): ContentScope | null {
   return null;
 }
 
-function unquote(value: string): string {
-  const trimmed = value.trim();
-  if (
-    trimmed.length >= 2 &&
-    ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-      (trimmed.startsWith("'") && trimmed.endsWith("'")))
-  ) {
-    return trimmed.slice(1, -1);
-  }
-  return trimmed;
-}
-
 function parseFlatFrontmatter(markdown: string): Map<string, string> {
   const lines = markdown.replaceAll("\r\n", "\n").split("\n");
   if (lines[0] !== "---") throw new Error("invalid source frontmatter");
@@ -56,10 +46,10 @@ function parseFlatFrontmatter(markdown: string): Map<string, string> {
   if (end < 0) throw new Error("invalid source frontmatter");
 
   const values = new Map<string, string>();
-  for (const line of lines.slice(1, end)) {
-    const colon = line.indexOf(":");
-    if (colon <= 0) continue;
-    values.set(line.slice(0, colon).trim(), unquote(line.slice(colon + 1)));
+  const parsed: unknown = parse(lines.slice(1, end).join("\n"), { maxAliasCount: 30, uniqueKeys: true });
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("invalid source frontmatter");
+  for (const [key, value] of Object.entries(parsed)) {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") values.set(key, String(value));
   }
   return values;
 }

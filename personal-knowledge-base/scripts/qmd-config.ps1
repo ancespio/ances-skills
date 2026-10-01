@@ -17,6 +17,7 @@ if (-not (Test-Path -LiteralPath $configDir)) {
 
 $wikiPath = Join-Path $repoRoot 'wiki'
 $contextPath = Join-Path $repoRoot 'context'
+$literaturePath = Join-Path $repoRoot 'literature'
 $derivedPath = Join-Path $wikiPath 'derived'
 
 $config = @"
@@ -30,6 +31,13 @@ collections:
   context:
     path: $contextPath
     pattern: "**/*.md"
+  literature:
+    path: $literaturePath
+    pattern: "**/*.md"
+    ignore:
+      - "README.md"
+      - "templates/**"
+    includeByDefault: true
   derived:
     path: $derivedPath
     pattern: "**/*.md"
